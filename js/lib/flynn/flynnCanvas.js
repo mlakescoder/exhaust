@@ -116,6 +116,7 @@ var FlynnCanvas = Class.extend({
 					}
 
 					this.beginPath();
+					//this.lineWidth = "6"; // Fat lines for screenshot thumbnail generation
 					var pen_up = false;
 					for (var j=0, len2=p.length; j<len2; j+=2){
 						if(p[j]==FlynnPoints.PEN_UP){
