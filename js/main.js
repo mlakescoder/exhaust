@@ -3,9 +3,10 @@ var GameCanvasWidth = 768;
 
 var States = {
 	NO_CHANGE: 0,
-	MENU: 1,
-	GAME: 2,
-	END: 3
+	MENU:      1,
+	CONFIG:    2,
+	GAME:      3,
+	END:       4
 };
 
 var Game = Class.extend({
@@ -28,11 +29,13 @@ var Game = Class.extend({
 			function(state){
 				switch(state){
 					case States.MENU:
-						return new MenuState(self.mcp);
+						return new StateMenu(self.mcp);
 					case States.GAME:
-						return new GameState(self.mcp);
+						return new StateGame(self.mcp);
 					case States.END:
-						return new EndState(self.mcp);
+						return new StateEnd(self.mcp);
+					case States.CONFIG:
+						return new StateConfig(self.mcp);
 				}
 			}
 		);
@@ -49,21 +52,22 @@ var Game = Class.extend({
 
         
         // Setup inputs
-		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar']);
-		this.input.addVirtualButton('menu_proceed', FlynnKeyboardMap['enter']);
-		this.input.addVirtualButton('left', FlynnKeyboardMap['z']);
-		this.input.addVirtualButton('right', FlynnKeyboardMap['x']);
+		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
+		this.input.addVirtualButton('menu_proceed', FlynnKeyboardMap['enter'], FlynnNotConfigurable);
+		this.input.addVirtualButton('left', FlynnKeyboardMap['z'], FlynnConfigurable);
+		this.input.addVirtualButton('right', FlynnKeyboardMap['x'], FlynnConfigurable);
+		this.input.addVirtualButton('config', FlynnKeyboardMap['escape'], FlynnNotConfigurable);
 		if(developerModeEnabled){
-			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6']);
-			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7']);
-			this.input.addVirtualButton('dev_add_points', FlynnKeyboardMap['8']);
-			this.input.addVirtualButton('dev_die', FlynnKeyboardMap['9']);
-			this.input.addVirtualButton('dev_rescue', FlynnKeyboardMap['0']);
-			this.input.addVirtualButton('dev_base', FlynnKeyboardMap['-']);
+			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_add_points', FlynnKeyboardMap['8'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_die', FlynnKeyboardMap['9'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_rescue', FlynnKeyboardMap['0'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_base', FlynnKeyboardMap['-'], FlynnNotConfigurable);
 		}
 		if(this.mcp.arcadeModeEnabled){
-			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5']);
-			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1']);
+			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5'], FlynnConfigurable);
+			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1'], FlynnConfigurable);
 		}
 
 		// Scores

@@ -1,10 +1,11 @@
-/**
- * EndState class, called when game is over
- */
+//--------------------------------------------
+// StateEnd class
+//    End of game screens (high score entry/table)
+//--------------------------------------------
 
 var CursorBlinkRate = 2;
 
-var EndState = FlynnState.extend({
+var StateEnd = FlynnState.extend({
 
 	/**
 	 * Constructor

@@ -1,4 +1,9 @@
-var MenuState = FlynnState.extend({
+//--------------------------------------------
+// StateMenu class
+//    Startup screen
+//--------------------------------------------
+
+var StateMenu = FlynnState.extend({
 
 	init: function(mcp){
 		this._super(mcp);
@@ -44,6 +49,10 @@ var MenuState = FlynnState.extend({
 			this.mcp.nextState = States.GAME;
 			this.start_sound.play();
 		}
+
+        if (input.virtualButtonIsPressed("config")) {
+            this.mcp.nextState = States.CONFIG;
+        }
 	},
 
 	update: function(paceFactor) {

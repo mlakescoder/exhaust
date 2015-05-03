@@ -1,3 +1,8 @@
+//--------------------------------------------
+// StateGame class
+//    Core gameplay
+//--------------------------------------------
+
 var Gravity = 0.06;
 var AtmosphericFriction = 0.005;
 
@@ -70,7 +75,7 @@ var PointsPickUpHuman = 100;
 var PointsSaucer = 10;
 
 
-var GameState = FlynnState.extend({
+var StateGame = FlynnState.extend({
 
 	init: function(mcp) {
 		this._super(mcp);

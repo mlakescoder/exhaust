@@ -1,3 +1,6 @@
+var FlynnConfigurable = true;
+var FlynnNotConfigurable = false;
+
 var FlynnTouchRegion = Class.extend({
 	init: function(name, left, top, right, bottom) {
 		this.name = name;
@@ -11,9 +14,10 @@ var FlynnTouchRegion = Class.extend({
 });
 
 var FlynnVirtualButton = Class.extend({
-	init: function(name) {
+	init: function(name, isConfigurable) {
 		this.name = name;
-		
+		this.isConfigurable = isConfigurable;
+
 		this.isDown = false;
 		this.pressWasReported = false;
 		this.boundKeyCode = null; // The ascii code of the bound key.  Can be null if no key bound.
@@ -30,6 +34,7 @@ var FlynnInputHandler = Class.extend({
 
 		var self = this;
 		document.addEventListener("keydown", function(evt) {
+			//console.log("Key Code:" + evt.keyCode); 
 			if (self.keyCodeToVirtualButtonName[evt.keyCode]){
 				var name = self.keyCodeToVirtualButtonName[evt.keyCode];
 				self.virtualButtons[name].isDown = true;
@@ -95,14 +100,14 @@ var FlynnInputHandler = Class.extend({
 		}
 	},
 
-	addVirtualButton: function(name, keyCode){
+	addVirtualButton: function(name, keyCode, isConfigurable){
 		if (this.virtualButtons[name]){
 			console.log(
 				'Flynn: Warning: addVirtualButton() was called for virtual button  "' + name +
 				'" but that virtual button already exists. The old virtual button will be removed first.');
 			delete(this.virtualButtons[name]);
 		}
-		this.virtualButtons[name] = new FlynnVirtualButton(name);
+		this.virtualButtons[name] = new FlynnVirtualButton(name, isConfigurable);
 		this.bindVirtualButtonToKey(name, keyCode);
 	},
 
@@ -130,6 +135,16 @@ var FlynnInputHandler = Class.extend({
 		}
 	},
 
+	getConfigurableVirtualButtonNames: function(){
+		names = [];
+		for (var name in this.virtualButtons){
+			if(this.virtualButtons[name].isConfigurable){
+				names.push(name);
+			}
+		}
+		return names;
+	},
+
 	unbindVirtualButtonFromKey: function(name){
 		if (this.virtualButtons[name]){
 			// Remove binding from keyCodeToVirtualButtonName
@@ -146,6 +161,8 @@ var FlynnInputHandler = Class.extend({
 				'", but that virtual button does not exist. Doing nothing.');
 		}
 	},
+
+
 
 	addTouchRegion: function(name, left, top, right, bottom){
 		// The 'name' must match a virtual button for touches to be reported.
