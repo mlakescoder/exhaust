@@ -20,28 +20,25 @@ var MenuState = FlynnState.extend({
 	handleInputs: function(input) {
 		// Metrics toggle
         if(this.mcp.developerModeEnabled) {
-            if (input.isPressed("six")) {
+            if (input.virtualButtonIsPressed("dev_metrics")) {
                 this.mcp.canvas.showMetrics = !this.mcp.canvas.showMetrics;
             }
             
             // Slow Mo Debug toggle
-            if (input.isPressed("seven")){
+            if (input.virtualButtonIsPressed("dev_slow_mo")){
                 this.mcp.slowMoDebug = !this.mcp.slowMoDebug;
             }
         }
         if(this.mcp.arcadeModeEnabled) {
-            if (input.isPressed("five")) {
+            if (input.virtualButtonIsPressed("five")) {
                 this.mcp.credits += 1;
                 this.insert_coin_sound.play();
             }
         }
 
-		if (  ( input.isPressed("enter") && !this.mcp.arcadeModeEnabled) ||
-            ( input.isPressed("one")      &&  this.mcp.arcadeModeEnabled && this.mcp.credits > 0) ||
-            input.isPressed("touchThrust") ||
-            input.isPressed("touchLeft") ||
-            input.isPressed("touchLeft")
-            )
+		if (  ( !this.mcp.arcadeModeEnabled && input.virtualButtonIsPressed("menu_proceed")) ||
+            ( this.mcp.arcadeModeEnabled && (this.mcp.credits > 0) && input.virtualButtonIsPressed("start_1")))
+            // TODO: Add touch support for menu_proceed here. Need overlapping touch region support to do that.
         {
             this.mcp.credits -= 1;
 			this.mcp.nextState = States.GAME;
@@ -72,7 +69,7 @@ var MenuState = FlynnState.extend({
             ctx.vectorText("EXHAUST", 10,  x_pos + 3, y_pos +3, null, FlynnColors.RED);
         }
 
-        ctx.vectorText("VERSION 1.1", 1.5, null, 140, null, FlynnColors.ORANGE);
+        ctx.vectorText("VERSION 1.2", 1.5, null, 140, null, FlynnColors.ORANGE);
 
         var startText;
         var controlsText;

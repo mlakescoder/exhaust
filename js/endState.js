@@ -37,12 +37,12 @@ var EndState = FlynnState.extend({
 	 */
 	handleInputs: function(input) {
 		if (this.hasEnteredName) {
-			if (input.isPressed("spacebar")) {
+			if (input.virtualButtonIsPressed("menu_proceed")) {
 				// change the game state
 				this.mcp.nextState = States.MENU;
 			}
 		} else {
-			if (input.isPressed("enter")) {
+			if (input.virtualButtonIsPressed("menu_proceed")) {
 				// take sate to next stage
 				this.hasEnteredName = true;
 				this.namefield.blur();
@@ -95,7 +95,7 @@ var EndState = FlynnState.extend({
 				ctx.vectorText(hs[0], 2, 390, 200+25*i);
 				ctx.vectorText(hs[1], 2, 520, 200+25*i, 10);
 			}
-			ctx.vectorText("press space to continue", 1, null, 450);
+			ctx.vectorText("PRESS ENTER TO CONTINUE", 1, null, 450);
 
 		} else {
 

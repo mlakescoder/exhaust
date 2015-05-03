@@ -15,38 +15,13 @@ var Game = Class.extend({
 
 		var self = this;
 
-		this.input = new FlynnInputHandler({
-			//left:		37,
-			//up:       38,
-			//right:	39,
-			//down:		40,
-			spacebar:	32,
-			enter:		13,
-			//a:		65,
-			//s:        83,
-			//d:        68,
-            //q:        81,
-			//w:        87,
-			x:          88,
-			z:          90,
-			one:        49,  // ARCADE    Mode: Start
-			//two:      50,
-			//three:    51,
-			//four:     52,
-			five:       53,  // ARCADE    Mode: Quarters
-            six:        54,  // DEVELOPER Mode: Toggle metrics display
-            seven:      55,  // DEVELOPER Mode: Toggle slow motion
-            eight:      56,  // DEVELOPER Mode: Add points
-            nine:       57,  // DEVELOPER Mode: Die
-            zero:       48,  // DEVELOPER Mode: Jump to rescue pad
-            dash:       189, // DEVELOPER Mode: Jump to base pad
-		});
-
         // Detect developer mode from URL arguments ("?develop=true")
         var developerModeEnabled = false;
         if(flynnGetUrlValue("develop")=='true'){
             developerModeEnabled = true;
         }
+        
+        this.input = new FlynnInputHandler();
 
 		this.mcp = new FlynnMcp(GameCanvasHeight, GameCanvasWidth, this.input, States.NO_CHANGE, developerModeEnabled);
 		this.mcp.setStateBuilderFunc(
@@ -72,6 +47,25 @@ var Game = Class.extend({
             this.mcp.arcadeModeEnabled = false;
         }
 
+        
+        // Setup inputs
+		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar']);
+		this.input.addVirtualButton('menu_proceed', FlynnKeyboardMap['enter']);
+		this.input.addVirtualButton('left', FlynnKeyboardMap['z']);
+		this.input.addVirtualButton('right', FlynnKeyboardMap['x']);
+		if(developerModeEnabled){
+			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6']);
+			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7']);
+			this.input.addVirtualButton('dev_add_points', FlynnKeyboardMap['8']);
+			this.input.addVirtualButton('dev_die', FlynnKeyboardMap['9']);
+			this.input.addVirtualButton('dev_rescue', FlynnKeyboardMap['0']);
+			this.input.addVirtualButton('dev_base', FlynnKeyboardMap['-']);
+		}
+		if(this.mcp.arcadeModeEnabled){
+			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5']);
+			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1']);
+		}
+
 		// Scores
 		this.mcp.highscores = [
 			["FIENDFODDER", 2000],
@@ -86,9 +80,10 @@ var Game = Class.extend({
 		
 		// Set resize handler and force a resize
 		this.mcp.setResizeFunc( function(width, height){
-			self.input.addTouchRegion("touchLeft",0,0,width/4,height); // Left quarter
-			self.input.addTouchRegion("touchRight",width/4+1,0,width/2,height); // Left second quarter
-			self.input.addTouchRegion("touchThrust",width/2+1,0,width,height); // Right half
+			self.input.addTouchRegion("left",0,0,width/4,height); // Left quarter
+			self.input.addTouchRegion("right",width/4+1,0,width/2,height); // Left second quarter
+			self.input.addTouchRegion("thrust",width/2+1,0,width,height); // Right half
+			self.input.addTouchRegion("menu_proceed",0,0,width,height); // Whole screen
 		});
 		this.mcp.resize();
 	},

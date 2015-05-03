@@ -370,27 +370,27 @@ var GameState = FlynnState.extend({
 
 		if(this.mcp.developerModeEnabled){
 			// Metrics toggle
-			if (input.isPressed("six")){
+			if (input.virtualButtonIsPressed("dev_metrics")){
 				this.mcp.canvas.showMetrics = !this.mcp.canvas.showMetrics;
 			}
 
 			// Slow Mo Debug toggle
-			if (input.isPressed("seven")){
+			if (input.virtualButtonIsPressed("dev_slow_mo")){
 				this.mcp.slowMoDebug = !this.mcp.slowMoDebug;
 			}
 
 			// Points
-			if (input.isPressed("eight")){
+			if (input.virtualButtonIsPressed("dev_add_points")){
 				this.addPoints(100);
 			}
 
 			// Die
-			if (input.isPressed("nine")){
+			if (input.virtualButtonIsPressed("dev_die")){
 				this.doShipDie();
 			}
 
 			// Jump to rescue Pad
-			if (input.isPressed("zero")){
+			if (input.virtualButtonIsPressed("dev_rescue")){
 				this.ship.world_x = this.pads[0].world_x;
 				this.ship.world_y = this.pads[0].world_y - 40;
 				this.ship.vel.x = 0;
@@ -401,7 +401,7 @@ var GameState = FlynnState.extend({
 			}
 
 			// Jump to base Pad
-			if (input.isPressed("dash")){
+			if (input.virtualButtonIsPressed("dev_base")){
 				this.ship.world_x = this.pads[1].world_x;
 				this.ship.world_y = this.pads[1].world_y - 40;
 				this.ship.vel.x = 0;
@@ -414,7 +414,7 @@ var GameState = FlynnState.extend({
 		}
 		
 		if(!this.ship.visible){
-			if (input.isPressed("spacebar") || input.isPressed("touchThrust")){
+			if (input.virtualButtonIsPressed("thrust")){
 				if (this.gameOver){
 					if(this.mcp.browserSupportsTouch){
 						// On touch devices just update high score and go back to menu
@@ -431,14 +431,14 @@ var GameState = FlynnState.extend({
 			return;
 		}
 
-		if (input.isDown("z") || input.isDown("touchLeft")){
+		if (input.virtualButtonIsDown("left")){
 			this.ship.rotate_by(-ShipRotationSpeed);
 		}
-		if (input.isDown("x") || input.isDown("touchRight")){
+		if (input.virtualButtonIsDown("right")){
 			this.ship.rotate_by(ShipRotationSpeed);
 		}
 
-		if (input.isDown("spacebar") || input.isDown("touchThrust")){
+		if (input.virtualButtonIsDown("thrust")){
 			this.thrustHasOccurred = true;
 			this.popUpThrustPending = false;
 			this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * ShipThrust;
@@ -502,7 +502,7 @@ var GameState = FlynnState.extend({
 						var landing_vel = this.ship.vel.y;
 						var lateral_vel_abs = Math.abs(this.ship.vel.x);
 						var landing_angle = flynnUtilAngleBound2Pi(this.ship.angle);
-						if (landing_vel > 0.3){
+						if (landing_vel > 0.3 && this.mcp.developerModeEnabled){
 							console.log("Landing velocity:", landing_vel);
 							console.log("Landing angle:", landing_angle);
 						}
