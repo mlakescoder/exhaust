@@ -41,7 +41,7 @@ var StateMenu = FlynnState.extend({
             }
         }
 
-		if (  ( !this.mcp.arcadeModeEnabled && input.virtualButtonIsPressed("menu_proceed")) ||
+		if (  ( !this.mcp.arcadeModeEnabled && input.virtualButtonIsPressed("enter")) ||
             ( this.mcp.arcadeModeEnabled && (this.mcp.credits > 0) && input.virtualButtonIsPressed("start_1")))
             // TODO: Add touch support for menu_proceed here. Need overlapping touch region support to do that.
         {

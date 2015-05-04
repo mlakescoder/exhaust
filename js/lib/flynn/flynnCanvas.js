@@ -1,11 +1,7 @@
 var FlynnMaxPaceRecoveryTicks = 5; // Max elapsed 60Hz frames to apply pacing (beyond this, just jank)
 
-var FlynnTextWidth = 4;
-var FlynnTextHeight = 6;
-var FlynnTextCenterOffsetX = FlynnTextWidth/2;
-var FlynnTextCenterOffsetY = FlynnTextHeight/2;
-var FlynnTextGap = 2;
-var FlynnTextSpacing = FlynnTextWidth + FlynnTextGap;
+var FlynnTextCenterOffsetX = FlynnCharacterWidth/2;
+var FlynnTextCenterOffsetY = FlynnCharacterHeight/2;
 
 var FlynnCanvas = Class.extend({
 
@@ -81,7 +77,7 @@ var FlynnCanvas = Class.extend({
 				}
 
 				text = text.toString().toUpperCase();
-				var step = scale*FlynnTextSpacing;
+				var step = scale*FlynnCharacterSpacing;
 
 				// add offset if specified
 				if (typeof offset === "number") {
@@ -150,13 +146,13 @@ var FlynnCanvas = Class.extend({
 				}
 
 				text = text.toString().toUpperCase();
-				var step = scale*FlynnTextSpacing;
+				var step = scale*FlynnCharacterSpacing;
 
 				center_x += 0.5;
 				center_y += 0.5;
 
 				var render_angle = angle;
-				var render_angle_step = Math.asin(FlynnTextSpacing*scale/radius);
+				var render_angle_step = Math.asin(FlynnCharacterSpacing*scale/radius);
 				var renderAngleOffset = 0;
 				if (isCentered){
 					renderAngleOffset = render_angle_step * (text.length / 2 - 0.5);

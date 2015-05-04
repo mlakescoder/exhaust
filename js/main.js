@@ -53,10 +53,12 @@ var Game = Class.extend({
         
         // Setup inputs
 		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
-		this.input.addVirtualButton('menu_proceed', FlynnKeyboardMap['enter'], FlynnNotConfigurable);
-		this.input.addVirtualButton('left', FlynnKeyboardMap['z'], FlynnConfigurable);
-		this.input.addVirtualButton('right', FlynnKeyboardMap['x'], FlynnConfigurable);
+		this.input.addVirtualButton('enter', FlynnKeyboardMap['enter'], FlynnNotConfigurable);
+		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
+		this.input.addVirtualButton('rotate right', FlynnKeyboardMap['x'], FlynnConfigurable);
 		this.input.addVirtualButton('config', FlynnKeyboardMap['escape'], FlynnNotConfigurable);
+		this.input.addVirtualButton('up', FlynnKeyboardMap['up'], FlynnNotConfigurable);
+		this.input.addVirtualButton('down', FlynnKeyboardMap['down'], FlynnNotConfigurable);
 		if(developerModeEnabled){
 			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7'], FlynnNotConfigurable);
@@ -87,7 +89,7 @@ var Game = Class.extend({
 			self.input.addTouchRegion("left",0,0,width/4,height); // Left quarter
 			self.input.addTouchRegion("right",width/4+1,0,width/2,height); // Left second quarter
 			self.input.addTouchRegion("thrust",width/2+1,0,width,height); // Right half
-			self.input.addTouchRegion("menu_proceed",0,0,width,height); // Whole screen
+			self.input.addTouchRegion("enter",0,0,width,height); // Whole screen
 		});
 		this.mcp.resize();
 	},

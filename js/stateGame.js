@@ -436,10 +436,10 @@ var StateGame = FlynnState.extend({
 			return;
 		}
 
-		if (input.virtualButtonIsDown("left")){
+		if (input.virtualButtonIsDown("rotate left")){
 			this.ship.rotate_by(-ShipRotationSpeed);
 		}
-		if (input.virtualButtonIsDown("right")){
+		if (input.virtualButtonIsDown("rotate right")){
 			this.ship.rotate_by(ShipRotationSpeed);
 		}
 

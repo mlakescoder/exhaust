@@ -32,12 +32,22 @@ var FlynnInputHandler = Class.extend({
 		this.touchRegions = {};
 		this.keyCodeToVirtualButtonName = {};
 
+		// Key Code capture support for user configuration of key assignments
+		this.keyCodeCaptureArmed = false;
+		this.capturedKeyCode = null;
+
 		var self = this;
 		document.addEventListener("keydown", function(evt) {
 			//console.log("Key Code:" + evt.keyCode); 
 			if (self.keyCodeToVirtualButtonName[evt.keyCode]){
 				var name = self.keyCodeToVirtualButtonName[evt.keyCode];
 				self.virtualButtons[name].isDown = true;
+			}
+
+			// Capture key codes (for user configuration of virualButtons)
+			if(self.keyCodeCaptureArmed){
+				self.capturedKeyCode = evt.keyCode;
+				self.keyCodeCaptureArmed = false;
 			}
 		});
 		document.addEventListener("keyup", function(evt) {
@@ -145,6 +155,30 @@ var FlynnInputHandler = Class.extend({
 		return names;
 	},
 
+	getVirtualButtonBoundKeyName: function(name){
+		if(this.virtualButtons[name]){
+			var boundKeyCode = this.virtualButtons[name].boundKeyCode;
+			var boundKeyName = this.keyCodeToKeyName(boundKeyCode);
+			return(boundKeyName);
+		}
+		else{
+			// Button does not exist
+			console.log(
+				'Flynn: Warning: getVirtualButtonBoundKeyName() was called for virtual button  "' + name +
+				'", but that virtual button does not exist.');
+			return("ERROR");
+		}
+	},
+
+	keyCodeToKeyName: function(keyCode){
+		for(var keyName in FlynnKeyboardMap){
+			if(FlynnKeyboardMap[keyName]===keyCode){
+				return keyName;
+			}
+		}
+		return("(Unknown)");
+	},
+
 	unbindVirtualButtonFromKey: function(name){
 		if (this.virtualButtons[name]){
 			// Remove binding from keyCodeToVirtualButtonName
@@ -161,8 +195,6 @@ var FlynnInputHandler = Class.extend({
 				'", but that virtual button does not exist. Doing nothing.');
 		}
 	},
-
-
 
 	addTouchRegion: function(name, left, top, right, bottom){
 		// The 'name' must match a virtual button for touches to be reported.
@@ -209,5 +241,24 @@ var FlynnInputHandler = Class.extend({
 			console.log('Flynn: Warning: isDown() was called for virtual button  "' + name +
 				'" but no virtual button with that name exists.');
 		}
-	}
+	},
+
+	armKeyCodeCapture: function() {
+		this.keyCodeCaptureArmed = true;
+		this.capturedKeyCode = null;
+	},
+
+	getCapturedKeyCode: function() {
+		return (this.capturedKeyCode);
+	},
+
+	isKeyCodeAssigned: function(keyCode){
+		for(var name in this.virtualButtons){
+			if(this.virtualButtons[name].boundKeyCode == keyCode){
+				return true;
+			}
+		}
+		return false;
+	},
+
 });

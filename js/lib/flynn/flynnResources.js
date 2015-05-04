@@ -103,6 +103,10 @@ var FlynnKeyboardMap = {
 //------------
 var FlynnUnimplementedChar = [0,6,0,0,4,0,4,6,0,6,4,0,4,6,0,0,0,6];
 var FlynnPenUp = 9999;
+var FlynnCharacterHeight = 6;
+var FlynnCharacterWidth = 4;
+var FlynnCharacterGap = 2;
+var FlynnCharacterSpacing = FlynnCharacterWidth + FlynnCharacterGap;
 var FlynnPoints = {
 	UNIMPLEMENTED_CHAR: FlynnUnimplementedChar,
 	PEN_UP: FlynnPenUp,
