@@ -92,8 +92,14 @@ var StateMenu = FlynnState.extend({
         // }
         // else {
             if (!this.mcp.browserSupportsTouch) {
-                startText = "PUSH ENTER TO START";
-                controlsText = "ROTATE LEFT:Z       ROTATE RIGHT:X        THRUST:SPACE";
+                startText = "PRESS ENTER TO START";
+                controlsText =
+                    "ROTATE LEFT:" +
+                    this.mcp.input.getVirtualButtonBoundKeyName("rotate left") +
+                    "      ROTATE RIGHT:" +
+                    this.mcp.input.getVirtualButtonBoundKeyName("rotate right") +
+                    "      THRUST:" +
+                    this.mcp.input.getVirtualButtonBoundKeyName("thrust");
                 this.mcp.custom.thrustPrompt = "PRESS SPACE TO THRUST";
             }
             else{

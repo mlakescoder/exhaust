@@ -37,9 +37,17 @@ var StateConfig = FlynnState.extend({
 					input.bindVirtualButtonToKey(this.configurableVirtualButtonNames[this.selectedLineIndex], capturedKeyCode);
 					this.keyAssignmentInProgress = false;
 				} else{
-					// The chosen keyCode is not availble. Keep waiting for a valid key.
-					input.armKeyCodeCapture();
-					console.log("that key is in use");
+					var currentVirtualButtonName = this.configurableVirtualButtonNames[this.selectedLineIndex];
+					currentlyAssignedKeyCode = input.getVirtualButtonBoundKeyCode(currentVirtualButtonName);
+					if (currentlyAssignedKeyCode === capturedKeyCode){
+						// User pressed the key which was already assigned.  Do nothing.
+						this.keyAssignmentInProgress = false;
+					} else{
+						// The chosen keyCode is not availble. Keep waiting for a valid key.
+						input.armKeyCodeCapture();
+						// TODO: Prompt user that key is in use.
+						console.log("that key is in use");
+					}
 				}
 			}
 

@@ -52,10 +52,11 @@ var Game = Class.extend({
 
         
         // Setup inputs
-		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
-		this.input.addVirtualButton('enter', FlynnKeyboardMap['enter'], FlynnNotConfigurable);
 		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
 		this.input.addVirtualButton('rotate right', FlynnKeyboardMap['x'], FlynnConfigurable);
+		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
+
+		this.input.addVirtualButton('enter', FlynnKeyboardMap['enter'], FlynnNotConfigurable);
 		this.input.addVirtualButton('config', FlynnKeyboardMap['escape'], FlynnNotConfigurable);
 		this.input.addVirtualButton('up', FlynnKeyboardMap['up'], FlynnNotConfigurable);
 		this.input.addVirtualButton('down', FlynnKeyboardMap['down'], FlynnNotConfigurable);

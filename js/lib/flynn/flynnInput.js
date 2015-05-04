@@ -170,6 +170,19 @@ var FlynnInputHandler = Class.extend({
 		}
 	},
 
+	getVirtualButtonBoundKeyCode: function(name){
+		if(this.virtualButtons[name]){
+			return(this.virtualButtons[name].boundKeyCode);
+		}
+		else{
+			// Button does not exist
+			console.log(
+				'Flynn: Warning: getVirtualButtonBoundKeyCode() was called for virtual button  "' + name +
+				'", but that virtual button does not exist. Returning null.');
+			return(null);
+		}
+	},
+
 	keyCodeToKeyName: function(keyCode){
 		for(var keyName in FlynnKeyboardMap){
 			if(FlynnKeyboardMap[keyName]===keyCode){
