@@ -96,7 +96,7 @@ var StateEnd = FlynnState.extend({
 				ctx.vectorText(hs[0], 2, 390, 200+25*i);
 				ctx.vectorText(hs[1], 2, 520, 200+25*i, 10);
 			}
-			ctx.vectorText("PRESS ENTER TO CONTINUE", 1, null, 450);
+			ctx.vectorText("PRESS <ENTER> TO CONTINUE", 1, null, 450);
 
 		} else {
 

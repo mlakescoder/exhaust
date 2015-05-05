@@ -92,7 +92,7 @@ var StateMenu = FlynnState.extend({
         // }
         // else {
             if (!this.mcp.browserSupportsTouch) {
-                startText = "PRESS ENTER TO START";
+                startText = "PRESS <ENTER> TO START";
                 controlsText =
                     "ROTATE LEFT:" +
                     this.mcp.input.getVirtualButtonBoundKeyName("rotate left") +
@@ -128,6 +128,7 @@ var StateMenu = FlynnState.extend({
         ctx.vectorText("EXCEPT MAYBE....", 1.8, null, 520, null, FlynnColors.ORANGE);
 
 		ctx.vectorText("WRITTEN BY ERIC MOYER (FIENDFODDER) FOR LUDAM DARE #32", 1.5, null, 700, null, FlynnColors.ORANGE);
+        ctx.vectorText('PRESS <ESCAPE> TO CONFIGURE CONTROLS', 1.5, null, 715, null, FlynnColors.ORANGE);
 
 
 	}

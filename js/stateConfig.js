@@ -102,15 +102,15 @@ var StateConfig = FlynnState.extend({
 	render: function(ctx) {
         ctx.clearAll();
 
-        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 40, null, FlynnColors.ORANGE);
+        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 100, null, FlynnColors.ORANGE);
 
         var line_spacing = 15;
         var line_y = 160;
-        ctx.vectorText("PRESS UP/DOWN TO SELECT A CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <UP>/<DOWN> TO SELECT A CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
         line_y += line_spacing;
-        ctx.vectorText("PRESS ENTER TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <ENTER> TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
         line_y += line_spacing;
-        ctx.vectorText("PRESS ESCAPE TO EXIT/CANCEL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <ESCAPE> TO EXIT/CANCEL", 1.5, null, line_y, null, FlynnColors.ORANGE);
 
         var names = this.configurableVirtualButtonNames;
         

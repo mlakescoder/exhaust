@@ -26,7 +26,7 @@ var ShipRespawnAnimationTicks = 60 * 1.8;
 var ShipRespawnDelayTicks = 60 * 3;
 
 var SaucerSpawnProbabiliy = 0.01;
-var SaucerScale = 4;
+var SaucerScale = 3;
 var SaucersMax = 15;
 
 var PopUpTextLife = 3 * 60;
@@ -60,6 +60,7 @@ var BaseBuildingDistanceFromBaseEdge = 290;
 var BaseBuildingScale = 4;
 var BaseDoorScale = 3.5;
 
+var InfoPanelHeight = 90;
 var RadarMargin = 350;
 var RadarTopMargin = 3;
 
@@ -180,7 +181,7 @@ var StateGame = FlynnState.extend({
 		this.stars = [];
 		for (var i=0; i<NumStars; i++){
 			this.stars.push(Math.random() * WorldWidth);
-			this.stars.push(Math.random() * WorldHeight - MountainHeightMax);
+			this.stars.push(Math.random() * (WorldHeight - MountainHeightMax))	;
 		}
 
 		//---------------------
@@ -712,9 +713,9 @@ var StateGame = FlynnState.extend({
 		var slew = flynnMinMaxBound(target_viewport_x - this.viewport_x, -ViewportSlewMax, ViewportSlewMax);
 		this.viewport_x += slew;
 
-		var target_viewport_y = goal_y - this.canvasHeight/2;
-		if (target_viewport_y < 0){
-			target_viewport_y = 0;
+		var target_viewport_y = goal_y - (this.canvasHeight-InfoPanelHeight)/2 - InfoPanelHeight;
+		if (target_viewport_y < 0 - InfoPanelHeight){
+			target_viewport_y = 0 - InfoPanelHeight;
 		}
 		else if (target_viewport_y> WorldHeight - this.canvasHeight){
 			target_viewport_y = WorldHeight - this.canvasHeight;
@@ -727,19 +728,6 @@ var StateGame = FlynnState.extend({
 	render: function(ctx){
 		ctx.clearAll();
 
-		// Scores
-		ctx.vectorText(this.score, 3, 15, 15, null, FlynnColors.GREEN);
-		ctx.vectorText(this.highscore, 3, this.canvasWidth - 6	, 15, 0 , FlynnColors.GREEN);
-
-		// Extra Lives
-		for(var i=0; i<this.lives; i++){
-			ctx.drawPolygon(this.lifepolygon, 20+20*i, 55);
-		}
-
-		if(this.ship.human_on_board){
-			ctx.vectorText("PASSENGER", 1, 15, 70, null, FlynnColors.WHITE);
-		}
-
 		// PopUp Text
 		// if(this.popUpLife > 0){
 		// 	   ctx.vectorText();
@@ -751,7 +739,7 @@ var StateGame = FlynnState.extend({
 		// Game Over
 		if(this.gameOver){
 			ctx.vectorText("Game Over", 6, null, 200, null, FlynnColors.ORANGE);
-			ctx.vectorText("PRESS ENTER", 2, null, 250, null, FlynnColors.ORANGE);
+			ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, FlynnColors.ORANGE);
 		}
 
 		// Ship respawn animation
@@ -822,6 +810,31 @@ var StateGame = FlynnState.extend({
 			this.saucers[i].draw(ctx, this.viewport_x, this.viewport_y);
 		}
 
+		//------------
+		// Info Panel
+		//------------
+
+		// Clear panel area
+		ctx.fillStyle=FlynnColors.BLACK;
+		ctx.fillRect(0, 0, this.canvasWidth, InfoPanelHeight);
+		ctx.strokeStyle=FlynnColors.WHITE;
+		ctx.beginPath();
+		ctx.moveTo(0, InfoPanelHeight + 0.5);
+		ctx.lineTo(this.canvasWidth, InfoPanelHeight + 0.5);
+		ctx.stroke();
+
+		// Scores
+		ctx.vectorText(this.score, 3, 15, 15, null, FlynnColors.GREEN);
+		ctx.vectorText(this.highscore, 3, this.canvasWidth - 6	, 15, 0 , FlynnColors.GREEN);
+
+		// Extra Lives
+		for(var i=0; i<this.lives; i++){
+			ctx.drawPolygon(this.lifepolygon, 20+20*i, 55);
+		}
+
+		if(this.ship.human_on_board){
+			ctx.vectorText("PASSENGER", 1, 15, 70, null, FlynnColors.WHITE);
+		}
 
 		//------------
 		// Radar
