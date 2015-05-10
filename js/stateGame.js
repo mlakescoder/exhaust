@@ -25,9 +25,14 @@ var ShipRespawnDelayGameStartTicks = 60 * 1.25; // Respawn delay at inital start
 var ShipRespawnAnimationTicks = 60 * 1.8;
 var ShipRespawnDelayTicks = 60 * 3;
 
-var SaucerSpawnProbabiliy = 0.01;
+var SaucerSpawnProbabiliy = 0.03;
 var SaucerScale = 3;
 var SaucersMax = 15;
+var SaucerShootProbability = 0.05;
+var SaucerShootVelocity = 4.0;
+var SaucerShootLife = 60 * 4;
+var SaucerCannonOffset = -2 * SaucerScale;
+var SaucerShootRange = 1000;
 
 var PopUpTextLife = 3 * 60;
 var PopUpThrustPromptTime = 4 * 60; //2 * 60;
@@ -114,6 +119,7 @@ var StateGame = FlynnState.extend({
 		this.tangent = [];  // Tangnt   of every world column (x location)
 
 		this.particles = new Particles(this);
+		this.projectiles = new FlynnProjectiles();
 		this.pads = [];
 		this.structures = [];
 		this.humans = [];
@@ -586,6 +592,10 @@ var StateGame = FlynnState.extend({
 			}
 		}
 
+		//-------------------
+		// Saucers
+		//-------------------
+
 		// Spawn saucers
 		if ((Math.random() < SaucerSpawnProbabiliy && this.saucers.length < SaucersMax) ||
 			(this.saucers.length < 1)) {
@@ -598,18 +608,43 @@ var StateGame = FlynnState.extend({
 				));
 		}
 
-		// // Update bullets
-		// for (i=0, len=this.bullets.length; i < len; i++){
-		// 	b = this.bullets[i];
-		// 	b.update(paceFactor);
+		// Saucer shoot
+		if(this.ship.visible){
+			for (i=0, len=this.saucers.length; i<len; i++){
+				if(Math.random() < SaucerShootProbability){
+					var ship_pos_v = new Victor(this.ship.world_x, this.ship.world_y);
+					var saucer_pos_v = new Victor(this.saucers[i].world_x, this.saucers[i].world_y);
+					distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
 
-		// 	if(b.shallRemove) {
-		// 		this.bullets.splice(i, 1);
-		// 		len--;
-		// 		i--;
-		// 	}
-		// }
+					// If ship within firing range
+					if (distance < SaucerShootRange){
+						var solution = flynnInterceptSolution(
+							new Victor(this.ship.world_x, this.ship.world_y),
+							new Victor(this.ship.vel.x, this.ship.vel.y),
+							new Victor(this.saucers[i].world_x, this.saucers[i].world_y + SaucerCannonOffset),
+							SaucerShootVelocity
+							);
 
+						// If firing solution results in an upward projectile velocity
+						if (solution.velocity_v.y < 0){
+							this.projectiles.add(
+								this.saucers[i].world_x,
+								this.saucers[i].world_y + SaucerCannonOffset,
+								solution.velocity_v.x,
+								solution.velocity_v.y,
+								SaucerShootLife,
+								FlynnColors.YELLOW
+								);
+						}
+					}
+				}
+			}
+		}
+
+		//-------------------
+		// Projectiles
+		//-------------------
+		this.projectiles.update(paceFactor);
 
 		//-------------------
 		// PopUps
@@ -809,6 +844,9 @@ var StateGame = FlynnState.extend({
 		for(i=0, len=this.saucers.length; i<len; i+=1){
 			this.saucers[i].draw(ctx, this.viewport_x, this.viewport_y);
 		}
+
+		// Projectiles
+		this.projectiles.draw(ctx, this.viewport_x, this.viewport_y);
 
 		//------------
 		// Info Panel

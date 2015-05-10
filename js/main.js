@@ -1,5 +1,5 @@
-var GameCanvasHeight = 1024;
-var GameCanvasWidth = 768;
+var GameCanvasHeight = 768;
+var GameCanvasWidth = 1024;
 
 var States = {
 	NO_CHANGE: 0,
@@ -24,7 +24,7 @@ var Game = Class.extend({
         
         this.input = new FlynnInputHandler();
 
-		this.mcp = new FlynnMcp(GameCanvasHeight, GameCanvasWidth, this.input, States.NO_CHANGE, developerModeEnabled);
+		this.mcp = new FlynnMcp(GameCanvasWidth, GameCanvasHeight, this.input, States.NO_CHANGE, developerModeEnabled);
 		this.mcp.setStateBuilderFunc(
 			function(state){
 				switch(state){
