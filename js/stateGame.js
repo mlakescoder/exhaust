@@ -278,15 +278,6 @@ var StateGame = FlynnState.extend({
 			base_left_x + BaseBuildingDistanceFromBaseEdge + 28,
 			WorldHeight - MountainBaseAreaHeight - 10,
 			FlynnColors.CYAN_DK));
-		// for(i=0; i<1; i++){
-		// 	this.humans.push(new Human(
-		// 		FlynnColors.WHITE,
-		// 		base_left_x + 220 + 20 * i,
-		// 		WorldHeight - MountainBaseAreaHeight,
-		// 		this
-		// 		));
-		// }
-
 
 		this.mountains.push(WorldWidth - MountainBaseAreaMargin);
 		this.mountains.push(WorldHeight - MountainBaseAreaHeight);
@@ -397,7 +388,7 @@ var StateGame = FlynnState.extend({
 			}
 
 			// Die
-			if (input.virtualButtonIsPressed("dev_die")){
+			if (input.virtualButtonIsPressed("dev_die") && this.ship.visible){
 				this.doShipDie();
 			}
 
@@ -645,6 +636,16 @@ var StateGame = FlynnState.extend({
 		// Projectiles
 		//-------------------
 		this.projectiles.update(paceFactor);
+		// Collision detect
+		for(i=0, len=this.projectiles.projectiles.length; i<len; i++){
+			if(this.ship.visible && this.ship.hasPoint(this.projectiles.projectiles[i].x, this.projectiles.projectiles[i].y)){
+				this.doShipDie();
+				// Remove projectile
+				this.projectiles.projectiles.splice(i, 1);
+				len--;
+				i--;
+			}
+		}
 
 		//-------------------
 		// PopUps
@@ -734,7 +735,8 @@ var StateGame = FlynnState.extend({
 		// Viewport
 		var goal_x = this.ship.world_x;
 		var goal_y = this.ship.world_y;
-		if (!this.ship.visible && this.mcp.timers.isExpired('shipRespawnDelay')){
+		if (!this.ship.visible && this.mcp.timers.isExpired('shipRespawnDelay') && !this.gameOver){
+			// Pan to ship start location after ship death
 			goal_x = ShipStartX;
 			goal_y = ShipStartY;
 		}

@@ -64,8 +64,9 @@ function flynnInterceptSolution(B_v, u_v, A_v, gun_velocity){
     var vj_magnitude = 0;
     if(vj_magnitude_squared > 0){
         vj_magnitude = Math.sqrt(vj_magnitude_squared);
-    }else{
-        console.log("flynnInterceptSolution: No solution.");
+    }
+    else{
+        // console.log("flynnInterceptSolution: No solution.");
     }
 
     // Get vj by multiplying it's magnitude with the unit vector AB

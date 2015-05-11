@@ -45,8 +45,8 @@ var Ship = FlynnPolygon.extend({
 		return false;
 	},
 
-	hasPoint: function(x, y) {
-		return this._super(this.world_x, this.world_y, x, y);
+	hasPoint: function(world_x, world_y) {
+		return this._super(this.world_x, this.world_y, world_x, world_y);
 	},
 
 

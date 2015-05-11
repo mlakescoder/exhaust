@@ -52,6 +52,7 @@ var RunningAnimationRight = [
 	[80,    -15,   -130,  -85,    -180,  -145, -90,   -95,  0,     5],  // 5 Airborne
 ];
 var RunningAnimationLeft = [];
+var RunningAnimationsGenerated = false;  // Set after Right has been doubled for other body side, and left has been generated
 
 var StanceStand =
 //   Torso  Hip1   Hip2   Knee1  Knee2  Shld1  Shld2  Arm1  Arm2    Jump
@@ -90,46 +91,47 @@ var Human = FlynnPolygon.extend({
 		//-----------------------------
 		// Populate Running Animations
 		//-----------------------------
-		len = RunningAnimationRight.length;
-		for (i=0; i<len; i++){
-			// Other side of body for running animation is same as first set, just swap left/right arms
-			RunningAnimationRight.push(
-				[	RunningAnimationRight[i][idx_torso_ang],
-					RunningAnimationRight[i][idx_hip2_ang],
-					RunningAnimationRight[i][idx_hip1_ang],
-					RunningAnimationRight[i][idx_knee2_ang],
-					RunningAnimationRight[i][idx_knee1_ang],
-					RunningAnimationRight[i][idx_shoulder2_ang],
-					RunningAnimationRight[i][idx_shoulder1_ang],
-					RunningAnimationRight[i][idx_arm2_ang],
-					RunningAnimationRight[i][idx_arm1_ang],
-					RunningAnimationRight[i][idx_jump],
-				]
-			);
+		if(!RunningAnimationsGenerated){
+			RunningAnimationsGenerated = true;
+
+			len = RunningAnimationRight.length;
+			for (i=0; i<len; i++){
+				// Other side of body for running animation is same as first set, just swap left/right arms
+				RunningAnimationRight.push(
+					[	RunningAnimationRight[i][idx_torso_ang],
+						RunningAnimationRight[i][idx_hip2_ang],
+						RunningAnimationRight[i][idx_hip1_ang],
+						RunningAnimationRight[i][idx_knee2_ang],
+						RunningAnimationRight[i][idx_knee1_ang],
+						RunningAnimationRight[i][idx_shoulder2_ang],
+						RunningAnimationRight[i][idx_shoulder1_ang],
+						RunningAnimationRight[i][idx_arm2_ang],
+						RunningAnimationRight[i][idx_arm1_ang],
+						RunningAnimationRight[i][idx_jump],
+					]
+				);
+			}
+
+
+			RunningAnimationLeft = [];
+			len = RunningAnimationRight.length;
+			for (i=0; i<len; i++){
+				// Other direction (running left) is mirror of running right
+				RunningAnimationLeft.push(
+					[	this.mirror_run_angle(RunningAnimationRight[i][idx_torso_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_hip1_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_hip2_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_knee1_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_knee2_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_shoulder1_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_shoulder2_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_arm1_ang]),
+						this.mirror_run_angle(RunningAnimationRight[i][idx_arm2_ang]),
+						RunningAnimationRight[i][idx_jump],
+					]
+				);
+			}
 		}
-
-
-		RunningAnimationLeft = [];
-		len = RunningAnimationRight.length;
-		for (i=0; i<len; i++){
-			// Other direction (running left) is mirror of running right
-			RunningAnimationLeft.push(
-				[	this.mirror_run_angle(RunningAnimationRight[i][idx_torso_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_hip1_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_hip2_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_knee1_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_knee2_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_shoulder1_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_shoulder2_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_arm1_ang]),
-					this.mirror_run_angle(RunningAnimationRight[i][idx_arm2_ang]),
-					RunningAnimationRight[i][idx_jump],
-				]
-			);
-		}
-
-
-
 	},
 
 	mirror_run_angle: function(degrees){
