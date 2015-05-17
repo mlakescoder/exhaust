@@ -36,6 +36,11 @@ var SaucerShootRange = 1000;
 var SaucerShootSize = 4;
 var SaucerColor = FlynnColors.GREEN;
 
+var KamikazeSpawnProbability = 0.03;
+var KamikazeScale = 4;
+var KamikazeMax = 10;
+var KamikazeColor = FlynnColors.RED;
+
 var LaserPodColor = FlynnColors.RED;
 var LaserPodBeamColor = FlynnColors.MAGENTA;
 var LaserPodScale = 3;
@@ -136,6 +141,7 @@ var StateGame = FlynnState.extend({
 		this.structures = [];
 		this.humans = [];
 		this.saucers = [];
+		this.kamikazes = [];
 		this.laserPods = [];
 
 		this.lvl = 0;
@@ -216,6 +222,7 @@ var StateGame = FlynnState.extend({
 		this.structures = [];
 		this.humans = [];
 		this.saucers = [];
+		this.kamikazes = [];
 		var mountain_x = 0;
 
 		// Starting point
@@ -606,6 +613,26 @@ var StateGame = FlynnState.extend({
 		}
 
 		//-------------------
+		// Kamikazes
+		//-------------------
+		// Spawn kamikazes
+		if ((Math.random() < KamikazeSpawnProbability && this.kamikazes.length < KamikazeMax) ||
+			(this.kamikazes.length < 1)) {
+			this.kamikazes.push(new Kamikaze(
+				Points.MONSTER,
+				KamikazeScale,
+				new Victor(
+					Math.random() * (WorldWidth - 200) + 100,
+					Math.random() * (WorldHeight - 400) + 100),
+				KamikazeColor
+				));
+		}
+		for (i=0, len=this.kamikazes.length; i<len; i++){
+			this.kamikazes[i].flyToward(new Victor(this.ship.world_x, this.ship.world_y));
+			this.kamikazes[i].update(paceFactor);
+		}
+
+		//-------------------
 		// Saucers
 		//-------------------
 
@@ -920,6 +947,11 @@ var StateGame = FlynnState.extend({
 			this.saucers[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
+		// Kamikazes
+		for (i=0, len=this.kamikazes.length; i<len; i++){
+			this.kamikazes[i].draw(ctx, this.viewport_v);
+		}
+
 		// Laser Pods
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
 			this.laserPods[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
@@ -990,6 +1022,13 @@ var StateGame = FlynnState.extend({
 		ctx.fillStyle=SaucerColor;
 		for(i=0, len=this.saucers.length; i<len; i+=1){
 			radar_location = this.worldToRadar(this.saucers[i].world_x, this.saucers[i].world_y);
+			ctx.fillRect(radar_location[0], radar_location[1],2,2);
+		}
+
+		// Kamikazes
+		ctx.fillStyle=KamikazeColor;
+		for(i=0, len=this.kamikazes.length; i<len; i+=1){
+			radar_location = this.worldToRadar(this.kamikazes[i].world_position_v.x, this.kamikazes[i].world_position_v.y);
 			ctx.fillRect(radar_location[0], radar_location[1],2,2);
 		}
 
