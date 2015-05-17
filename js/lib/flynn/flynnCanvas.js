@@ -23,6 +23,7 @@ var FlynnCanvas = Class.extend({
 			ctx.fpsFrameAverage = 10; // Number of frames to average over
 			ctx.fpsFrameCount = 0;
 			ctx.fpsMsecCount = 0;
+			ctx.vectorVericies = [];
 
 			ctx.ACODE = "A".charCodeAt(0);
 			ctx.ZEROCODE = "0".charCodeAt(0);
@@ -71,9 +72,28 @@ var FlynnCanvas = Class.extend({
 				this.stroke();
 			};
 
+			//----- WILL DEPRECATE THESE TWO VERY SHORTLY
+			ctx.moveToVec = function(x,y){
+				this.moveTo(Math.floor(x)+0.5, Math.floor(y)+0.5);
+			};
+
+			ctx.lineToVec = function(x,y){
+				this.lineTo(Math.floor(x)+0.5, Math.floor(y)+0.5);
+			};
+			//--------------------------------------------
+
+			// ctx.moveToVec = function(x,y){
+			// 	this.moveTo(Math.floor(x)+0.5, Math.floor(y)+0.5);
+			// };
+
+			// ctx.lineToVec = function(x,y){
+			// 	this.lineTo(Math.floor(x)+0.5, Math.floor(y)+0.5);
+			// };
+
 			ctx.vectorText = function(text, scale, x, y, offset, color){
 				if(typeof(color)==='undefined'){
-					color = FlynnColors.ORANGE;
+					console.log("ctx.vectorText(): default color deprecated.  Please pass a color.  Text:" + text );
+					color = FlynnColors.WHITE;
 				}
 
 				text = text.toString().toUpperCase();
@@ -95,7 +115,14 @@ var FlynnCanvas = Class.extend({
 				x += 0.5;
 				y += 0.5;
 
-				this.strokeStyle = color;
+				var dim_color_rgb = flynnHexToRgb(color);
+				var dim_factor = 0.6;
+				dim_color_rgb.r *= dim_factor;
+				dim_color_rgb.g *= dim_factor;
+				dim_color_rgb.b *= dim_factor;
+				var dim_color = flynnRgbToHex(dim_color_rgb.r, dim_color_rgb.g, dim_color_rgb.b);
+
+				this.strokeStyle = dim_color;
 				for(var i = 0, len = text.length; i<len; i++){
 					var ch = text.charCodeAt(i);
 
@@ -112,23 +139,31 @@ var FlynnCanvas = Class.extend({
 					}
 
 					this.beginPath();
+					this.fillStyle = color;
 					//this.lineWidth = "6"; // Fat lines for screenshot thumbnail generation
 					var pen_up = false;
+					var vertex_points = [];
 					for (var j=0, len2=p.length; j<len2; j+=2){
 						if(p[j]==FlynnPoints.PEN_UP){
 							pen_up = true;
 						}
 						else{
+							vertex_points.push(Math.floor(p[j]*scale+x), Math.floor(p[j+1]*scale +y));
 							if(j===0 || pen_up){
-								this.moveTo(p[j]*scale+x, p[j+1]*scale +y);
+								this.moveToVec(p[j]*scale+x, p[j+1]*scale +y);
 								pen_up = false;
 							}
 							else{
-								this.lineTo(p[j]*scale+x, p[j+1]*scale +y);
+								this.lineToVec(p[j]*scale+x, p[j+1]*scale +y);
 							}
 						}
 					}
 					this.stroke();
+
+					// Draw the vector vertex points
+					for(j=0, len2=vertex_points.length; j<len2; j+=2) {
+						ctx.fillRect(vertex_points[j], vertex_points[j+1], 1, 1);
+					}
 					x += step;
 				}
 				this.DEBUGLOGGED = true;

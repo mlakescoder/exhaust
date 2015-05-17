@@ -13,15 +13,6 @@ var ParticleTypes = {
     EXHAUST:   2,
 };
 
-function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-
 var Particle = Class.extend({
     init: function(particles, x, y, dx, dy, color, type, gameState){
         this.particles = particles;
@@ -90,7 +81,7 @@ var Particle = Class.extend({
             if(green<0){
                 green = 0;
             }
-            ctx.fillStyle = rgbToHex(red, green, 0);
+            ctx.fillStyle = flynnRgbToHex(red, green, 0);
         }
         //console.log(this.x, this.y);
         ctx.fillRect(this.x - viewport_x,this.y - viewport_y,2,2);
