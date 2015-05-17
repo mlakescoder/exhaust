@@ -56,14 +56,13 @@ var LaserPod = FlynnPolygon.extend({
 
 	draw: function(ctx, viewport_x, viewport_y){
 		ctx.drawPolygon(this, this.world_position_v.x - viewport_x, this.world_position_v.y - viewport_y);
-		ctx.strokeStyle=FlynnColors.MAGENTA;
-		ctx.beginPath();
-		ctx.moveTo(
+		ctx.vectorStart(FlynnColors.MAGENTA);
+		ctx.vectorMoveTo(
 			this.world_position_v.x - viewport_x,
 			this.world_position_v.y - viewport_y - LaserPodBeamOffset * this.scale);
-		ctx.lineTo(
+		ctx.vectorLineTo(
 			this.world_position_v.x - viewport_x,
 			0);
-		ctx.stroke();
+		ctx.vectorEnd();
 	}
 });

@@ -38,7 +38,7 @@ var SaucerColor = FlynnColors.GREEN;
 
 var LaserPodColor = FlynnColors.RED;
 var LaserPodBeamColor = FlynnColors.MAGENTA;
-var LaserPodScale = 2;
+var LaserPodScale = 3;
 var LaserPodNumExplosionParticles = 40;
 var LaserPodExplosionMaxVelocity = 4.5;
 var LaserPodSpawnProbability = 0.2;
@@ -287,7 +287,7 @@ var StateGame = FlynnState.extend({
 			FlynnColors.YELLOW_DK));
 		this.structures.push(new Structure(Points.BASE_DOOR, BaseDoorScale,
 			base_left_x + BaseBuildingDistanceFromBaseEdge,
-			WorldHeight - MountainBaseAreaHeight,
+			WorldHeight - MountainBaseAreaHeight - 1,
 			FlynnColors.CYAN_DK));
 		this.structures.push(new Structure(Points.WINDOW, BaseDoorScale,
 			base_left_x + BaseBuildingDistanceFromBaseEdge - 28,
@@ -512,8 +512,8 @@ var StateGame = FlynnState.extend({
 				this.ship.vel.y += Gravity * paceFactor;
 				this.ship.vel.x *= (1-AtmosphericFriction);  // TODO: Pace
 				this.ship.vel.y *= (1-AtmosphericFriction);  // TODO: Pace
-				this.ship.world_x += this.ship.vel.x;
-				this.ship.world_y += this.ship.vel.y;
+				this.ship.world_x += this.ship.vel.x * paceFactor;
+				this.ship.world_y += this.ship.vel.y * paceFactor;
 				var ground_y = this.altitude[Math.floor(this.ship.world_x)];
 				if (this.ship.world_y > ground_y - ShipToBottomLength){
 					this.ship.world_y = ground_y - ShipToBottomLength;
@@ -843,12 +843,6 @@ var StateGame = FlynnState.extend({
 		//     }
 		// }
 
-		// Game Over
-		if(this.gameOver){
-			ctx.vectorText("Game Over", 6, null, 200, null, FlynnColors.ORANGE);
-			ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, FlynnColors.ORANGE);
-		}
-
 		// Ship respawn animation
 		if(this.mcp.timers.isActive('shipRespawnAnimation')){
 			var animationPercentage = this.mcp.timers.get('shipRespawnAnimation') / ShipRespawnAnimationTicks;
@@ -879,17 +873,16 @@ var StateGame = FlynnState.extend({
 		}
 
 		// Mountains
-		ctx.strokeStyle=FlynnColors.BROWN;
-		ctx.beginPath();
-		ctx.moveTo(
+		ctx.vectorStart(FlynnColors.BROWN);
+		ctx.vectorMoveTo(
 			this.mountains[0] - this.viewport_v.x,
 			this.mountains[1] - this.viewport_v.y);
 		for(i=2, len=this.mountains.length; i<len; i+=2){
-			ctx.lineTo(
+			ctx.vectorLineTo(
 				this.mountains[i] - this.viewport_v.x,
 				this.mountains[i+1] - this.viewport_v.y);
 		}
-		ctx.stroke();
+		ctx.vectorEnd();
 
 		// Player
 		this.ship.draw(ctx, this.viewport_v.x, this.viewport_v.y);
@@ -932,11 +925,10 @@ var StateGame = FlynnState.extend({
 		// Clear panel area
 		ctx.fillStyle=FlynnColors.BLACK;
 		ctx.fillRect(0, 0, this.canvasWidth, InfoPanelHeight);
-		ctx.strokeStyle=FlynnColors.WHITE;
-		ctx.beginPath();
-		ctx.moveTo(0, InfoPanelHeight + 0.5);
-		ctx.lineTo(this.canvasWidth, InfoPanelHeight + 0.5);
-		ctx.stroke();
+		ctx.vectorStart(FlynnColors.WHITE);
+		ctx.vectorMoveTo(0, InfoPanelHeight + 0.5);
+		ctx.vectorLineTo(this.canvasWidth-1, InfoPanelHeight + 0.5);
+		ctx.vectorEnd();
 
 		// Scores
 		ctx.vectorText(this.score, 3, 15, 15, null, FlynnColors.GREEN);
@@ -958,23 +950,19 @@ var StateGame = FlynnState.extend({
 		// Console
 		ctx.fillStyle=FlynnColors.BLACK;
 		ctx.fillRect(RadarMargin,3,this.radarWidth,this.radarHeight);
-		ctx.strokeStyle=FlynnColors.WHITE;
-		ctx.beginPath();
-		ctx.rect(RadarMargin,RadarTopMargin,this.radarWidth,this.radarHeight);
-		ctx.stroke();
+		ctx.vectorRect(RadarMargin-1,RadarTopMargin-1,this.radarWidth+2,this.radarHeight+2, FlynnColors.WHITE);
 
 		// Mountains
-		ctx.strokeStyle=FlynnColors.BROWN;
-		ctx.beginPath();
-		ctx.moveTo(
+		ctx.vectorStart(FlynnColors.BROWN);
+		ctx.vectorMoveTo(
 			this.radarMountains[0],
 			this.radarMountains[1]);
 		for(i=2, len=this.radarMountains.length; i<len; i+=2){
-			ctx.lineTo(
+			ctx.vectorLineTo(
 				this.radarMountains[i],
 				this.radarMountains[i+1]);
 		}
-		ctx.stroke();
+		ctx.vectorEnd();
 
 		// Ship
 		var radar_location = this.worldToRadar(this.ship.world_x, this.ship.world_y);
@@ -997,16 +985,15 @@ var StateGame = FlynnState.extend({
 
 		// LaserPods
 		ctx.fillStyle=LaserPodColor;
-		ctx.beginPath();
-		ctx.strokeStyle=LaserPodBeamColor;
+		ctx.vectorStart(LaserPodBeamColor);
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
 			radar_location = this.worldToRadar(this.laserPods[i].world_position_v.x, this.laserPods[i].world_position_v.y);
 			ctx.fillRect(radar_location[0], radar_location[1]-2,2,2);
 			radar_location[0] = Math.floor(radar_location[0]) + 1.5;
-			ctx.moveTo(radar_location[0], radar_location[1]-3);
-			ctx.lineTo(radar_location[0], RadarTopMargin+2);
+			ctx.vectorMoveTo(radar_location[0], radar_location[1]-3);
+			ctx.vectorLineTo(radar_location[0], RadarTopMargin+2);
 		}
-		ctx.stroke();
+		ctx.vectorEnd();
 
 		// Pads
 		ctx.fillStyle=FlynnColors.CYAN;
@@ -1018,12 +1005,16 @@ var StateGame = FlynnState.extend({
 		// Viewport
 		radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y);
 		var radar_scale = this.radarWidth / WorldWidth;
-		ctx.strokeStyle="#404040";
-		ctx.lineWidth="2";
-		ctx.beginPath();
-		ctx.rect(radar_location[0],radar_location[1],this.canvasWidth*radar_scale,this.canvasHeight*radar_scale);
-		ctx.stroke();
-		ctx.lineWidth="1";
+		ctx.vectorRect(radar_location[0],radar_location[1],this.canvasWidth*radar_scale,this.canvasHeight*radar_scale, "#606060");
 
+		//------------
+		// Text
+		//------------
+
+		// Game Over
+		if(this.gameOver){
+			ctx.vectorText("Game Over", 6, null, 200, null, FlynnColors.ORANGE);
+			ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, FlynnColors.ORANGE);
+		}
 	}
 });

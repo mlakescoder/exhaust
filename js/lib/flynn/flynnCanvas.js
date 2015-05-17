@@ -3,7 +3,7 @@ var FlynnMaxPaceRecoveryTicks = 5; // Max elapsed 60Hz frames to apply pacing (b
 var FlynnTextCenterOffsetX = FlynnCharacterWidth/2;
 var FlynnTextCenterOffsetY = FlynnCharacterHeight/2;
 
-var FlynnVectorDimFactor = 0.6;
+var FlynnVectorDimFactor = 0.65;
 
 var FlynnCanvas = Class.extend({
 
@@ -36,9 +36,7 @@ var FlynnCanvas = Class.extend({
 			ctx.drawPolygon = function(p, x, y) {
 				var points = p.points;
 
-				this.strokeStyle = p.color;
-				this.beginPath();
-				//this.lineWidth = "6"; // Fat lines for screenshot thumbnail generation
+				this.vectorStart(p.color);
 				var pen_up = false;
 				for (var i=0, len=points.length; i<len; i+=2){
 					if(points[i] > 900000){
@@ -47,15 +45,15 @@ var FlynnCanvas = Class.extend({
 					}
 					else{
 						if(i===0 || pen_up){
-							this.moveTo(points[i]+x, points[i+1] +y);
+							this.vectorMoveTo(points[i]+x, points[i+1] +y);
 							pen_up = false;
 						}
 						else {
-							this.lineTo(points[i]+x, points[i+1] +y);
+							this.vectorLineTo(points[i]+x, points[i+1] +y);
 						}
 					}
 				}
-				this.stroke();
+				this.vectorEnd();
 			};
 
 			ctx.drawFpsGague = function(x, y, color, percentage){
@@ -114,6 +112,17 @@ var FlynnCanvas = Class.extend({
 				for(var i=0, len=this.vectorVericies.length; i<len; i+=2) {
 					ctx.fillRect(this.vectorVericies[i], this.vectorVericies[i+1], 1, 1);
 				}
+			};
+
+			ctx.vectorRect = function(x, y, width, height, color){
+				// Finish the line drawing 
+				this.vectorStart(color);
+				this.vectorMoveTo(x, y);
+				this.vectorLineTo(x+width, y);
+				this.vectorLineTo(x+width, y+height);
+				this.vectorLineTo(x, y+height);
+				this.vectorLineTo(x, y);
+				this.vectorEnd();
 			};
 
 			ctx.vectorText = function(text, scale, x, y, offset, color){

@@ -343,30 +343,29 @@ var Human = FlynnPolygon.extend({
 			pelvis_pt[1] + (TorsoLength + HeadRadius) * Math.sin(this.angles_rad[idx_torso_ang]),
 		];
 
-		ctx.strokeStyle = this.color;
-		ctx.beginPath();
+		ctx.vectorStart(this.color);
 
 		// Leg 1
-		ctx.moveTo(pelvis_pt[0], pelvis_pt[1]);
-		ctx.lineTo(knee1_pt[0], knee1_pt[1]);
-		ctx.lineTo(foot1_pt[0], foot1_pt[1]);
+		ctx.vectorMoveTo(pelvis_pt[0], pelvis_pt[1]);
+		ctx.vectorLineTo(knee1_pt[0], knee1_pt[1]);
+		ctx.vectorLineTo(foot1_pt[0], foot1_pt[1]);
 		// Leg 2
-		ctx.moveTo(pelvis_pt[0], pelvis_pt[1]);
-		ctx.lineTo(knee2_pt[0], knee2_pt[1]);
-		ctx.lineTo(foot2_pt[0], foot2_pt[1]);
+		ctx.vectorMoveTo(pelvis_pt[0], pelvis_pt[1]);
+		ctx.vectorLineTo(knee2_pt[0], knee2_pt[1]);
+		ctx.vectorLineTo(foot2_pt[0], foot2_pt[1]);
 		// Torso
-		ctx.moveTo(pelvis_pt[0], pelvis_pt[1]);
-		ctx.lineTo(neck_pt[0], neck_pt[1]);
+		ctx.vectorMoveTo(pelvis_pt[0], pelvis_pt[1]);
+		ctx.vectorLineTo(neck_pt[0], neck_pt[1]);
 		// Arm 1
-		ctx.moveTo(shoulder_pt[0], shoulder_pt[1]);
-		ctx.lineTo(elbow1_pt[0], elbow1_pt[1]);
-		ctx.lineTo(hand1_pt[0], hand1_pt[1]);
+		ctx.vectorMoveTo(shoulder_pt[0], shoulder_pt[1]);
+		ctx.vectorLineTo(elbow1_pt[0], elbow1_pt[1]);
+		ctx.vectorLineTo(hand1_pt[0], hand1_pt[1]);
 		// Arm 2
-		ctx.moveTo(shoulder_pt[0], shoulder_pt[1]);
-		ctx.lineTo(elbow2_pt[0], elbow2_pt[1]);
-		ctx.lineTo(hand2_pt[0], hand2_pt[1]);
+		ctx.vectorMoveTo(shoulder_pt[0], shoulder_pt[1]);
+		ctx.vectorLineTo(elbow2_pt[0], elbow2_pt[1]);
+		ctx.vectorLineTo(hand2_pt[0], hand2_pt[1]);
+		ctx.vectorEnd();
 		// Head
-		ctx.stroke();
 		ctx.beginPath();
 		ctx.arc(head_pt[0], head_pt[1], HeadRadius, 0, 2 * Math.PI, false);
 
