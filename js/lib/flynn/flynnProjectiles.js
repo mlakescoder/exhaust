@@ -52,6 +52,11 @@ var FlynnProjectiles = Class.extend({
 			world_position_v, velocity_v, lifetime, size, color));
 	},
 
+	advanceFrame: function() {
+		// Advance the newest projectile one frame.  
+		this.projectiles[this.projectiles.length-1].update(1.0);
+	},
+
 	update: function(paceFactor) {
 		for(var i=0, len=this.projectiles.length; i<len; i+=1){
 			if(!this.projectiles[i].update(paceFactor)){

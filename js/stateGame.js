@@ -1013,7 +1013,7 @@ var StateGame = FlynnState.extend({
 
 		// Game Over
 		if(this.gameOver){
-			ctx.vectorText("Game Over", 6, null, 200, null, FlynnColors.ORANGE);
+			ctx.vectorText("GAME OVER", 6, null, 200, null, FlynnColors.ORANGE);
 			ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, FlynnColors.ORANGE);
 		}
 	}

@@ -198,8 +198,8 @@ var FlynnCanvas = Class.extend({
 				text = text.toString().toUpperCase();
 				var step = scale*FlynnCharacterSpacing;
 
-				center_x += 0.5;
-				center_y += 0.5;
+				// center_x += 0.5;
+				// center_y += 0.5;
 
 				var render_angle = angle;
 				var render_angle_step = Math.asin(FlynnCharacterSpacing*scale/radius);
@@ -217,8 +217,8 @@ var FlynnCanvas = Class.extend({
 					render_angle_step = - render_angle_step;
 				}
 
-				this.strokeStyle = color;
 				for(var i = 0, len = text.length; i<len; i++){
+					this.vectorStart(color);
 					var ch = text.charCodeAt(i);
 
 					if (ch === this.SPACECODE){
@@ -252,15 +252,15 @@ var FlynnCanvas = Class.extend({
 							var draw_y = (s*x + c*y) * scale + Math.sin(render_angle) * radius + center_y;
 
 							if(j===0 || pen_up){
-								this.moveTo(draw_x, draw_y);
+								this.vectorMoveTo(draw_x, draw_y);
 								pen_up = false;
 							}
 							else{
-								this.lineTo(draw_x, draw_y);
+								this.vectorLineTo(draw_x, draw_y);
 							}
 						}
 					}
-					this.stroke();
+					this.vectorEnd();
 
 					render_angle += render_angle_step;
 					character_angle += render_angle_step;
