@@ -1,5 +1,6 @@
 SaucerSpeedX = 2;
 SaucerSpeedYMax = 0.6;
+SaucerCannonWarmupTicks = 20;
 
 var Saucer = FlynnPolygon.extend({
 
@@ -10,6 +11,7 @@ var Saucer = FlynnPolygon.extend({
 		this.world_x = world_x;
 		this.world_y = world_y;
 		this.visible = true;
+		this.cannon_warmup_timer = 0;
 
 		this.dx = SaucerSpeedX;
 		if(Math.random() < 0.5){
@@ -21,6 +23,15 @@ var Saucer = FlynnPolygon.extend({
 		}
 
 		this.setScale(s);
+	},
+
+	cannonCooldown: function(){
+		// Cool the cannon down.  It will need to warm up again before firing.
+		this.cannon_warmup_timer = SaucerCannonWarmupTicks;
+	},
+
+	cannonIsWarm: function(){
+		return(this.cannon_warmup_timer < 0);
 	},
 
 
@@ -44,6 +55,7 @@ var Saucer = FlynnPolygon.extend({
 	},
 
 	update: function(paceFactor) {
+		this.cannon_warmup_timer -= paceFactor;
 		this.world_x += this.dx * paceFactor;
 		this.world_y += this.dy * paceFactor;
 		if (this.world_x < 0){

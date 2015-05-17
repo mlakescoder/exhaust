@@ -624,7 +624,14 @@ var StateGame = FlynnState.extend({
 		// Saucer shoot
 		if(this.ship.visible){
 			for (i=0, len=this.saucers.length; i<len; i++){
-				if(Math.random() < SaucerShootProbability){
+				// Cannon cooldown
+				if(this.ship.world_y > this.saucers[i].world_y){
+					// Ship below saucer.  Cool the cannon down.
+					this.saucers[i].cannonCooldown();
+				}
+
+				// Shoot
+				if(this.saucers[i].cannonIsWarm() && Math.random() < SaucerShootProbability){
 					var ship_pos_v = new Victor(this.ship.world_x, this.ship.world_y);
 					var saucer_pos_v = new Victor(this.saucers[i].world_x, this.saucers[i].world_y);
 					distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
