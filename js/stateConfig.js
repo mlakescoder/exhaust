@@ -11,6 +11,10 @@ var OptionFuncitonWidth = 190;
 var OptionCenterGapWidth = FlynnCharacterWidth * 2 * OptionTextScale;
 var OptionKeyPrompt = "PRESS NEW KEY";
 var OptionSelectionWidth = OptionTextScale * FlynnCharacterSpacing * OptionKeyPrompt.length+1 + OptionSelectionMargin * 2;
+var OptionMainTextColor = FlynnColors.ORANGE;
+var OptionMenuTextColor = FlynnColors.YELLOW;
+var OptionSelectionBoxColor = FlynnColors.CYAN;
+var OptionMenuPromptColor = FlynnColors.MAGENTA;
 
 var StateConfig = FlynnState.extend({
 
@@ -102,15 +106,15 @@ var StateConfig = FlynnState.extend({
 	render: function(ctx) {
         ctx.clearAll();
 
-        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 100, null, FlynnColors.ORANGE);
+        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 100, null, OptionMainTextColor);
 
         var line_spacing = 15;
         var line_y = 160;
-        ctx.vectorText("PRESS <UP>/<DOWN> TO SELECT A CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <UP>/<DOWN> TO SELECT A CONTROL", 1.5, null, line_y, null, OptionMainTextColor);
         line_y += line_spacing;
-        ctx.vectorText("PRESS <ENTER> TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <ENTER> TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, OptionMainTextColor);
         line_y += line_spacing;
-        ctx.vectorText("PRESS <ESCAPE> TO EXIT/CANCEL", 1.5, null, line_y, null, FlynnColors.ORANGE);
+        ctx.vectorText("PRESS <ESCAPE> TO EXIT/CANCEL", 1.5, null, line_y, null, OptionMainTextColor);
 
         var names = this.configurableVirtualButtonNames;
         
@@ -124,13 +128,13 @@ var StateConfig = FlynnState.extend({
 			ctx.vectorText(names[i] + ":",
 				2, menu_center_x - OptionCenterGapWidth/2,
 				menu_top_y + menu_line_height * i,
-				0, FlynnColors.CYAN);
+				0, OptionMenuTextColor);
 
 			var boundKeyName = this.mcp.input.getVirtualButtonBoundKeyName(names[i]);
-			var boundKeyNameColor = FlynnColors.CYAN;
+			var boundKeyNameColor = OptionMenuTextColor;
 			if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
 				boundKeyName = "PRESS NEW KEY";
-				boundKeyNameColor = FlynnColors.MAGENTA;
+				boundKeyNameColor = OptionMenuPromptColor;
 			}
 			ctx.vectorText(boundKeyName,
 				2, menu_center_x + OptionCenterGapWidth/2,
@@ -140,14 +144,15 @@ var StateConfig = FlynnState.extend({
         }
 
         // Show currently selected option
-        ctx.strokeStyle=FlynnColors.YELLOW;
-        ctx.beginPath();
-		ctx.rect(
+        // ctx.strokeStyle=OptionSelectionBoxColor;
+        // ctx.beginPath();
+		ctx.vectorRect(
 			menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + 0.5,
 			menu_top_y + menu_line_height * this.selectedLineIndex - OptionSelectionMargin + 0.5,
 			OptionSelectionWidth,
-			OptionTextHeight + 2*OptionSelectionMargin );
-		ctx.stroke();
+			OptionTextHeight + 2*OptionSelectionMargin,
+			OptionSelectionBoxColor);
+		// ctx.stroke();
 	}
 
 });
