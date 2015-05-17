@@ -79,8 +79,8 @@ var Game = Class.extend({
 			["FLOATINHEAD", 1300],
 			["WILLIAMS", 1200],
 			["GORLIN", 1100],
-			["INKY", 600],
-			["LUDAM", 500],
+			["DELMAN", 600],
+			["BURNESS", 500],
 		];
 		this.mcp.custom.score = 0;
 

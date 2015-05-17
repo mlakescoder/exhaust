@@ -1,11 +1,13 @@
 var FlynnProjectile= Class.extend({
-	init: function(world_position_v, velocity_v, lifetime, size, color){
+	init: function(world_position_v, velocity_v, lifetime, size, color, min_bounds_v, max_bounds_v){
 
         this.world_position_v = world_position_v.clone();
         this.velocity_v = velocity_v.clone();
 		this.lifetime = lifetime;
 		this.size = size;
 		this.color = color;
+		this.min_bounds_v = min_bounds_v;
+		this.max_bounds_v = max_bounds_v;
 	},
 
 	kill: function(){
@@ -27,6 +29,12 @@ var FlynnProjectile= Class.extend({
 			this.world_position_v.x += this.velocity_v.x * paceFactor;
 			this.world_position_v.y += this.velocity_v.y * paceFactor;
 		}
+		if ((this.world_position_v.x < this.min_bounds_v.x) ||
+			(this.world_position_v.y < this.min_bounds_v.y) ||
+			(this.world_position_v.x > this.max_bounds_v.x) ||
+			(this.world_position_v.y > this.max_bounds_v.y)){
+			isAlive = false;
+		}
 		return isAlive;
 	},
 
@@ -43,13 +51,15 @@ var FlynnProjectile= Class.extend({
 
 var FlynnProjectiles = Class.extend({
 
-	init: function(){
+	init: function(min_bounds_v, max_bounds_v){
 		this.projectiles=[];
+		this.min_bounds_v = min_bounds_v;
+		this.max_bounds_v = max_bounds_v;
 	},
 
 	add: function(world_position_v, velocity_v, lifetime, size, color) {
 		this.projectiles.push(new FlynnProjectile(
-			world_position_v, velocity_v, lifetime, size, color));
+			world_position_v, velocity_v, lifetime, size, color, this.min_bounds_v, this.max_bounds_v));
 	},
 
 	advanceFrame: function() {

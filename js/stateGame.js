@@ -128,7 +128,10 @@ var StateGame = FlynnState.extend({
 		this.tangent = [];  // Tangnt   of every world column (x location)
 
 		this.particles = new Particles(this);
-		this.projectiles = new FlynnProjectiles();
+		this.projectiles = new FlynnProjectiles(
+			new Victor(0,0),                    // Min projectile bounds
+			new Victor(WorldWidth, WorldHeight) // Max projectile bounds
+			);
 		this.pads = [];
 		this.structures = [];
 		this.humans = [];
