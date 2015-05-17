@@ -33,6 +33,7 @@ var SaucerShootVelocity = 4.0;
 var SaucerShootLife = 60 * 4;
 var SaucerCannonOffset = -6 * SaucerScale;
 var SaucerShootRange = 1000;
+var SaucerShootSize = 4;
 var SaucerColor = FlynnColors.GREEN;
 
 var LaserPodColor = FlynnColors.RED;
@@ -113,8 +114,7 @@ var StateGame = FlynnState.extend({
 		this.lifepolygon.setScale(1.2);
         this.lifepolygon.setAngle(0);
 
-        this.viewport_x = WorldWidth - this.canvasWidth;
-        this.viewport_y = WorldHeight - this.canvasHeight;
+        this.viewport_v = new Victor(WorldWidth - this.canvasWidth, WorldHeight - this.canvasHeight);
 
 		this.score = 0;
 		this.highscore = this.mcp.highscores[0][1];
@@ -419,7 +419,7 @@ var StateGame = FlynnState.extend({
 				this.ship.vel.y = 0;
 				this.ship.angle = ShipStartAngle;
 				this.ship.setAngle(ShipStartAngle);
-				this.viewport_x = this.ship.world_x;
+				this.viewport_v.x = this.ship.world_x;
 			}
 
 			// Jump to base Pad
@@ -430,7 +430,7 @@ var StateGame = FlynnState.extend({
 				this.ship.vel.y = 0;
 				this.ship.angle = ShipStartAngle;
 				this.ship.setAngle(ShipStartAngle);
-				this.viewport_x = this.ship.world_x - this.canvasWidth;
+				this.viewport_v.x = this.ship.world_x - this.canvasWidth;
 			}
 
 		}
@@ -638,11 +638,12 @@ var StateGame = FlynnState.extend({
 						// If firing solution results in an upward projectile velocity
 						if (solution.velocity_v.y < 0){
 							this.projectiles.add(
-								this.saucers[i].world_x,
-								this.saucers[i].world_y + SaucerCannonOffset,
-								solution.velocity_v.x,
-								solution.velocity_v.y,
+								new Victor(
+									this.saucers[i].world_x,
+									this.saucers[i].world_y + SaucerCannonOffset),
+								solution.velocity_v,
 								SaucerShootLife,
+								SaucerShootSize,
 								FlynnColors.YELLOW
 								);
 							this.sound_saucer_shoot.play();
@@ -658,7 +659,9 @@ var StateGame = FlynnState.extend({
 		this.projectiles.update(paceFactor);
 		// Collision detect
 		for(i=0, len=this.projectiles.projectiles.length; i<len; i++){
-			if(this.ship.visible && this.ship.hasPoint(this.projectiles.projectiles[i].x, this.projectiles.projectiles[i].y)){
+			if(this.ship.visible && this.ship.hasPoint(
+										this.projectiles.projectiles[i].world_position_v.x,
+										this.projectiles.projectiles[i].world_position_v.y)){
 				this.doShipDie();
 				// Remove projectile
 				this.projectiles.projectiles.splice(i, 1);
@@ -814,8 +817,8 @@ var StateGame = FlynnState.extend({
 		} else if  (target_viewport_x > WorldWidth - this.canvasWidth){
 			target_viewport_x = WorldWidth - this.canvasWidth;
 		}
-		var slew = flynnMinMaxBound(target_viewport_x - this.viewport_x, -ViewportSlewMax, ViewportSlewMax);
-		this.viewport_x += slew;
+		var slew = flynnMinMaxBound(target_viewport_x - this.viewport_v.x, -ViewportSlewMax, ViewportSlewMax);
+		this.viewport_v.x += slew;
 
 		var target_viewport_y = goal_y - (this.canvasHeight-InfoPanelHeight)/2 - InfoPanelHeight;
 		if (target_viewport_y < 0 - InfoPanelHeight){
@@ -824,8 +827,8 @@ var StateGame = FlynnState.extend({
 		else if (target_viewport_y> WorldHeight - this.canvasHeight){
 			target_viewport_y = WorldHeight - this.canvasHeight;
 		}
-		slew = flynnMinMaxBound(target_viewport_y - this.viewport_y, -ViewportSlewMax, ViewportSlewMax);
-		this.viewport_y += slew;
+		slew = flynnMinMaxBound(target_viewport_y - this.viewport_v.y, -ViewportSlewMax, ViewportSlewMax);
+		this.viewport_v.y += slew;
 
 	},
 
@@ -860,8 +863,8 @@ var StateGame = FlynnState.extend({
 			for(i=0; i<numParticles; i++){
 				var angle = startAngle + i * angleStep;
 				var radius = startRadius + radiusStep * i;
-				var x = ShipStartX + Math.cos(angle) * radius - this.viewport_x;
-				var y = ShipStartY + Math.sin(angle) * radius - this.viewport_y;
+				var x = ShipStartX + Math.cos(angle) * radius - this.viewport_v.x;
+				var y = ShipStartY + Math.sin(angle) * radius - this.viewport_v.y;
 				ctx.fillRect(x,y,2,2);
 			}
 		}
@@ -870,8 +873,8 @@ var StateGame = FlynnState.extend({
 		ctx.fillStyle="#808080";
 		for(i=0, len=this.stars.length; i<len; i+=2){
 			ctx.fillRect(
-				this.stars[i] - this.viewport_x,
-				this.stars[i+1] - this.viewport_y,
+				this.stars[i] - this.viewport_v.x,
+				this.stars[i+1] - this.viewport_v.y,
 				2,2);
 		}
 
@@ -879,48 +882,48 @@ var StateGame = FlynnState.extend({
 		ctx.strokeStyle=FlynnColors.BROWN;
 		ctx.beginPath();
 		ctx.moveTo(
-			this.mountains[0] - this.viewport_x,
-			this.mountains[1] - this.viewport_y);
+			this.mountains[0] - this.viewport_v.x,
+			this.mountains[1] - this.viewport_v.y);
 		for(i=2, len=this.mountains.length; i<len; i+=2){
 			ctx.lineTo(
-				this.mountains[i] - this.viewport_x,
-				this.mountains[i+1] - this.viewport_y);
+				this.mountains[i] - this.viewport_v.x,
+				this.mountains[i+1] - this.viewport_v.y);
 		}
 		ctx.stroke();
 
 		// Player
-		this.ship.draw(ctx, this.viewport_x, this.viewport_y);
+		this.ship.draw(ctx, this.viewport_v.x, this.viewport_v.y);
 
 		// Particles
-		this.particles.draw(ctx, this.viewport_x, this.viewport_y);
+		this.particles.draw(ctx, this.viewport_v.x, this.viewport_v.y);
 
 		// Pads
 		for(i=0, len=this.pads.length; i<len; i+=1){
-			this.pads[i].draw(ctx, this.viewport_x, this.viewport_y);
+			this.pads[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
 		// Structures
 		for(i=0, len=this.structures.length; i<len; i+=1){
-			this.structures[i].draw(ctx, this.viewport_x, this.viewport_y);
+			this.structures[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
 		// Humans
 		for(i=0, len=this.humans.length; i<len; i+=1){
-			this.humans[i].draw(ctx, this.viewport_x, this.viewport_y);
+			this.humans[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
 		// Saucers
 		for(i=0, len=this.saucers.length; i<len; i+=1){
-			this.saucers[i].draw(ctx, this.viewport_x, this.viewport_y);
+			this.saucers[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
 		// Laser Pods
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
-			this.laserPods[i].draw(ctx, this.viewport_x, this.viewport_y);
+			this.laserPods[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
 
 		// Projectiles
-		this.projectiles.draw(ctx, this.viewport_x, this.viewport_y);
+		this.projectiles.draw(ctx, this.viewport_v);
 
 		//------------
 		// Info Panel
@@ -1013,7 +1016,7 @@ var StateGame = FlynnState.extend({
 		}
 
 		// Viewport
-		radar_location = this.worldToRadar(this.viewport_x, this.viewport_y);
+		radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y);
 		var radar_scale = this.radarWidth / WorldWidth;
 		ctx.strokeStyle="#404040";
 		ctx.lineWidth="2";

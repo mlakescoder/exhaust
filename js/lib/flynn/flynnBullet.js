@@ -2,21 +2,18 @@ var FlynnBullet = Class.extend({
 	maxX: null,
 	maxY: null,
 
-	init: function(x, y, angle, velocity, lifeFrames, color){
-		this.x = x;
-		this.y = y;
+	init: function(position_v, velocity_v, lifetime, size, color){
+		this.position_v = position_v.clone();
+		this.velocity_v = velocity_v.clone();
+		this.lifetime = lifetime;
+		this.size = size;
 		this.color = color;
 
 		this.shallRemove = false;
-		this.life = lifeFrames;
-
-		this.vel = {
-			x: velocity * Math.cos(angle),
-			y: velocity * Math.sin(angle)
-		};
 	},
 
 	update: function(paceFactor){
+		this.position_v.add(this.velocity_v);
 		this.prevx = this.x;
 		this.prevy = this.y;
 
