@@ -93,6 +93,7 @@ var ShipStartY = WorldHeight - MountainBaseAreaHeight - ShipToBottomLength;
 var PointsRescuedHuman = 1000;
 var PointsPickUpHuman = 100;
 var PointsSaucer = 10;
+var PointsKamikaze = 30;
 var PointsLaserPod = 20;
 
 
@@ -170,6 +171,10 @@ var StateGame = FlynnState.extend({
 		this.sound_saucer_shoot = new Howl({
 			src: ['sounds/SaucerShoot.ogg','sounds/SaucerShoot.mp3'],
 			volume: 0.25,
+		});
+		this.sound_laser_pod = new Howl({
+			src: ['sounds/LaserPod4.ogg','sounds/LaserPod4.mp3'],
+			volume: 0.5,
 		});
 
 		this.engine_sound_playing = false;
@@ -615,7 +620,7 @@ var StateGame = FlynnState.extend({
 		//-------------------
 		// Kamikazes
 		//-------------------
-		// Spawn kamikazes
+		// Kamikaze: Spawn
 		if ((Math.random() < KamikazeSpawnProbability && this.kamikazes.length < KamikazeMax) ||
 			(this.kamikazes.length < 1)) {
 			this.kamikazes.push(new Kamikaze(
@@ -627,16 +632,65 @@ var StateGame = FlynnState.extend({
 				KamikazeColor
 				));
 		}
-		for (i=0, len=this.kamikazes.length; i<len; i++){
-			this.kamikazes[i].flyToward(new Victor(this.ship.world_x, this.ship.world_y));
+
+
+		var killed, j, len2;
+
+		// Kamikaze: Collisions
+		for(i=0, len=this.kamikazes.length; i<len; i+=1){
+			killed = false;
+			// Homing
+			if(this.ship.visible){
+				this.kamikazes[i].flyToward(new Victor(this.ship.world_x, this.ship.world_y));
+			}
+			// Update
 			this.kamikazes[i].update(paceFactor);
+
+			// Check for ship/kamikaze collision
+			if(this.ship.visible){
+				if(this.kamikazes[i].collide(this.ship)){
+					this.doShipDie();
+					killed = true;
+				}
+			}
+			// Check for exhaust/saucer collision
+			var kamikaze_x = this.kamikazes[i].world_position_v.x;
+			var kamikaze_y = this.kamikazes[i].world_position_v.y;
+			for(j=0, len2=this.particles.particles.length; j<len2; j++){
+				ptc = this.particles.particles[j];
+				if(ptc.type === ParticleTypes.EXHAUST){
+					if(flynnProximal(100, ptc.x, kamikaze_x) && flynnProximal(100, ptc.y, kamikaze_y)){
+						if(this.kamikazes[i].hasPoint(ptc.x, ptc.y)){
+							killed = true;
+						}
+					}
+				}
+			}
+
+			if(killed){
+				// Remove Kamikaze
+				this.particles.explosion(
+					this.kamikazes[i].world_position_v.x,
+					this.kamikazes[i].world_position_v.y,
+					this.kamikazes[i].velocity_v.x,
+					this.kamikazes[i].velocity_v.y,
+					ShipNumExplosionParticles,
+					ShipExplosionMaxVelocity * 0.6,
+					KamikazeColor,
+					ParticleTypes.PLAIN);
+				this.kamikazes.splice(i,1);
+				i--;
+				len--;
+				this.addPoints(PointsKamikaze);
+				this.saucer_die_sound.play();
+			}
 		}
 
 		//-------------------
 		// Saucers
 		//-------------------
 
-		// Spawn saucers
+		// Saucer: Spawn
 		if ((Math.random() < SaucerSpawnProbabiliy && this.saucers.length < SaucersMax) ||
 			(this.saucers.length < 1)) {
 			this.saucers.push(new Saucer(
@@ -648,7 +702,7 @@ var StateGame = FlynnState.extend({
 				));
 		}
 
-		// Saucer shoot
+		// Saucer: shoot
 		if(this.ship.visible){
 			for (i=0, len=this.saucers.length; i<len; i++){
 				// Cannon cooldown
@@ -687,6 +741,51 @@ var StateGame = FlynnState.extend({
 						}
 					}
 				}
+			}
+		}
+
+		// Saucer: Collisions
+		for(i=0, len=this.saucers.length; i<len; i+=1){
+			killed = false;
+			this.saucers[i].update(paceFactor);
+
+			// Check for ship/saucer collision
+			if(this.ship.visible){
+				if(this.saucers[i].collide(this.ship)){
+					this.doShipDie();
+					killed = true;
+				}
+			}
+			// Check for exhaust/saucer collision
+			var saucer_x = this.saucers[i].world_x;
+			var saucer_y = this.saucers[i].world_y;
+			for(j=0, len2=this.particles.particles.length; j<len2; j++){
+				ptc = this.particles.particles[j];
+				if(ptc.type === ParticleTypes.EXHAUST){
+					if(flynnProximal(100, ptc.x, saucer_x) && flynnProximal(100, ptc.y, saucer_y)){
+						if(this.saucers[i].hasPoint(ptc.x, ptc.y)){
+							killed = true;
+						}
+					}
+				}
+			}
+
+			if(killed){
+				// Remove Saucer
+				this.particles.explosion(
+					this.saucers[i].world_x,
+					this.saucers[i].world_y,
+					this.saucers[i].dx,
+					this.saucers[i].dy,
+					ShipNumExplosionParticles,
+					ShipExplosionMaxVelocity * 0.6,
+					SaucerColor,
+					ParticleTypes.PLAIN);
+				this.saucers.splice(i,1);
+				i--;
+				len--;
+				this.addPoints(PointsSaucer);
+				this.saucer_die_sound.play();
 			}
 		}
 
@@ -746,53 +845,6 @@ var StateGame = FlynnState.extend({
 			}
 		}
 
-		var killed, j, len2;
-
-		// Saucers
-		for(i=0, len=this.saucers.length; i<len; i+=1){
-			killed = false;
-			this.saucers[i].update(paceFactor);
-
-			// Check for ship/saucer collision
-			if(this.ship.visible){
-				if(this.saucers[i].collide(this.ship)){
-					this.doShipDie();
-					killed = true;
-				}
-			}
-			// Check for exhaust/saucer collision
-			var saucer_x = this.saucers[i].world_x;
-			var saucer_y = this.saucers[i].world_y;
-			for(j=0, len2=this.particles.particles.length; j<len2; j++){
-				ptc = this.particles.particles[j];
-				if(ptc.type === ParticleTypes.EXHAUST){
-					if(flynnProximal(100, ptc.x, saucer_x) && flynnProximal(100, ptc.y, saucer_y)){
-						if(this.saucers[i].hasPoint(ptc.x, ptc.y)){
-							killed = true;
-						}
-					}
-				}
-			}
-
-			if(killed){
-				// Remove Saucer
-				this.particles.explosion(
-					this.saucers[i].world_x,
-					this.saucers[i].world_y,
-					this.saucers[i].dx,
-					this.saucers[i].dy,
-					ShipNumExplosionParticles,
-					ShipExplosionMaxVelocity * 0.6,
-					SaucerColor,
-					ParticleTypes.PLAIN);
-				this.saucers.splice(i,1);
-				i--;
-				len--;
-				this.addPoints(PointsSaucer);
-				this.saucer_die_sound.play();
-			}
-		}
-
 		// Laser Pods
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
 
@@ -803,6 +855,7 @@ var StateGame = FlynnState.extend({
 			if(this.ship.visible){
 				if(this.laserPods[i].collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y))){
 					this.doShipDie();
+					this.sound_laser_pod.play();
 					//killed = true;
 				}
 			}

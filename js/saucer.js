@@ -10,7 +10,6 @@ var Saucer = FlynnPolygon.extend({
 		this.scale = s;
 		this.world_x = world_x;
 		this.world_y = world_y;
-		this.visible = true;
 		this.cannon_warmup_timer = 0;
 
 		this.dx = SaucerSpeedX;
@@ -36,9 +35,6 @@ var Saucer = FlynnPolygon.extend({
 
 
 	collide: function(polygon){
-		if (!this.visible){
-			return false;
-		}
 		for(i=0, len=this.points.length -2; i<len; i+=2){
 			var x = this.points[i] + this.world_x;
 			var y = this.points[i+1] + this.world_y;
