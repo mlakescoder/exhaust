@@ -26,7 +26,7 @@ var ShipRespawnAnimationTicks = 60 * 1.8;
 var ShipRespawnDelayTicks = 60 * 3;
 
 var SaucerSpawnProbabiliy = 0.03;
-var SaucerScale = 3;
+var SaucerScale = 4;
 var SaucersMax = 15;
 var SaucerShootProbability = 0.05;
 var SaucerShootVelocity = 4.0;
@@ -1060,9 +1060,12 @@ var StateGame = FlynnState.extend({
 		ctx.vectorEnd();
 
 		// Ship
-		var radar_location = this.worldToRadar(this.ship.world_x, this.ship.world_y);
-		ctx.fillStyle=FlynnColors.YELLOW;
-		ctx.fillRect(radar_location[0], radar_location[1],2,2);
+		var radar_location;
+		if(this.ship.visible){
+			radar_location = this.worldToRadar(this.ship.world_x, this.ship.world_y);
+			ctx.fillStyle=FlynnColors.YELLOW;
+			ctx.fillRect(radar_location[0], radar_location[1],2,2);
+		}
 
 		// Humans
 		ctx.fillStyle=FlynnColors.WHITE;
@@ -1105,9 +1108,12 @@ var StateGame = FlynnState.extend({
 		}
 
 		// Viewport
-		radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y);
+		radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y + InfoPanelHeight);
 		var radar_scale = this.radarWidth / WorldWidth;
-		ctx.vectorRect(radar_location[0],radar_location[1],this.canvasWidth*radar_scale,this.canvasHeight*radar_scale, "#606060");
+		ctx.vectorRect(
+			radar_location[0],radar_location[1],
+			this.canvasWidth*radar_scale, (this.canvasHeight - InfoPanelHeight)*radar_scale,
+			"#606060");
 
 		//------------
 		// Text
