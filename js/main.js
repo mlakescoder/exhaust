@@ -87,9 +87,9 @@ var Game = Class.extend({
 		
 		// Set resize handler and force a resize
 		this.mcp.setResizeFunc( function(width, height){
-			if(self.browserSupportsTouch){
-				self.input.addTouchRegion("left",0,0,width/4,height); // Left quarter
-				self.input.addTouchRegion("right",width/4+1,0,width/2,height); // Left second quarter
+			if(self.mcp.browserSupportsTouch){
+				self.input.addTouchRegion("rotate left",0,0,width/4,height); // Left quarter
+				self.input.addTouchRegion("rotate right",width/4+1,0,width/2,height); // Left second quarter
 				self.input.addTouchRegion("thrust",width/2+1,0,width,height); // Right half
 				self.input.addTouchRegion("enter",0,0,width,height); // Whole screen
 			}
