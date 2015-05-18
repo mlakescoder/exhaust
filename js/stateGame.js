@@ -27,7 +27,6 @@ var ShipRespawnDelayTicks = 60 * 3;
 
 var SaucerSpawnProbabiliy = 0.03;
 var SaucerScale = 4;
-var SaucersMax = 15;
 var SaucerShootProbability = 0.05;
 var SaucerShootVelocity = 4.0;
 var SaucerShootLife = 60 * 4;
@@ -38,7 +37,6 @@ var SaucerColor = FlynnColors.GREEN;
 
 var KamikazeSpawnProbability = 0.03;
 var KamikazeScale = 4;
-var KamikazeMax = 10;
 var KamikazeColor = FlynnColors.RED;
 
 var LaserPodColor = FlynnColors.RED;
@@ -86,6 +84,8 @@ var RadarTopMargin = 3;
 var ViewportSlewMax = 30;
 
 var PadScale = 4;
+
+var HumansNum = 3;
 
 var ShipStartX = WorldWidth - MountainBaseAreaWidth - MountainBaseAreaMargin + ShipStartDistanceFromBaseEdge;
 var ShipStartY = WorldHeight - MountainBaseAreaHeight - ShipToBottomLength;
@@ -146,6 +146,7 @@ var StateGame = FlynnState.extend({
 		this.laserPods = [];
 
 		this.lvl = 0;
+		this.spawn_manager = new SpawnManager(this.lvl);
 
 		this.engine_sound = new Howl({
 			src: ['sounds/Engine.ogg','sounds/Engine.mp3'],
@@ -241,7 +242,7 @@ var StateGame = FlynnState.extend({
 			MountainRescueAreaLeft + MountainRescueAreaPadPosition,
 			WorldHeight - MountainRescueAreaHeight,
 			FlynnColors.CYAN));
-		for(i=0; i<5; i++){
+		for(i=0; i<HumansNum; i++){
 			this.humans.push(new Human(
 				FlynnColors.WHITE,
 				MountainRescueAreaLeft + MountainRescueAreaPadPosition + 200 + 20*i,
@@ -512,6 +513,8 @@ var StateGame = FlynnState.extend({
 
 		this.gameClock += paceFactor;
 
+		this.spawn_manager.update(paceFactor);
+
 		if (this.ship.visible){
 			if (this.ship.dead){
 				this.engine_sound.stop();
@@ -621,14 +624,14 @@ var StateGame = FlynnState.extend({
 		// Kamikazes
 		//-------------------
 		// Kamikaze: Spawn
-		if ((Math.random() < KamikazeSpawnProbability && this.kamikazes.length < KamikazeMax) ||
-			(this.kamikazes.length < 1)) {
+		if (Math.random() < KamikazeSpawnProbability && this.spawn_manager.spawn_pool.kamikazes > 0) {
+			--this.spawn_manager.spawn_pool.kamikazes;
 			this.kamikazes.push(new Kamikaze(
 				Points.MONSTER,
 				KamikazeScale,
 				new Victor(
 					Math.random() * (WorldWidth - 200) + 100,
-					Math.random() * (WorldHeight - 400) + 100),
+					Math.random() * 50),
 				KamikazeColor
 				));
 		}
@@ -691,13 +694,13 @@ var StateGame = FlynnState.extend({
 		//-------------------
 
 		// Saucer: Spawn
-		if ((Math.random() < SaucerSpawnProbabiliy && this.saucers.length < SaucersMax) ||
-			(this.saucers.length < 1)) {
+		if (Math.random() < SaucerSpawnProbabiliy && this.spawn_manager.spawn_pool.saucers > 0) {
+			--this.spawn_manager.spawn_pool.saucers;
 			this.saucers.push(new Saucer(
 				Points.SAUCER,
 				SaucerScale,
 				Math.random() * (WorldWidth - 200) + 100,
-				Math.random() * (WorldHeight - 400) + 100,
+				Math.random() * 30,
 				SaucerColor
 				));
 		}
