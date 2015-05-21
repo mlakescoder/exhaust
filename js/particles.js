@@ -94,6 +94,7 @@ var Particles = Class.extend({
     init: function(gameState){
         this.particles=[];
         this.gameState = gameState;
+        this.fractionalExhaustParticles = 0;
     },
 
     explosion: function(x, y, dx, dy, quantity, max_velocity, color, particle_type) {
@@ -113,26 +114,31 @@ var Particles = Class.extend({
         }
     },
 
-    exhaust: function(x, y, dx, dy, probability, velocity, angle, spread){
-        for(var i=0; i<3; i++){
-            if (Math.random() < probability){
-                var theta = angle - (spread/2) + Math.random() * spread;
-                var exit_velocity =
-                    velocity - (velocity * ExhaustVelocityVariationFactor / 2) +
-                    Math.random() * velocity * ExhaustVelocityVariationFactor;
-                var exhaust_dx = Math.cos(theta) * exit_velocity + dx;
-                var exhaust_dy = Math.sin(theta) * exit_velocity + dy;
-                this.particles.push(new Particle(
-                    this,
-                    x + Math.random() * -dx, // Jitter start position in opposite of direciton of motion
-                    y + Math.random() * -dy, // Jitter start position in opposite of direciton of motion
-                    exhaust_dx,
-                    exhaust_dy,
-                    null,
-                    ParticleTypes.EXHAUST,
-                    this.gameState
-                ));
-            }
+    exhaust: function(x, y, dx, dy, particle_rate, velocity, angle, spread, paceFactor){
+
+        // Determine fractional (float) number of particles to spawn.  Remeber remainder (decimal portion)..
+        // ..for next call.  Spawn the integer portion.
+        var num_particles_float = particle_rate * paceFactor + this.fractionalExhaustParticles;
+        var num_particles_int = Math.floor(num_particles_float);
+        this.fractionalExhaustParticles = num_particles_float - num_particles_int;
+
+        for(var i=0; i<num_particles_int; i++){
+            var theta = angle - (spread/2) + Math.random() * spread;
+            var exit_velocity =
+                velocity - (velocity * ExhaustVelocityVariationFactor / 2) +
+                Math.random() * velocity * ExhaustVelocityVariationFactor;
+            var exhaust_dx = Math.cos(theta) * exit_velocity + dx;
+            var exhaust_dy = Math.sin(theta) * exit_velocity + dy;
+            this.particles.push(new Particle(
+                this,
+                x + Math.random() * -dx, // Jitter start position in opposite of direciton of motion
+                y + Math.random() * -dy, // Jitter start position in opposite of direciton of motion
+                exhaust_dx,
+                exhaust_dy,
+                null,
+                ParticleTypes.EXHAUST,
+                this.gameState
+            ));
         }
     },
 

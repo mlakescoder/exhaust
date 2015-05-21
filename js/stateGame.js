@@ -10,7 +10,7 @@ var ShipThrust = 0.20;
 var ShipStartAngle = 0;
 var ShipStartDistanceFromBaseEdge = 70;
 var ShipRotationSpeed = Math.PI/70;
-var ShipExhaustRate = 0.999;
+var ShipExhaustRate = 4;  // Number of exhaust particles to spawn every 60fps frame.
 var ShipExhaustVelocity	= 3.0;
 var ShipExhaustSpread = Math.PI/7;
 var ShipToExhastLength = 8;
@@ -493,7 +493,8 @@ var StateGame = FlynnState.extend({
 				ShipExhaustRate,
 				ShipExhaustVelocity,
 				this.ship.angle + Math.PI/2,
-				ShipExhaustSpread
+				ShipExhaustSpread,
+				paceFactor
 			);
 
 			// Cancel PopUp
