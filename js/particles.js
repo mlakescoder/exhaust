@@ -41,13 +41,13 @@ var Particle = Class.extend({
         }
         else{
             // Gravity
-            this.dy += ParticleGravity;
+            this.dy += ParticleGravity * paceFactor;
             // Add impulse
             this.x += this.dx * paceFactor;
             this.y += this.dy * paceFactor;
             // Decay impulse
-            this.dx *= ParticleFriction;
-            this.dy *= ParticleFriction;
+            this.dx *= Math.pow(ParticleFriction, paceFactor);
+            this.dy *= Math.pow(ParticleFriction, paceFactor);
 
             // Mountain colision
             altitude = this.gameState.altitude[Math.floor(this.x)];

@@ -2,14 +2,15 @@
 
 var FlynnMcp = Class.extend({
 
-	init: function(canvasWidth, canvasHeight, input, noChangeState, developerModeEnabled) {
+	init: function(canvasWidth, canvasHeight, input, noChangeState, developerModeEnabled, gameSpeedFactor) {
 		"use strict";
 
 		this.canvasWidth = canvasWidth;
 		this.canvasHeight = canvasHeight;
-		this.developerModeEnabled = developerModeEnabled;
 		this.input = input;
 		this.noChangeState = noChangeState;
+		this.developerModeEnabled = developerModeEnabled;
+		this.gameSpeedFactor = gameSpeedFactor;
 
 		this.nextState = noChangeState;
 		this.currentState = null;
@@ -116,6 +117,15 @@ var FlynnMcp = Class.extend({
 		var self = this;
 
 		this.canvas.animate( function(paceFactor) {
+			
+			if(self.slowMoDebug){
+				// Slow Motion
+				paceFactor *= self.gameSpeedFactor * 0.2;
+			}
+			else{
+				paceFactor *= self.gameSpeedFactor;
+			}
+
             // Update clock and timers
             self.clock += paceFactor;
             self.timers.update(paceFactor);
@@ -128,14 +138,8 @@ var FlynnMcp = Class.extend({
 
 			// Process state (if set)
 			if(self.currentState){
-				self.currentState.handleInputs(self.input);
-				if(self.slowMoDebug){
-					self.currentState.update(paceFactor * 0.1); // Slow Mo
-					//self.currentState.update(0); // Freeze Frame
-				}
-				else{
-					self.currentState.update(paceFactor * 0.7);
-				}
+				self.currentState.handleInputs(self.input, paceFactor);
+				self.currentState.update(paceFactor);
 				self.currentState.render(self.canvas.ctx);
 			}
 		});

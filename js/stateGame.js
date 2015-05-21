@@ -178,7 +178,7 @@ var StateGame = FlynnState.extend({
 			volume: 0.5,
 		});
 
-		this.engine_sound_playing = false;
+		this.engine_is_thrusting = false;
 
 		// Game Clock
 		this.gameClock = 0;
@@ -404,7 +404,7 @@ var StateGame = FlynnState.extend({
 		this.mcp.timers.set('shipRespawnAnimation', 0); // Set to zero to deactivate it
 	},
 
-	handleInputs: function(input) {
+	handleInputs: function(input, paceFactor) {
 
 		if(this.mcp.developerModeEnabled){
 			// Metrics toggle
@@ -470,21 +470,21 @@ var StateGame = FlynnState.extend({
 		}
 
 		if (input.virtualButtonIsDown("rotate left")){
-			this.ship.rotate_by(-ShipRotationSpeed);
+			this.ship.rotate_by(-ShipRotationSpeed * paceFactor);
 		}
 		if (input.virtualButtonIsDown("rotate right")){
-			this.ship.rotate_by(ShipRotationSpeed);
+			this.ship.rotate_by(ShipRotationSpeed * paceFactor);
 		}
 
 		if (input.virtualButtonIsDown("thrust")){
 			this.thrustHasOccurred = true;
 			this.popUpThrustPending = false;
-			this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * ShipThrust;
-			this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * ShipThrust;
-			if(!this.engine_sound_playing){
+			if(!this.engine_is_thrusting){
 				this.engine_sound.play();
-				this.engine_sound_playing = true;
+				this.engine_is_thrusting = true;
 			}
+			this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * ShipThrust * paceFactor;
+			this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * ShipThrust * paceFactor;
 			this.particles.exhaust(
 				this.ship.world_x + Math.cos(this.ship.angle + Math.PI/2) * ShipToExhastLength,
 				this.ship.world_y + Math.sin(this.ship.angle + Math.PI/2) * ShipToExhastLength,
@@ -501,9 +501,9 @@ var StateGame = FlynnState.extend({
 				this.popUpLife = Math.min(PopUpCancelTime, this.popUpLife);
 			}
 		} else {
-			if (this.engine_sound_playing){
+			if (this.engine_is_thrusting){
 				this.engine_sound.stop();
-				this.engine_sound_playing = false;
+				this.engine_is_thrusting = false;
 			}
 		}
 	},
@@ -528,8 +528,8 @@ var StateGame = FlynnState.extend({
 			else{
 				// Update ship
 				this.ship.vel.y += Gravity * paceFactor;
-				this.ship.vel.x *= (1-AtmosphericFriction);  // TODO: Pace
-				this.ship.vel.y *= (1-AtmosphericFriction);  // TODO: Pace
+				this.ship.vel.x *= Math.pow((1-AtmosphericFriction), paceFactor);
+				this.ship.vel.y *= Math.pow((1-AtmosphericFriction), paceFactor);
 				this.ship.world_x += this.ship.vel.x * paceFactor;
 				this.ship.world_y += this.ship.vel.y * paceFactor;
 				var ground_y = this.altitude[Math.floor(this.ship.world_x)];
