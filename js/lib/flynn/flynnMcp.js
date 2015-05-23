@@ -30,6 +30,7 @@ var FlynnMcp = Class.extend({
 			["No Name", 100],
 		];
 
+		
 		this.canvas = new FlynnCanvas(this, canvasWidth, canvasHeight);
 
 		//--------------------------
@@ -55,6 +56,25 @@ var FlynnMcp = Class.extend({
 			console.log("DEV: browserSupportsPeformance=", this.browserSupportsPerformance);
 			console.log("DEV: browserIsIos=", this.browserIsIos);
 			console.log("DEV: browserSupportsTouch=", this.browserSupportsTouch);
+		}
+
+		// Set Vector mode
+		this.vectorMode = null;
+		var vectorMode = flynnGetUrlValue("vector");
+		for (var key in FlynnVectorMode){
+			if (vectorMode === key){
+				this.vectorMode = FlynnVectorMode[key];
+			}
+		}
+		if (this.vectorMode === null){
+			// No vector mode specified on command line (or no match)
+			if(this.browserSupportsTouch){
+				// Default to plain lines on phones/pads for visibility and performance
+				this.vectorMode = FlynnVectorMode.V_THICK;
+			}
+			else{
+				this.vectorMode = FlynnVectorMode.V_THIN;
+			}
 		}
 
 		//--------------------------

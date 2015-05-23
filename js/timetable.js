@@ -59,7 +59,6 @@ var SpawnManager = Class.extend({
 			timetable_index = Timetable.length - 1;
 		}
 		this.spawn_queue = [];
-		console.log(timetable_index, Timetable[timetable_index].length, Timetable[0]);
 		for(var i=0, len=Timetable[timetable_index].length; i<len; i++){
 			this.spawn_queue.push(Timetable[timetable_index][i].clone());
 		}
