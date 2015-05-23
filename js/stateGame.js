@@ -412,9 +412,14 @@ var StateGame = FlynnState.extend({
 				this.mcp.canvas.showMetrics = !this.mcp.canvas.showMetrics;
 			}
 
-			// Slow Mo Debug toggle
+			// Toggle DEV pacing mode slow mo
 			if (input.virtualButtonIsPressed("dev_slow_mo")){
-				this.mcp.slowMoDebug = !this.mcp.slowMoDebug;
+				this.mcp.toggleDevPacingSlowMo();
+			}
+
+			// Toggle DEV pacing mode fps 20
+			if (input.virtualButtonIsPressed("dev_fps_20")){
+				this.mcp.toggleDevPacingFps20();
 			}
 
 			// Points

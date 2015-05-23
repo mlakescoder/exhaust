@@ -218,7 +218,7 @@ var Human = FlynnPolygon.extend({
 				this.angles_deg_goal[idx_torso_ang] = 80;
 			}
 			else{
-				this.frame_counter--;
+				this.frame_counter-=paceFactor;
 				if(this.frame_counter < 0){
 					this.angles_deg_goal[idx_shoulder1_ang] = 40;
 					if (this.wave_left){
@@ -234,7 +234,7 @@ var Human = FlynnPolygon.extend({
 			}
 		}
 		else if (this.action === HumanActions.RUN_RIGHT) {
-			this.frame_counter--;
+			this.frame_counter-=paceFactor;
 			if(this.frame_counter < 0){
 				this.run_frame++;
 				if(this.run_frame>=NumRunFrames){
@@ -243,10 +243,10 @@ var Human = FlynnPolygon.extend({
 				this.angles_deg_goal = RunningAnimationRight[this.run_frame];
 				this.frame_counter = TimerRun;
 			}
-			this.world_x += HumanRunSpeed;
+			this.world_x += HumanRunSpeed * paceFactor;
 		}
 		else if (this.action === HumanActions.RUN_LEFT) {
-			this.frame_counter--;
+			this.frame_counter-=paceFactor;
 			if(this.frame_counter < 0){
 				this.run_frame++;
 				if(this.run_frame>=NumRunFrames){
@@ -255,7 +255,7 @@ var Human = FlynnPolygon.extend({
 				this.angles_deg_goal = RunningAnimationLeft[this.run_frame];
 				this.frame_counter = TimerRun;
 			}
-			this.world_x -= HumanRunSpeed;
+			this.world_x -= HumanRunSpeed * paceFactor;
 		}
 
 		// Move toward goal angles
@@ -263,10 +263,10 @@ var Human = FlynnPolygon.extend({
 			var delta = this.angles_deg_goal[i] - this.angles_deg[i];
 			if(delta !==0){
 				if(i!==idx_jump){
-					update = flynnMinMaxBound( delta, -HumanLimbSpeed, HumanLimbSpeed);
+					update = flynnMinMaxBound( delta, -HumanLimbSpeed*paceFactor, HumanLimbSpeed*paceFactor);
 				}
 				else{
-					update = flynnMinMaxBound( delta, -HumanJumpSpeed, HumanJumpSpeed);
+					update = flynnMinMaxBound( delta, -HumanJumpSpeed*paceFactor, HumanJumpSpeed*paceFactor);
 				}
 
 				this.angles_deg[i] += update;

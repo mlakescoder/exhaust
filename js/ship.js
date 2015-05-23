@@ -49,11 +49,6 @@ var Ship = FlynnPolygon.extend({
 		return this._super(this.world_x, this.world_y, world_x, world_y);
 	},
 
-
-	addVel: function() {
-		this.ascentVelocity += ShipThrust;
-	},
-
 	update: function(paceFactor) {
 		// All operations handled in gameState
 	},
