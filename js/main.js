@@ -35,6 +35,9 @@ var Game = Class.extend({
 			}
 		);
 		this.mcp.nextState = States.MENU;
+
+		// Setup options
+		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
         
         // Setup inputs
 		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
