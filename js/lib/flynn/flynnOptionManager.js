@@ -7,16 +7,24 @@ var FlynnOptionType = {
 
 var FlynnOptionDescriptor = Class.extend({
 
-	init: function(keyName, type, defaultValue, currentValue, promptTitle, promptValues, commandHandler){
+	init: function(keyName, type, defaultValue, currentValue, promptText, promptValues, commandHandler){
 		this.keyName = keyName;
 		this.type = type;
 		this.defaultValue = defaultValue;
 		this.currentValue = currentValue;
-		this.promptTitle = promptTitle;
+		this.promptText = promptText;
 		this.promptValues = promptValues;
 		this.commandHandler = commandHandler;
-
 	},
+
+	currentPromptValueIndex: function(){
+		for (var i=0, len=this.promptValues.length; i<len; i++){
+			if(this.currentValue === this.promptValues[i][1]){
+				return i;
+			}
+		}
+		return null;
+	}
 });
 
 // These current value for all shadowed options will be maintained in mcp.options.<keyName> for convenience
@@ -27,10 +35,12 @@ var FlynnOptionManager = Class.extend({
 	init: function(mcp){
 		this.mcp = mcp;
 		this.optionDescriptors = {};
+
+		this.addOption('revertDefaults', FlynnOptionType.COMMAND, true, true, 'REVERT TO DEFAULTS', null, null);
 	},
 
-	addOption: function(keyName, type, defaultValue, currentValue, promptTitle, promptValues, commandHandler){
-		var descriptor = new FlynnOptionDescriptor(keyName, type, defaultValue, currentValue, promptTitle, promptValues, commandHandler);
+	addOption: function(keyName, type, defaultValue, currentValue, promptText, promptValues, commandHandler){
+		var descriptor = new FlynnOptionDescriptor(keyName, type, defaultValue, currentValue, promptText, promptValues, commandHandler);
 		if (type in FlynnShadowedOptionTypes){
 			this.mcp.options[keyName] = currentValue;
 		}
@@ -47,7 +57,7 @@ var FlynnOptionManager = Class.extend({
 	setOption: function(keyName, value){
 		if(keyName in this.optionDescriptors){
 			this.optionDescriptors[keyName].currentValue = value;
-			if(optionDescriptors[keyName].type in FlynnShadowedOptionTypes){
+			if(this.optionDescriptors[keyName].type in FlynnShadowedOptionTypes){
 				this.mcp.options[keyName] = value;
 			}
 		}
@@ -85,7 +95,14 @@ var FlynnOptionManager = Class.extend({
 			console.print('DEV: Warnining: FlynnOptionManager.executeCommand() called for key "' +
 				keyName + '", which does not exist or is not of type COMMAND.  Doing nothing.');
 		}
-	}
+	},
 
+	getOptionKeyNames: function(){
+		var keyNames = [];
+		for (var keyName in this.optionDescriptors){
+			keyNames.push(keyName);
+		}
+		return keyNames;
+	},
 
 });

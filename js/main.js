@@ -45,6 +45,8 @@ var Game = Class.extend({
 		this.input.addVirtualButton('config', FlynnKeyboardMap['escape'], FlynnNotConfigurable);
 		this.input.addVirtualButton('up', FlynnKeyboardMap['up'], FlynnNotConfigurable);
 		this.input.addVirtualButton('down', FlynnKeyboardMap['down'], FlynnNotConfigurable);
+		this.input.addVirtualButton('right', FlynnKeyboardMap['right'], FlynnNotConfigurable);
+		this.input.addVirtualButton('left', FlynnKeyboardMap['left'], FlynnNotConfigurable);
 		if(this.mcp.developerModeEnabled){
 			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7'], FlynnNotConfigurable);
@@ -64,6 +66,7 @@ var Game = Class.extend({
 		this.mcp.optionManager.addOptionFromVirtualButton('rotate right');
 		this.mcp.optionManager.addOptionFromVirtualButton('thrust');
 		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
+		this.mcp.optionManager.addOption('resetScores', FlynnOptionType.COMMAND, true, true, 'RESET HIGH SCORES', null, null);
 
 		// Scores
 		this.mcp.highscores = [

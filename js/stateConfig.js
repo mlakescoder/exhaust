@@ -5,12 +5,13 @@
 
 
 var OptionSelectionMargin = 5;
+var OptionSelectionMarginInset = 2;
 var OptionTextScale = 2.0;
 var OptionTextHeight = FlynnCharacterHeight * OptionTextScale;
 var OptionFuncitonWidth = 190;
 var OptionCenterGapWidth = FlynnCharacterWidth * 2 * OptionTextScale;
 var OptionKeyPrompt = "PRESS NEW KEY";
-var OptionSelectionWidth = OptionTextScale * FlynnCharacterSpacing * OptionKeyPrompt.length+1 + OptionSelectionMargin * 2;
+var OptionInputKeyValueWidth = OptionTextScale * FlynnCharacterSpacing * OptionKeyPrompt.length+1 + OptionSelectionMargin * 2;
 var OptionMainTextColor = FlynnColors.ORANGE;
 var OptionMenuTextColor = FlynnColors.YELLOW;
 var OptionSelectionBoxColor = FlynnColors.CYAN;
@@ -24,12 +25,13 @@ var StateConfig = FlynnState.extend({
 		this.canvasWidth = mcp.canvas.ctx.width;
 		this.canvasHeight = mcp.canvas.ctx.height;
 
-		this.selectedLineIndex = 0;
-
 		this.configurableVirtualButtonNames = this.mcp.input.getConfigurableVirtualButtonNames();
-		this.numOptions = this.configurableVirtualButtonNames.length;
 
 		this.keyAssignmentInProgress = false;
+
+		this.optionKeyNames = mcp.optionManager.getOptionKeyNames();
+		this.numOptions = this.optionKeyNames.length;
+		this.selectedLineIndex = 0;
 	},
 
 	handleInputs: function(input, paceFactor) {
@@ -61,17 +63,8 @@ var StateConfig = FlynnState.extend({
 			return;
 		}
 		
-		// Metrics toggle
-        if(this.mcp.developerModeEnabled) {
-            if (input.virtualButtonIsPressed("dev_metrics")) {
-                this.mcp.canvas.showMetrics = !this.mcp.canvas.showMetrics;
-            }
-            
-            // Slow Mo Debug toggle
-            if (input.virtualButtonIsPressed("dev_slow_mo")){
-                this.mcp.slowMoDebug = !this.mcp.slowMoDebug;
-            }
-        }
+		var optionDescriptor = this.mcp.optionManager.optionDescriptors[this.optionKeyNames[this.selectedLineIndex]];
+
         if(this.mcp.arcadeModeEnabled) {
             if (input.virtualButtonIsPressed("quarter")) {
                 this.mcp.credits += 1;
@@ -94,9 +87,39 @@ var StateConfig = FlynnState.extend({
 			}
 		}
 		if (input.virtualButtonIsPressed("enter")) {
-			input.armKeyCodeCapture();
-			this.keyAssignmentInProgress = true;
+			switch(optionDescriptor.type){
+				case FlynnOptionType.BOOLEAN:
+					// Toggle boolean
+					this.mcp.optionManager.setOption(optionDescriptor.keyName, !optionDescriptor.currentValue);
+					break;
+
+				case FlynnOptionType.INPUT_KEY:
+					// input.armKeyCodeCapture();
+					// this.keyAssignmentInProgress = true;
+					break;
+			}
 		}
+		var optionIndexDelta = 0;
+		if (input.virtualButtonIsPressed("left")) {
+			optionIndexDelta = -1;
+		}
+		if (input.virtualButtonIsPressed("right")) {
+			optionIndexDelta = 1;
+		}
+		if(optionIndexDelta !== 0){
+			if(optionDescriptor.type === FlynnOptionType.MULTI){
+				var currentPromptIndex = optionDescriptor.currentPromptValueIndex();
+				var numOptions = optionDescriptor.promptValues.length;
+				currentPromptIndex += optionIndexDelta;
+				if(currentPromptIndex < 0){
+					currentPromptIndex = numOptions-1;
+				} else if (currentPromptIndex > numOptions-1){
+					currentPromptIndex = 0;
+				}
+				this.mcp.optionManager.setOption(optionDescriptor.keyName, optionDescriptor.promptValues[currentPromptIndex][1]);
+			}
+		}
+
 	},
 
 	update: function(paceFactor) {
@@ -122,37 +145,147 @@ var StateConfig = FlynnState.extend({
         var menu_center_x = this.canvasWidth/2;
         var menu_line_height = 30;
 
-        var current_menu_line = 0;
-        for (var i=0, len=names.length; i<len; i++){
+        var lineSelectionBox = {x:0, y:0, width:0, height:0};
+        var selectionBox = null;
+        var textWidth;
+        for (var i=0, len=this.optionKeyNames.length; i<len; i++){
+			var optionKeyName = this.optionKeyNames[i];
+			var optionDescriptor = this.mcp.optionManager.optionDescriptors[optionKeyName];
 
-			ctx.vectorText(names[i] + ":",
-				2, menu_center_x - OptionCenterGapWidth/2,
-				menu_top_y + menu_line_height * i,
-				0, OptionMenuTextColor);
+			// Render option prompt text
+			switch(optionDescriptor.type){
+				case FlynnOptionType.COMMAND:
+					ctx.vectorText(
+						optionDescriptor.promptText,
+						2, null,
+						menu_top_y + menu_line_height * i,
+						null, OptionMenuTextColor);
 
-			var boundKeyName = this.mcp.input.getVirtualButtonBoundKeyName(names[i]);
-			var boundKeyNameColor = OptionMenuTextColor;
-			if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
-				boundKeyName = "PRESS NEW KEY";
-				boundKeyNameColor = OptionMenuPromptColor;
+					textWidth = (optionDescriptor.promptText.length * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					lineSelectionBox = {
+						x: this.canvasWidth/2 - textWidth/2 - OptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
+						width: textWidth + OptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+
+					break;
+				default:
+					ctx.vectorText(
+						optionDescriptor.promptText + ':',
+						2, menu_center_x - OptionCenterGapWidth/2,
+						menu_top_y + menu_line_height * i,
+						0, OptionMenuTextColor);
+					break;
 			}
-			ctx.vectorText(boundKeyName,
+
+			// Render option value(s)
+			var valueText = '';
+			switch(optionDescriptor.type){
+				case FlynnOptionType.BOOLEAN:
+					if (optionDescriptor.currentValue === true){
+						valueText = "ON";
+					}
+					else{
+						valueText = "OFF";
+					}
+
+					textWidth = (3 * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					lineSelectionBox = {
+						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
+						width: textWidth + OptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+					break;
+
+				case FlynnOptionType.MULTI:
+					var j, len2;
+					for (j=0, len2=optionDescriptor.promptValues.length; j<len2; j++){
+						valueText += optionDescriptor.promptValues[j][0] + '  ';
+					}
+					var characterSkip = 0;
+					var currentPromptValueIndex = optionDescriptor.currentPromptValueIndex();
+					for (j=0, len2=optionDescriptor.promptValues.length; j<len2; j++){
+						if(j < currentPromptValueIndex){
+							characterSkip += optionDescriptor.promptValues[j][0].length + 2;
+						}
+					}
+					textWidth = (optionDescriptor.promptValues[currentPromptValueIndex][0].length * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					lineSelectionBox = {
+						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + (characterSkip * FlynnCharacterSpacing * OptionTextScale) ,
+						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
+						width: textWidth + OptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+
+					ctx.vectorRect(
+						lineSelectionBox.x+OptionSelectionMarginInset,
+						lineSelectionBox.y+OptionSelectionMarginInset,
+						lineSelectionBox.width-OptionSelectionMarginInset*2,
+						lineSelectionBox.height-OptionSelectionMarginInset*2,
+						valueColor);
+					break;
+
+				case FlynnOptionType.INPUT_KEY:
+					var keyCode = optionDescriptor.currentValue;
+					valueText = this.mcp.input.keyCodeToKeyName(keyCode);
+					lineSelectionBox = {
+						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
+						width: OptionInputKeyValueWidth,
+						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+					break;
+
+			}
+			var valueColor = OptionMenuTextColor;
+			ctx.vectorText(
+				valueText,
 				2, menu_center_x + OptionCenterGapWidth/2,
 				menu_top_y + menu_line_height * i,
-				null, boundKeyNameColor);
-			++current_menu_line;
+				null, valueColor);
+			if(i === this.selectedLineIndex){
+				selectionBox = lineSelectionBox;
+			}
         }
 
         // Show currently selected option
-        // ctx.strokeStyle=OptionSelectionBoxColor;
-        // ctx.beginPath();
-		ctx.vectorRect(
-			menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + 0.5,
-			menu_top_y + menu_line_height * this.selectedLineIndex - OptionSelectionMargin + 0.5,
-			OptionSelectionWidth,
-			OptionTextHeight + 2*OptionSelectionMargin,
-			OptionSelectionBoxColor);
-		// ctx.stroke();
+        if(selectionBox !== null){
+			ctx.vectorRect(
+				selectionBox.x,
+				selectionBox.y,
+				selectionBox.width,
+				selectionBox.height,
+				OptionSelectionBoxColor);
+		}
+
+  //       for (var i=0, len=names.length; i<len; i++){
+
+		// 	ctx.vectorText(names[i] + ":",
+		// 		2, menu_center_x - OptionCenterGapWidth/2,
+		// 		menu_top_y + menu_line_height * i,
+		// 		0, OptionMenuTextColor);
+
+		// 	var boundKeyName = this.mcp.input.getVirtualButtonBoundKeyName(names[i]);
+		// 	var boundKeyNameColor = OptionMenuTextColor;
+		// 	if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
+		// 		boundKeyName = "PRESS NEW KEY";
+		// 		boundKeyNameColor = OptionMenuPromptColor;
+		// 	}
+		// 	ctx.vectorText(boundKeyName,
+		// 		2, menu_center_x + OptionCenterGapWidth/2,
+		// 		menu_top_y + menu_line_height * i,
+		// 		null, boundKeyNameColor);
+		// 	++current_menu_line;
+  //       }
+
+  //       // Show currently selected option
+  //       // ctx.strokeStyle=OptionSelectionBoxColor;
+  //       // ctx.beginPath();
+		// ctx.vectorRect(
+		// 	menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + 0.5,
+		// 	menu_top_y + menu_line_height * this.selectedLineIndex - OptionSelectionMargin + 0.5,
+		// 	OptionSelectionWidth,
+		// 	OptionTextHeight + 2*OptionSelectionMargin,
+		// 	OptionSelectionBoxColor);
+		// // ctx.stroke();
 	}
 
 });

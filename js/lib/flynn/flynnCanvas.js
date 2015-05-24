@@ -202,7 +202,7 @@ var FlynnCanvas = Class.extend({
 
 				// Center x/y if they are not numbers
 				if (typeof x !== "number"){
-					x = Math.round((this.width - text.length*step)/2);
+					x = Math.round((this.width - (text.length*step-FlynnCharacterGap))/2);
 				}
 				if (typeof y !== "number"){
 					y = Math.round((this.height - step)/2);
