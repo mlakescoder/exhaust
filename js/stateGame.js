@@ -26,7 +26,7 @@ var ShipRespawnAnimationTicks = 60 * 1.8;
 var ShipRespawnDelayTicks = 60 * 3;
 
 var SaucerSpawnProbabiliy = 0.03;
-var SaucerScale = 4;
+var SaucerScale = 3.5;
 var SaucerShootProbability = 0.05;
 var SaucerShootVelocity = 4.0;
 var SaucerShootLife = 60 * 4;
@@ -71,11 +71,12 @@ var MountainFlatProbability = 0.8;
 
 var TowerScale = 4;
 var TowerStartDistanceFromBaseEdge = 20;
-var LaunchBuildingScale = 4;
+var LaunchBuildingScale = 3;
 var LaunchBuildingDistanceFromBaseEdge = 140;
-var BaseBuildingDistanceFromBaseEdge = 290;
-var BaseBuildingScale = 4;
-var BaseDoorScale = 3.5;
+var BaseBuildingDistanceFromBaseEdge = 280;
+var BaseBuildingScale = 2.5;
+var BaseDoorScale = 3.0;
+var WindowScale = 2.5;
 
 var InfoPanelHeight = 90;
 var RadarMargin = 350;
@@ -209,14 +210,15 @@ var StateGame = FlynnState.extend({
 
 	generateLvl: function() {
 		var margin = 20;
+		var seeded_rng = new Math.seedrandom('seed7');
 
 		this.ship.angle = ShipStartAngle;
 		this.humans_rescued = 0;
 
 		this.stars = [];
 		for (var i=0; i<NumStars; i++){
-			this.stars.push(Math.random() * WorldWidth);
-			this.stars.push(Math.random() * (WorldHeight - MountainHeightMax))	;
+			this.stars.push(seeded_rng() * WorldWidth);
+			this.stars.push(seeded_rng() * (WorldHeight - MountainHeightMax));
 		}
 
 		//---------------------
@@ -233,7 +235,7 @@ var StateGame = FlynnState.extend({
 
 		// Starting point
 		this.mountains.push(0);
-		this.mountains.push(WorldHeight - 1 - Math.random() * MountainHeightMax);
+		this.mountains.push(WorldHeight - 1 - seeded_rng() * MountainHeightMax);
 
 		// Rescue area
 		this.mountains.push(MountainRescueAreaLeft);
@@ -259,19 +261,19 @@ var StateGame = FlynnState.extend({
 		var last_was_flat = true;
 		var mountain_y = 0;
 		while(mountain_x < WorldWidth - MountainWidthMax - MountainBaseAreaWidth - MountainBaseAreaMargin){
-			var width = Math.floor(MountainWidthMin + Math.random() * (MountainWidthMax - MountainWidthMin));
+			var width = Math.floor(MountainWidthMin + seeded_rng() * (MountainWidthMax - MountainWidthMin));
 			mountain_x += width;
 			this.mountains.push(mountain_x);
-			if (!last_was_flat && Math.random()<MountainFlatProbability){
+			if (!last_was_flat && seeded_rng()<MountainFlatProbability){
 				// Create a flat region; (maintain y from last time)
 				last_was_flat = true;
-				if (Math.random() < LaserPodSpawnProbability){
+				if (seeded_rng() < LaserPodSpawnProbability){
 					this.laserPods.push(new LaserPod(
 						Points.LASER_POD, LaserPodScale, new Victor(mountain_x-width/2, mountain_y-1), LaserPodColor));
 				}
 			} else{
 				// Create a mountain (slope)
-				mountain_y = WorldHeight - 1 - Math.random() * MountainHeightMax;
+				mountain_y = WorldHeight - 1 - seeded_rng() * MountainHeightMax;
 				last_was_flat = false;
 			}
 			this.mountains.push(mountain_y);
@@ -297,27 +299,32 @@ var StateGame = FlynnState.extend({
 			base_left_x + LaunchBuildingDistanceFromBaseEdge,
 			WorldHeight - MountainBaseAreaHeight -1,
 			FlynnColors.YELLOW_DK));
-		this.structures.push(new Structure(Points.WINDOW, LaunchBuildingScale,
+		this.structures.push(new Structure(Points.WINDOW, WindowScale,
 			base_left_x + LaunchBuildingDistanceFromBaseEdge - 5,
-			WorldHeight - MountainBaseAreaHeight - 22,
+			WorldHeight - MountainBaseAreaHeight - 32,
 			FlynnColors.YELLOW_DK));
+		this.structures.push(new Structure(Points.WINDOW, WindowScale,
+			base_left_x + LaunchBuildingDistanceFromBaseEdge +44,
+			WorldHeight - MountainBaseAreaHeight - 8,
+			FlynnColors.YELLOW_DK));
+
 		this.structures.push(new Structure(Points.BASE_DOOR, BaseDoorScale,
 			base_left_x + BaseBuildingDistanceFromBaseEdge,
 			WorldHeight - MountainBaseAreaHeight - 1,
 			FlynnColors.CYAN_DK));
-		this.structures.push(new Structure(Points.WINDOW, BaseDoorScale,
-			base_left_x + BaseBuildingDistanceFromBaseEdge - 28,
-			WorldHeight - MountainBaseAreaHeight - 10,
+		this.structures.push(new Structure(Points.WINDOW, WindowScale,
+			base_left_x + BaseBuildingDistanceFromBaseEdge - 32,
+			WorldHeight - MountainBaseAreaHeight - 8,
 			FlynnColors.CYAN_DK));
-		this.structures.push(new Structure(Points.WINDOW, BaseDoorScale,
-			base_left_x + BaseBuildingDistanceFromBaseEdge + 28,
-			WorldHeight - MountainBaseAreaHeight - 10,
+		this.structures.push(new Structure(Points.WINDOW, WindowScale,
+			base_left_x + BaseBuildingDistanceFromBaseEdge + 20,
+			WorldHeight - MountainBaseAreaHeight - 8,
 			FlynnColors.CYAN_DK));
 
 		this.mountains.push(WorldWidth - MountainBaseAreaMargin);
 		this.mountains.push(WorldHeight - MountainBaseAreaHeight);
 		this.mountains.push(WorldWidth);
-		this.mountains.push(WorldHeight - 1 - Math.random() * MountainHeightMax);
+		this.mountains.push(WorldHeight - 1 - seeded_rng() * MountainHeightMax);
 
 		// Calculate altitude and slope of mountain at every world x coordinate
 		this.altitude = [];
@@ -519,7 +526,9 @@ var StateGame = FlynnState.extend({
 
 		this.gameClock += paceFactor;
 
-		this.spawn_manager.update(paceFactor);
+		if(!this.gameOver){
+			this.spawn_manager.update(paceFactor);
+		}
 
 		if (this.ship.visible){
 			if (this.ship.dead){
