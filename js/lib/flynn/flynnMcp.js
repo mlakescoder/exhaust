@@ -37,7 +37,7 @@ var FlynnMcp = Class.extend({
 
         // Setup options
         this.options = {};
-        this.optionManager = new FlynnOptionManager(this.options);
+        this.optionManager = new FlynnOptionManager(this);
 
 		this.custom={}; // Container for custom game data which needs to be exchanged globally.
 

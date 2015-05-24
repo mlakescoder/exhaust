@@ -36,9 +36,6 @@ var Game = Class.extend({
 		);
 		this.mcp.nextState = States.MENU;
 
-		// Setup options
-		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
-        
         // Setup inputs
 		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
 		this.input.addVirtualButton('rotate right', FlynnKeyboardMap['x'], FlynnConfigurable);
@@ -61,6 +58,12 @@ var Game = Class.extend({
 			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5'], FlynnConfigurable);
 			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1'], FlynnConfigurable);
 		}
+
+		// Options
+		this.mcp.optionManager.addOptionFromVirtualButton('rotate left');
+		this.mcp.optionManager.addOptionFromVirtualButton('rotate right');
+		this.mcp.optionManager.addOptionFromVirtualButton('thrust');
+		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
 
 		// Scores
 		this.mcp.highscores = [
