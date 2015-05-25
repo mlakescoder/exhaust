@@ -3,7 +3,6 @@
 //    Allow user to configure game options
 //--------------------------------------------
 
-
 var OptionSelectionMargin = 5;
 var OptionSelectionMarginInset = 2;
 var OptionTextScale = 2.0;
@@ -97,6 +96,13 @@ var StateConfig = FlynnState.extend({
 				case FlynnOptionType.INPUT_KEY:
 					input.armKeyCodeCapture();
 					this.keyAssignmentInProgress = true;
+					break;
+
+				case FlynnOptionType.COMMAND:
+					commandHandler = optionDescriptor.commandHandler;
+					if (commandHandler !== null){
+						commandHandler();
+					}
 					break;
 			}
 		}
@@ -253,7 +259,7 @@ var StateConfig = FlynnState.extend({
 			}
         }
 
-        // Show currently selected option
+        // Draw box around currently selected option
         if(selectionBox !== null){
 			ctx.vectorRect(
 				selectionBox.x,
@@ -262,37 +268,6 @@ var StateConfig = FlynnState.extend({
 				selectionBox.height,
 				OptionSelectionBoxColor);
 		}
-
-  //       for (var i=0, len=names.length; i<len; i++){
-
-		// 	ctx.vectorText(names[i] + ":",
-		// 		2, menu_center_x - OptionCenterGapWidth/2,
-		// 		menu_top_y + menu_line_height * i,
-		// 		0, OptionMenuTextColor);
-
-		// 	var boundKeyName = this.mcp.input.getVirtualButtonBoundKeyName(names[i]);
-		// 	var boundKeyNameColor = OptionMenuTextColor;
-		// 	if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
-		// 		boundKeyName = "PRESS NEW KEY";
-		// 		boundKeyNameColor = OptionMenuPromptColor;
-		// 	}
-		// 	ctx.vectorText(boundKeyName,
-		// 		2, menu_center_x + OptionCenterGapWidth/2,
-		// 		menu_top_y + menu_line_height * i,
-		// 		null, boundKeyNameColor);
-		// 	++current_menu_line;
-  //       }
-
-  //       // Show currently selected option
-  //       // ctx.strokeStyle=OptionSelectionBoxColor;
-  //       // ctx.beginPath();
-		// ctx.vectorRect(
-		// 	menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + 0.5,
-		// 	menu_top_y + menu_line_height * this.selectedLineIndex - OptionSelectionMargin + 0.5,
-		// 	OptionSelectionWidth,
-		// 	OptionTextHeight + 2*OptionSelectionMargin,
-		// 	OptionSelectionBoxColor);
-		// // ctx.stroke();
 	}
 
 });

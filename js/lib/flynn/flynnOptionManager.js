@@ -36,7 +36,9 @@ var FlynnOptionManager = Class.extend({
 		this.mcp = mcp;
 		this.optionDescriptors = {};
 
-		this.addOption('revertDefaults', FlynnOptionType.COMMAND, true, true, 'REVERT TO DEFAULTS', null, null);
+		var self = this;
+		this.addOption('revertDefaults', FlynnOptionType.COMMAND, true, true, 'REVERT TO DEFAULTS', null,
+			function(){self.revertToDefaults();});
 	},
 
 	addOption: function(keyName, type, defaultValue, currentValue, promptText, promptValues, commandHandler){
@@ -83,10 +85,12 @@ var FlynnOptionManager = Class.extend({
 	},
 
 	revertToDefaults: function(){
-		for (var descriptor in this.optionDescriptors){
+		console.log('revertToDefaults');
+		for (var keyName in this.optionDescriptors){
+			var descriptor = this.optionDescriptors[keyName];
 			descriptor.currentValue = descriptor.defaultValue;
 			if(descriptor.type in FlynnShadowedOptionTypes){
-				this.mcp.options[descriptor.keyName] = descriptor.defaultValue;
+				this.mcp.options[keyName] = descriptor.defaultValue;
 			}
 		}
 	},

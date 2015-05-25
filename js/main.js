@@ -66,19 +66,11 @@ var Game = Class.extend({
 		this.mcp.optionManager.addOptionFromVirtualButton('rotate right');
 		this.mcp.optionManager.addOptionFromVirtualButton('thrust');
 		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
-		this.mcp.optionManager.addOption('resetScores', FlynnOptionType.COMMAND, true, true, 'RESET HIGH SCORES', null, null);
+		this.mcp.optionManager.addOption('resetScores', FlynnOptionType.COMMAND, true, true, 'RESET HIGH SCORES', null,
+			function(){self.resetScores();});
 
-		// Scores
-		this.mcp.highscores = [
-			["FIENDFODDER", 2000],
-			["FLOATINHEAD", 1300],
-			["WILLIAMS", 1200],
-			["GORLIN", 1100],
-			["DELMAN", 600],
-			["BURNESS", 500],
-		];
-		this.mcp.custom.score = 0;
-
+		// Reset Scores
+		this.resetScores();
 		
 		// Set resize handler and force a resize
 		this.mcp.setResizeFunc( function(width, height){
@@ -90,6 +82,18 @@ var Game = Class.extend({
 			}
 		});
 		this.mcp.resize();
+	},
+
+	resetScores: function(){
+		this.mcp.highscores = [
+			["FIENDFODDER", 2000],
+			["FLOATINHEAD", 1300],
+			["WILLIAMS", 1200],
+			["GORLIN", 1100],
+			["DELMAN", 600],
+			["BURNESS", 500],
+		];
+		this.mcp.custom.score = 0;
 	},
 
 	run: function() {
