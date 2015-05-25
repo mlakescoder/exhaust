@@ -102,11 +102,31 @@ var FlynnOptionManager = Class.extend({
 	},
 
 	getOptionKeyNames: function(){
-		var keyNames = [];
+		// Get all option key names and return them ordered by input keys, multi options, booleans, and commands.
+
+		var keyNamesInputKey = [];
+		var keyNamesCommand = [];
+		var keyNamesMulti = [];
+		var keyNamesBoolean = [];
+
 		for (var keyName in this.optionDescriptors){
-			keyNames.push(keyName);
+			switch(this.optionDescriptors[keyName].type){
+				case FlynnOptionType.INPUT_KEY:
+					keyNamesInputKey.push(keyName);
+					break;
+				case FlynnOptionType.COMMAND:
+					keyNamesCommand.push(keyName);
+					break;
+				case FlynnOptionType.MULTI:
+					keyNamesMulti.push(keyName);
+					break;
+				case FlynnOptionType.BOOLEAN:
+					keyNamesBoolean.push(keyName);
+					break;
+
+			}
 		}
-		return keyNames;
+		return keyNamesInputKey.concat(keyNamesMulti, keyNamesBoolean, keyNamesCommand);
 	},
 
 });
