@@ -56,9 +56,13 @@ var FlynnOptionManager = Class.extend({
 
 	setOption: function(keyName, value){
 		if(keyName in this.optionDescriptors){
-			this.optionDescriptors[keyName].currentValue = value;
-			if(this.optionDescriptors[keyName].type in FlynnShadowedOptionTypes){
+			var optionDescriptor = this.optionDescriptors[keyName];
+			optionDescriptor.currentValue = value;
+			if(optionDescriptor.type in FlynnShadowedOptionTypes){
 				this.mcp.options[keyName] = value;
+			}
+			if(optionDescriptor.type === FlynnOptionType.INPUT_KEY){
+				this.mcp.input.bindVirtualButtonToKey(keyName, value);
 			}
 		}
 		else{
@@ -67,7 +71,7 @@ var FlynnOptionManager = Class.extend({
 		}
 	},
 
-	getOption: function(keyName, value){
+	getOption: function(keyName){
 		if(keyName in this.optionDescriptors){
 			return(this.optionDescriptors[keyName].currentValue);
 		}

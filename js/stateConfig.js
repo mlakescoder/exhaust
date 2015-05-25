@@ -35,16 +35,17 @@ var StateConfig = FlynnState.extend({
 	},
 
 	handleInputs: function(input, paceFactor) {
+		var optionKeyName = this.optionKeyNames[this.selectedLineIndex];
+
 		if(this.keyAssignmentInProgress){
 			var capturedKeyCode = input.getCapturedKeyCode();
 			if (capturedKeyCode){
 				if(!input.isKeyCodeAssigned(capturedKeyCode)){
 					// The chosen keyCode is available.  Assign it.
-					input.bindVirtualButtonToKey(this.configurableVirtualButtonNames[this.selectedLineIndex], capturedKeyCode);
+					this.mcp.optionManager.setOption(optionKeyName, capturedKeyCode);
 					this.keyAssignmentInProgress = false;
 				} else{
-					var currentVirtualButtonName = this.configurableVirtualButtonNames[this.selectedLineIndex];
-					currentlyAssignedKeyCode = input.getVirtualButtonBoundKeyCode(currentVirtualButtonName);
+					currentlyAssignedKeyCode = this.mcp.optionManager.getOption(optionKeyName);
 					if (currentlyAssignedKeyCode === capturedKeyCode){
 						// User pressed the key which was already assigned.  Do nothing.
 						this.keyAssignmentInProgress = false;
@@ -94,8 +95,8 @@ var StateConfig = FlynnState.extend({
 					break;
 
 				case FlynnOptionType.INPUT_KEY:
-					// input.armKeyCodeCapture();
-					// this.keyAssignmentInProgress = true;
+					input.armKeyCodeCapture();
+					this.keyAssignmentInProgress = true;
 					break;
 			}
 		}
@@ -180,6 +181,7 @@ var StateConfig = FlynnState.extend({
 
 			// Render option value(s)
 			var valueText = '';
+			var valueColor = OptionMenuTextColor;
 			switch(optionDescriptor.type){
 				case FlynnOptionType.BOOLEAN:
 					if (optionDescriptor.currentValue === true){
@@ -226,7 +228,13 @@ var StateConfig = FlynnState.extend({
 
 				case FlynnOptionType.INPUT_KEY:
 					var keyCode = optionDescriptor.currentValue;
-					valueText = this.mcp.input.keyCodeToKeyName(keyCode);
+					if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
+						valueText = "PRESS NEW KEY";
+						valueColor = OptionMenuPromptColor;
+					}
+					else{
+						valueText = this.mcp.input.keyCodeToKeyName(keyCode);
+					}
 					lineSelectionBox = {
 						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin,
 						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
@@ -235,7 +243,6 @@ var StateConfig = FlynnState.extend({
 					break;
 
 			}
-			var valueColor = OptionMenuTextColor;
 			ctx.vectorText(
 				valueText,
 				2, menu_center_x + OptionCenterGapWidth/2,
