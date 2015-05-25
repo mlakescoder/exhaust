@@ -3,23 +3,23 @@
 //    Allow user to configure game options
 //--------------------------------------------
 
-var OptionSelectionMargin = 5;
-var OptionSelectionMarginInset = 2;
-var OptionTextScale = 2.0;
-var OptionTextHeight = FlynnCharacterHeight * OptionTextScale;
-var OptionFuncitonWidth = 190;
-var OptionCenterGapWidth = FlynnCharacterWidth * 2 * OptionTextScale;
-var OptionKeyPrompt = "PRESS NEW KEY";
-var OptionInputKeyValueWidth = OptionTextScale * FlynnCharacterSpacing * OptionKeyPrompt.length+1 + OptionSelectionMargin * 2;
-var OptionMainTextColor = FlynnColors.ORANGE;
-var OptionMenuTextColor = FlynnColors.YELLOW;
-var OptionSelectionBoxColor = FlynnColors.CYAN;
-var OptionMenuPromptColor = FlynnColors.MAGENTA;
+var FlynnOptionSelectionMargin = 5;
+var FlynnOptionSelectionMarginInset = 2;
+var FlynnOptionTextScale = 2.0;
+var FlynnOptionTextHeight = FlynnCharacterHeight * FlynnOptionTextScale;
+var FlynnOptionFuncitonWidth = 190;
+var FlynnOptionCenterGapWidth = FlynnCharacterWidth * 2 * FlynnOptionTextScale;
+var FlynnOptionKeyPrompt = "PRESS NEW KEY";
+var FlynnOptionInputKeyValueWidth = FlynnOptionTextScale * FlynnCharacterSpacing * FlynnOptionKeyPrompt.length+1 + FlynnOptionSelectionMargin * 2;
 
-var StateConfig = FlynnState.extend({
+var FlynnStateConfig = FlynnState.extend({
 
-	init: function(mcp){
+	init: function(mcp, mainTextColor, menuTextColor, selectionBoxColor, menuPromptColor){
 		this._super(mcp);
+		this.mainTextColor = mainTextColor;
+		this.menuTextColor = menuTextColor;
+		this.selectionBoxColor = selectionBoxColor;
+		this.menuPromptColor = menuPromptColor;
 
 		this.canvasWidth = mcp.canvas.ctx.width;
 		this.canvasHeight = mcp.canvas.ctx.height;
@@ -136,15 +136,15 @@ var StateConfig = FlynnState.extend({
 	render: function(ctx) {
         ctx.clearAll();
 
-        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 100, null, OptionMainTextColor);
+        ctx.vectorText("CONFIGURATION OPTIONS", 4, null, 100, null, this.mainTextColor);
 
         var line_spacing = 15;
         var line_y = 160;
-        ctx.vectorText("PRESS <UP>/<DOWN> TO SELECT A CONTROL", 1.5, null, line_y, null, OptionMainTextColor);
+        ctx.vectorText("PRESS <UP>/<DOWN> TO SELECT A CONTROL", 1.5, null, line_y, null, this.mainTextColor);
         line_y += line_spacing;
-        ctx.vectorText("PRESS <ENTER> TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, OptionMainTextColor);
+        ctx.vectorText("PRESS <ENTER> TO EDIT THE SELECTED CONTROL", 1.5, null, line_y, null, this.mainTextColor);
         line_y += line_spacing;
-        ctx.vectorText("PRESS <ESCAPE> TO EXIT/CANCEL", 1.5, null, line_y, null, OptionMainTextColor);
+        ctx.vectorText("PRESS <ESCAPE> TO EXIT/CANCEL", 1.5, null, line_y, null, this.mainTextColor);
 
         var names = this.configurableVirtualButtonNames;
         
@@ -166,28 +166,28 @@ var StateConfig = FlynnState.extend({
 						optionDescriptor.promptText,
 						2, null,
 						menu_top_y + menu_line_height * i,
-						null, OptionMenuTextColor);
+						null, this.menuTextColor);
 
-					textWidth = (optionDescriptor.promptText.length * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					textWidth = (optionDescriptor.promptText.length * FlynnCharacterSpacing - FlynnCharacterGap) * FlynnOptionTextScale;
 					lineSelectionBox = {
-						x: this.canvasWidth/2 - textWidth/2 - OptionSelectionMargin,
-						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
-						width: textWidth + OptionSelectionMargin * 2,
-						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+						x: this.canvasWidth/2 - textWidth/2 - FlynnOptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - FlynnOptionSelectionMargin,
+						width: textWidth + FlynnOptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * FlynnOptionTextScale + FlynnOptionSelectionMargin * 2};
 
 					break;
 				default:
 					ctx.vectorText(
 						optionDescriptor.promptText + ':',
-						2, menu_center_x - OptionCenterGapWidth/2,
+						2, menu_center_x - FlynnOptionCenterGapWidth/2,
 						menu_top_y + menu_line_height * i,
-						0, OptionMenuTextColor);
+						0, this.menuTextColor);
 					break;
 			}
 
 			// Render option value(s)
 			var valueText = '';
-			var valueColor = OptionMenuTextColor;
+			var valueColor = this.menuTextColor;
 			switch(optionDescriptor.type){
 				case FlynnOptionType.BOOLEAN:
 					if (optionDescriptor.currentValue === true){
@@ -197,12 +197,12 @@ var StateConfig = FlynnState.extend({
 						valueText = "OFF";
 					}
 
-					textWidth = (3 * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					textWidth = (3 * FlynnCharacterSpacing - FlynnCharacterGap) * FlynnOptionTextScale;
 					lineSelectionBox = {
-						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin,
-						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
-						width: textWidth + OptionSelectionMargin * 2,
-						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+						x: menu_center_x + FlynnOptionCenterGapWidth/2 - FlynnOptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - FlynnOptionSelectionMargin,
+						width: textWidth + FlynnOptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * FlynnOptionTextScale + FlynnOptionSelectionMargin * 2};
 					break;
 
 				case FlynnOptionType.MULTI:
@@ -217,18 +217,18 @@ var StateConfig = FlynnState.extend({
 							characterSkip += optionDescriptor.promptValues[j][0].length + 2;
 						}
 					}
-					textWidth = (optionDescriptor.promptValues[currentPromptValueIndex][0].length * FlynnCharacterSpacing - FlynnCharacterGap) * OptionTextScale;
+					textWidth = (optionDescriptor.promptValues[currentPromptValueIndex][0].length * FlynnCharacterSpacing - FlynnCharacterGap) * FlynnOptionTextScale;
 					lineSelectionBox = {
-						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin + (characterSkip * FlynnCharacterSpacing * OptionTextScale) ,
-						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
-						width: textWidth + OptionSelectionMargin * 2,
-						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+						x: menu_center_x + FlynnOptionCenterGapWidth/2 - FlynnOptionSelectionMargin + (characterSkip * FlynnCharacterSpacing * FlynnOptionTextScale) ,
+						y: menu_top_y + menu_line_height * i - FlynnOptionSelectionMargin,
+						width: textWidth + FlynnOptionSelectionMargin * 2,
+						height: FlynnCharacterHeight * FlynnOptionTextScale + FlynnOptionSelectionMargin * 2};
 
 					ctx.vectorRect(
-						lineSelectionBox.x+OptionSelectionMarginInset,
-						lineSelectionBox.y+OptionSelectionMarginInset,
-						lineSelectionBox.width-OptionSelectionMarginInset*2,
-						lineSelectionBox.height-OptionSelectionMarginInset*2,
+						lineSelectionBox.x+FlynnOptionSelectionMarginInset,
+						lineSelectionBox.y+FlynnOptionSelectionMarginInset,
+						lineSelectionBox.width-FlynnOptionSelectionMarginInset*2,
+						lineSelectionBox.height-FlynnOptionSelectionMarginInset*2,
 						valueColor);
 					break;
 
@@ -236,22 +236,22 @@ var StateConfig = FlynnState.extend({
 					var keyCode = optionDescriptor.currentValue;
 					if(this.keyAssignmentInProgress && i===this.selectedLineIndex){
 						valueText = "PRESS NEW KEY";
-						valueColor = OptionMenuPromptColor;
+						valueColor = this.menuPromptColor;
 					}
 					else{
 						valueText = this.mcp.input.keyCodeToKeyName(keyCode);
 					}
 					lineSelectionBox = {
-						x: menu_center_x + OptionCenterGapWidth/2 - OptionSelectionMargin,
-						y: menu_top_y + menu_line_height * i - OptionSelectionMargin,
-						width: OptionInputKeyValueWidth,
-						height: FlynnCharacterHeight * OptionTextScale + OptionSelectionMargin * 2};
+						x: menu_center_x + FlynnOptionCenterGapWidth/2 - FlynnOptionSelectionMargin,
+						y: menu_top_y + menu_line_height * i - FlynnOptionSelectionMargin,
+						width: FlynnOptionInputKeyValueWidth,
+						height: FlynnCharacterHeight * FlynnOptionTextScale + FlynnOptionSelectionMargin * 2};
 					break;
 
 			}
 			ctx.vectorText(
 				valueText,
-				2, menu_center_x + OptionCenterGapWidth/2,
+				2, menu_center_x + FlynnOptionCenterGapWidth/2,
 				menu_top_y + menu_line_height * i,
 				null, valueColor);
 			if(i === this.selectedLineIndex){
@@ -266,7 +266,7 @@ var StateConfig = FlynnState.extend({
 				selectionBox.y,
 				selectionBox.width,
 				selectionBox.height,
-				OptionSelectionBoxColor);
+				this.selectionBoxColor);
 		}
 	}
 

@@ -85,7 +85,6 @@ var FlynnOptionManager = Class.extend({
 	},
 
 	revertToDefaults: function(){
-		console.log('revertToDefaults');
 		for (var keyName in this.optionDescriptors){
 			var descriptor = this.optionDescriptors[keyName];
 			descriptor.currentValue = descriptor.defaultValue;

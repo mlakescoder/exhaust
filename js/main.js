@@ -30,7 +30,7 @@ var Game = Class.extend({
 					case States.END:
 						return new StateEnd(self.mcp);
 					case States.CONFIG:
-						return new StateConfig(self.mcp);
+						return new FlynnStateConfig(self.mcp, FlynnColors.ORANGE, FlynnColors.YELLOW, FlynnColors.CYAN, FlynnColors.MAGENTA);
 				}
 			}
 		);
