@@ -191,8 +191,8 @@ var StateGame = FlynnState.extend({
 		this.generateLvl();
 
 		// Timers
-		this.mcp.timers.add('shipRespawnDelay', ShipRespawnDelayGameStartTicks);  // Start game with a delay (for start sound to finish)
-		this.mcp.timers.add('shipRespawnAnimation', 0);
+		this.mcp.timers.add('shipRespawnDelay', ShipRespawnDelayGameStartTicks, null);  // Start game with a delay (for start sound to finish)
+		this.mcp.timers.add('shipRespawnAnimation', 0, null);
 
 
 		// Pop-up messages
@@ -388,6 +388,7 @@ var StateGame = FlynnState.extend({
 	doShipDie: function(){
 		this.ship.dead = true; // Mark the player as dead
 		this.ship.human_on_board = false; // Kill the passenger
+		this.ship.is_landed = false;
 		this.player_die_sound.play();
 		this.particles.explosion(
 			this.ship.world_x,
@@ -407,8 +408,8 @@ var StateGame = FlynnState.extend({
 			ShipExplosionMaxVelocity,
 			FlynnColors.YELLOW,
 			ParticleTypes.EXHAUST);
-		this.mcp.timers.set('shipRespawnDelay', ShipRespawnDelayTicks);
-		this.mcp.timers.set('shipRespawnAnimation', 0); // Set to zero to deactivate it
+		this.mcp.timers.set('shipRespawnDelay', ShipRespawnDelayTicks, null);
+		this.mcp.timers.set('shipRespawnAnimation', 0, null); // Set to zero to deactivate it
 	},
 
 	handleInputs: function(input, paceFactor) {
@@ -608,30 +609,24 @@ var StateGame = FlynnState.extend({
 			}
 		}
 		else{
-			// Respawn after min delay is met
-			if(!this.gameOver && this.mcp.timers.isExpired('shipRespawnDelay')){
-				if(!this.mcp.timers.isActive('shipRespawnAnimation')){
+			// Ship is not visible
+			if(!this.gameOver){
+				if(this.mcp.timers.hasExpired('shipRespawnDelay')){
 					// Start the respawn animation timer (which also triggers the animation)
 					this.mcp.timers.set('shipRespawnAnimation', ShipRespawnAnimationTicks);
 					this.ship_respawn_sound.play();
 				}
-				else{
-					// Respawn animation timer is active
-
-					// If respawn animation has finished...
-					if(this.mcp.timers.isExpired('shipRespawnAnimation')){
-						// Deactivate the timer
-						this.mcp.timers.set('shipRespawnAnimation', 0);
-						// Respawn the ship
-						this.ship.world_x = ShipStartX;
-						this.ship.world_y = ShipStartY;
-						this.ship.angle = ShipStartAngle;
-						this.ship.vel.x = 0;
-						this.ship.vel.y = 0;
-						this.ship.visible = true;
-						this.ship.dead = false;
-					}
+				if(this.mcp.timers.hasExpired('shipRespawnAnimation')){
+					// Respawn the ship
+					this.ship.world_x = ShipStartX;
+					this.ship.world_y = ShipStartY;
+					this.ship.angle = ShipStartAngle;
+					this.ship.vel.x = 0;
+					this.ship.vel.y = 0;
+					this.ship.visible = true;
+					this.ship.dead = false;
 				}
+
 			}
 		}
 
@@ -913,7 +908,7 @@ var StateGame = FlynnState.extend({
 		// Viewport
 		var goal_x = this.ship.world_x;
 		var goal_y = this.ship.world_y;
-		if (!this.ship.visible && this.mcp.timers.isExpired('shipRespawnDelay') && !this.gameOver){
+		if (!this.ship.visible && !this.mcp.timers.isRunning('shipRespawnDelay') && !this.gameOver){
 			// Pan to ship start location after ship death
 			goal_x = ShipStartX;
 			goal_y = ShipStartY;
@@ -952,7 +947,7 @@ var StateGame = FlynnState.extend({
 		// }
 
 		// Ship respawn animation
-		if(this.mcp.timers.isActive('shipRespawnAnimation')){
+		if(this.mcp.timers.isRunning('shipRespawnAnimation')){
 			var animationPercentage = this.mcp.timers.get('shipRespawnAnimation') / ShipRespawnAnimationTicks;
 			var sizePercentageStep = 0.005;
 			var rotationPercentageStep = 0.1;

@@ -270,15 +270,6 @@ var Human = FlynnPolygon.extend({
 				}
 
 				this.angles_deg[i] += update;
-				// if (Math.abs(delta) < 1){
-				// 	this.angles_deg[i] = this.angles_deg_goal[i];
-				// }
-				// else if (delta > 0){
-				// 	this.angles_deg[i]+=HumanLimbSpeed;
-				// }
-				// else{
-				// 	this.angles_deg[i]-=HumanLimbSpeed;
-				// }
 			}
 		}
 	},
