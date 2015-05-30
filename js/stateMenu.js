@@ -46,7 +46,7 @@ var StateMenu = FlynnState.extend({
             }
         }
 
-		if (  ( !this.mcp.arcadeModeEnabled && input.virtualButtonIsPressed("enter")) ||
+		if (  ( !this.mcp.arcadeModeEnabled && input.virtualButtonIsPressed("UI_enter")) ||
             ( this.mcp.arcadeModeEnabled && (this.mcp.credits > 0) && input.virtualButtonIsPressed("start_1")))
         {
             this.mcp.credits -= 1;
@@ -54,7 +54,7 @@ var StateMenu = FlynnState.extend({
 			this.start_sound.play();
 		}
 
-        if (input.virtualButtonIsPressed("config")) {
+        if (input.virtualButtonIsPressed("UI_escape")) {
             this.mcp.nextState = States.CONFIG;
         }
 	},
