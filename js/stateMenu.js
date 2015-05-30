@@ -86,15 +86,14 @@ var StateMenu = FlynnState.extend({
 
         var startText;
         var controlsText;
-        // if (this.mcp.arcadeModeEnabled) {
-        //     startText =     "        PRESS START";
-        //     //              #########################################
-        //     controlsText = "LEFT/RIGHT BUTTON TO THRUST/SHOOT";
-        //     this.mcp.custom.thrustPrompt = "PRESS LEFT BUTTON TO THRUST";
-        //     this.mcp.custom.shootPrompt = "PRESS RIGHT BUTTON TO SHOOT";
-        //     ctx.vectorText(this.mcp.credits + " Credits", 2, 10, this.canvasHeight - 20, null, FlynnColors.YELLOW);
-        // }
-        // else {
+        if (this.mcp.arcadeModeEnabled) {
+            startText = "PRESS START";
+            controlsText = "LEFTMOST WHITE BUTTONS TO ROTATE        FAR RIGHT WHITE BUTTON TO THRUST";
+            // this.mcp.custom.thrustPrompt = "PRESS LEFT BUTTON TO THRUST";
+            // this.mcp.custom.shootPrompt = "PRESS RIGHT BUTTON TO SHOOT";
+            ctx.vectorText(this.mcp.credits + " Credits", 2, 10, this.canvasHeight - 20, null, FlynnColors.ORANGE);
+        }
+        else {
             if (!this.mcp.browserSupportsTouch) {
                 startText = "PRESS <ENTER> TO START";
                 controlsText =
@@ -111,6 +110,7 @@ var StateMenu = FlynnState.extend({
                 controlsText = "ROTATE LEFT:TAP FAR LEFT       ROTATE RIGHT: TAP MID LEFT       THRUST:TAP RIGHT";
                 this.mcp.custom.thrustPrompt = "PRESS RIGHT TO THRUST";
             }
+        }
 
         //      this.mcp.custom.shootPrompt = "PRESS SPACE TO SHOOT";
         //     } else {

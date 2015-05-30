@@ -59,6 +59,9 @@ var Game = Class.extend({
 		if(this.mcp.arcadeModeEnabled){
 			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5'], FlynnConfigurable);
 			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1'], FlynnConfigurable);
+			this.input.addVirtualButton('thrust', FlynnKeyboardMap['r'], FlynnConfigurable);
+			//this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
+			this.input.addVirtualButton('rotate right', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
 		}
 
 		// Options
