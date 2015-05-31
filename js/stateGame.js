@@ -147,8 +147,8 @@ var StateGame = FlynnState.extend({
 		this.kamikazes = [];
 		this.laserPods = [];
 
-		this.lvl = 0;
-		this.spawn_manager = new SpawnManager(this.lvl);
+		this.level = 0;
+		this.spawn_manager = new SpawnManager(this.level);
 
 		this.engine_sound = new Howl({
 			src: ['sounds/Engine.ogg','sounds/Engine.mp3'],
@@ -221,7 +221,7 @@ var StateGame = FlynnState.extend({
 	generateLvl: function() {
 		var margin = 20;
 		var seed;
-		switch(this.lvl){
+		switch(this.level){
 			case 0:
 				seed = 'seed7';
 				break;
@@ -237,7 +237,7 @@ var StateGame = FlynnState.extend({
 
 		this.ship.angle = ShipStartAngle;
 		this.humans_rescued = 0;
-		this.spawn_manager.init(this.lvl);
+		this.spawn_manager.init(this.level);
 
 		this.stars = [];
 		for (var i=0; i<NumStars; i++){
@@ -296,7 +296,7 @@ var StateGame = FlynnState.extend({
 				last_was_flat = true;
 				if (seeded_rng() < LaserPodSpawnProbability){
 					this.laserPods.push(new LaserPod(
-						Points.LASER_POD, LaserPodScale, new Victor(mountain_x-width/2, mountain_y-1), LaserPodColor));
+						Points.LASER_POD, LaserPodScale, new Victor(mountain_x-width/2, mountain_y-1), LaserPodColor, this.level));
 				}
 			} else{
 				// Create a mountain (slope)
@@ -912,48 +912,48 @@ var StateGame = FlynnState.extend({
 
 		// Laser Pods
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
+			var laserPod = this.laserPods[i];
+			laserPod.update(paceFactor);
+			if (laserPod.state !== LaserPodState.DEAD){
+				killed = false;
 
-			this.laserPods[i].update(paceFactor);
-			killed = false;
-
-			// Check for Ship/(LaserPod or beam) collision
-			if(this.ship.visible){
-				if(this.laserPods[i].collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y))){
-					this.doShipDie();
-					this.soundLaserPod.play();
-					//killed = true;
+				// Check for Ship/(LaserPod or beam) collision
+				if(this.ship.visible){
+					if(laserPod.collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y))){
+						this.doShipDie();
+						this.soundLaserPod.play();
+						//killed = true;
+					}
 				}
-			}
 
-			// Check for exhaust/LaserPod collision
-			var laserPod_world_pos_v = this.laserPods[i].world_position_v;
-			for(j=0, len2=this.particles.particles.length; j<len2; j++){
-				ptc = this.particles.particles[j];
-				if(ptc.type === ParticleTypes.EXHAUST){
-					if(flynnProximal(50, ptc.x, laserPod_world_pos_v.x) && flynnProximal(50, ptc.y, laserPod_world_pos_v.y)){
-						if(this.laserPods[i].hasPoint(ptc.x, ptc.y)){
-							killed = true;
+				// Check for exhaust/LaserPod collision
+				var laserPod_world_pos_v = laserPod.world_position_v;
+				for(j=0, len2=this.particles.particles.length; j<len2; j++){
+					ptc = this.particles.particles[j];
+					if(ptc.type === ParticleTypes.EXHAUST){
+						if(flynnProximal(50, ptc.x, laserPod_world_pos_v.x) && flynnProximal(50, ptc.y, laserPod_world_pos_v.y)){
+							if(laserPod.hasPoint(ptc.x, ptc.y)){
+								killed = true;
+							}
 						}
 					}
 				}
-			}
 
-			if (killed){
-				// Remove LaserPod
-				this.particles.explosion(
-					this.laserPods[i].world_position_v.x,
-					this.laserPods[i].world_position_v.y,
-					0,
-					0,
-					LaserPodNumExplosionParticles,
-					LaserPodExplosionMaxVelocity * 0.6,
-					LaserPodColor,
-					ParticleTypes.PLAIN);
-				this.laserPods.splice(i,1);
-				i--;
-				len--;
-				this.addPoints(PointsLaserPod);
-				this.soundSaucerDie.play();
+				if (killed){
+					// Remove LaserPod
+					this.particles.explosion(
+						laserPod.world_position_v.x,
+						laserPod.world_position_v.y,
+						0,
+						0,
+						LaserPodNumExplosionParticles,
+						LaserPodExplosionMaxVelocity * 0.6,
+						LaserPodColor,
+						ParticleTypes.PLAIN);
+					laserPod.setDead();
+					this.addPoints(PointsLaserPod);
+					this.soundSaucerDie.play();
+				}
 			}
 		}
 
@@ -967,7 +967,7 @@ var StateGame = FlynnState.extend({
 			this.soundLevelAdvance.play();
 		}
 		if(this.mcp.timers.hasExpired('levelCompleteMessage')){
-			this.lvl++;
+			this.level++;
 			this.generateLvl();
 			this.resetShip();
 			this.hideShip();
@@ -1164,14 +1164,27 @@ var StateGame = FlynnState.extend({
 		}
 
 		// LaserPods
-		ctx.fillStyle=LaserPodColor;
 		ctx.vectorStart(LaserPodBeamColor);
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
-			radar_location = this.worldToRadar(this.laserPods[i].world_position_v.x, this.laserPods[i].world_position_v.y);
-			ctx.fillRect(radar_location[0], radar_location[1]-2,2,2);
-			radar_location[0] = Math.floor(radar_location[0]) + 1.5;
-			ctx.vectorMoveTo(radar_location[0], radar_location[1]-3);
-			ctx.vectorLineTo(radar_location[0], RadarTopMargin+2);
+			var laserPod = this.laserPods[i];
+			
+			if(laserPod.state === LaserPodState.DROPPING){
+				ctx.fillStyle=LaserPodColor;
+				radar_location = this.worldToRadar(laserPod.world_position_v.x, laserPod.world_position_v.y);
+				ctx.fillRect(radar_location[0]-1, radar_location[1]-3,4,4);
+				ctx.fillStyle=FlynnColors.WHITE;
+				ctx.fillRect(radar_location[0]-1, radar_location[1]-7,4,4);
+			}
+
+			if(laserPod.state === LaserPodState.ACTIVE){
+				ctx.fillStyle=LaserPodColor;
+				radar_location = this.worldToRadar(laserPod.world_position_v.x, laserPod.world_position_v.y);
+				ctx.fillRect(radar_location[0], radar_location[1]-2,2,2);
+
+				radar_location[0] = Math.floor(radar_location[0]) + 1.5;
+				ctx.vectorMoveTo(radar_location[0], radar_location[1]-3);
+				ctx.vectorLineTo(radar_location[0], RadarTopMargin+2);
+			}
 		}
 		ctx.vectorEnd();
 
