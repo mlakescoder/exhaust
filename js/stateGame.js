@@ -386,10 +386,20 @@ var StateGame = FlynnState.extend({
 	},
 
 	doShipDie: function(){
-		this.ship.dead = true; // Mark the player as dead
-		this.ship.human_on_board = false; // Kill the passenger
-		this.ship.is_landed = false;
+		// Visibility
+		this.ship.visible = false;
+
+		// Lives
+		this.lives--;
+		if(this.lives <= 0){
+			this.gameOver = true;
+		}
+
+		// Sounds
+		this.engine_sound.stop();
 		this.player_die_sound.play();
+
+		// Explosion
 		this.particles.explosion(
 			this.ship.world_x,
 			this.ship.world_y,
@@ -408,8 +418,14 @@ var StateGame = FlynnState.extend({
 			ShipExplosionMaxVelocity,
 			FlynnColors.YELLOW,
 			ParticleTypes.EXHAUST);
+		
+		// Timers
 		this.mcp.timers.set('shipRespawnDelay', ShipRespawnDelayTicks, null);
 		this.mcp.timers.set('shipRespawnAnimation', 0, null); // Set to zero to deactivate it
+
+		// State flags
+		this.ship.human_on_board = false; // Kill the passenger
+		this.ship.is_landed = false;
 	},
 
 	handleInputs: function(input, paceFactor) {
@@ -532,80 +548,69 @@ var StateGame = FlynnState.extend({
 		}
 
 		if (this.ship.visible){
-			if (this.ship.dead){
-				this.engine_sound.stop();
-				this.lives--;
-				if(this.lives <= 0){
-					this.gameOver = true;
+			// Update ship
+			this.ship.vel.y += Gravity * paceFactor;
+			this.ship.vel.x *= Math.pow((1-AtmosphericFriction), paceFactor);
+			this.ship.vel.y *= Math.pow((1-AtmosphericFriction), paceFactor);
+			this.ship.world_x += this.ship.vel.x * paceFactor;
+			this.ship.world_y += this.ship.vel.y * paceFactor;
+			var ground_y = this.altitude[Math.floor(this.ship.world_x)];
+			if (this.ship.world_y > ground_y - ShipToBottomLength){
+				this.ship.world_y = ground_y - ShipToBottomLength;
+				var landed=false;
+				// Crash or land
+				for(i=0, len=this.pads.length; i<len; i++){
+					var distance_to_center = Math.abs(this.ship.world_x - this.pads[i].world_x);
+					var landing_vel = this.ship.vel.y;
+					var lateral_vel_abs = Math.abs(this.ship.vel.x);
+					var landing_angle = flynnUtilAngleBound2Pi(this.ship.angle);
+					if (landing_vel > 0.3 && this.mcp.developerModeEnabled){
+						console.log("Landing velocity:", landing_vel);
+						console.log("Landing angle:", landing_angle);
+					}
+					if ((distance_to_center <= ShipLandingMargin) &&
+						(landing_vel < ShipLandingVelocityMax) &&
+						(lateral_vel_abs < ShipLandingLateralVelocitymax) &&
+						( (landing_angle < ShipLandingAngleMax) || (landing_angle>Math.PI*2-ShipLandingAngleMax))
+						)
+						{
+						this.ship.angle = ShipStartAngle;
+						this.ship.setAngle(this.ship.angle);
+						this.ship.vel.x = 0;
+						landed = true;
+						this.ship.is_landed = true;
+					}
 				}
-				this.ship.visible = false;
-				this.ship.dead = false;
+				if(!landed){
+					// Crash
+					this.doShipDie();
+				}
+				this.ship.vel.y = 0;
+			} else if (this.ship.world_y < 30){
+				this.ship.world_y = 30;
+				this.ship.vel.y = 0;
 			}
-			else{
-				// Update ship
-				this.ship.vel.y += Gravity * paceFactor;
-				this.ship.vel.x *= Math.pow((1-AtmosphericFriction), paceFactor);
-				this.ship.vel.y *= Math.pow((1-AtmosphericFriction), paceFactor);
-				this.ship.world_x += this.ship.vel.x * paceFactor;
-				this.ship.world_y += this.ship.vel.y * paceFactor;
-				var ground_y = this.altitude[Math.floor(this.ship.world_x)];
-				if (this.ship.world_y > ground_y - ShipToBottomLength){
-					this.ship.world_y = ground_y - ShipToBottomLength;
-					var landed=false;
-					// Crash or land
-					for(i=0, len=this.pads.length; i<len; i++){
-						var distance_to_center = Math.abs(this.ship.world_x - this.pads[i].world_x);
-						var landing_vel = this.ship.vel.y;
-						var lateral_vel_abs = Math.abs(this.ship.vel.x);
-						var landing_angle = flynnUtilAngleBound2Pi(this.ship.angle);
-						if (landing_vel > 0.3 && this.mcp.developerModeEnabled){
-							console.log("Landing velocity:", landing_vel);
-							console.log("Landing angle:", landing_angle);
-						}
-						if ((distance_to_center <= ShipLandingMargin) &&
-							(landing_vel < ShipLandingVelocityMax) &&
-							(lateral_vel_abs < ShipLandingLateralVelocitymax) &&
-							( (landing_angle < ShipLandingAngleMax) || (landing_angle>Math.PI*2-ShipLandingAngleMax))
-							)
-							{
-							this.ship.angle = ShipStartAngle;
-							this.ship.setAngle(this.ship.angle);
-							this.ship.vel.x = 0;
-							landed = true;
-							this.ship.is_landed = true;
-						}
-					}
-					if(!landed){
-						// Crash
-						this.doShipDie();
-					}
-					this.ship.vel.y = 0;
-				} else if (this.ship.world_y < 30){
-					this.ship.world_y = 30;
-					this.ship.vel.y = 0;
-				}
-				if (this.ship.world_x > WorldWidth - 40){
-					this.ship.world_x = WorldWidth - 40;
-					this.ship.vel.x = 0;
-				} else if (this.ship.world_x < 40){
-					this.ship.world_x = 40;
-					this.ship.vel.x = 0;
-				}
+			if (this.ship.world_x > WorldWidth - 40){
+				this.ship.world_x = WorldWidth - 40;
+				this.ship.vel.x = 0;
+			} else if (this.ship.world_x < 40){
+				this.ship.world_x = 40;
+				this.ship.vel.x = 0;
+			}
 
-				if (this.ship.world_y < ground_y - ShipToBottomLength - 5){
-					this.ship.is_landed = false;
-				}
+			if (this.ship.world_y < ground_y - ShipToBottomLength - 5){
+				this.ship.is_landed = false;
+			}
 
-				// Unload passenger
-				if(this.ship.is_landed && this.ship.human_on_board && this.ship.world_x > ShipStartX - 100){  //TODO: Lazy math
-					this.ship.human_on_board = false;
-					this.humans.push(new Human(
-						FlynnColors.WHITE,
-						this.ship.world_x + 20,
-						WorldHeight - MountainBaseAreaHeight,
-						this
-						));
-				}
+			// Unload passenger
+			if(this.ship.is_landed && this.ship.human_on_board && this.ship.world_x > ShipStartX - 100){  //TODO: Lazy math
+				this.ship.human_on_board = false;
+				this.humans.push(new Human(
+					FlynnColors.WHITE,
+					this.ship.world_x + 20,
+					WorldHeight - MountainBaseAreaHeight,
+					this
+					));
 			}
 		}
 		else{
@@ -624,9 +629,7 @@ var StateGame = FlynnState.extend({
 					this.ship.vel.x = 0;
 					this.ship.vel.y = 0;
 					this.ship.visible = true;
-					this.ship.dead = false;
 				}
-
 			}
 		}
 
