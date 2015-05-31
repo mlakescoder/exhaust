@@ -97,6 +97,10 @@ var Particles = Class.extend({
         this.fractionalExhaustParticles = 0;
     },
 
+    reset: function(){
+        this.init(this.gameState);
+    },
+
     explosion: function(x, y, dx, dy, quantity, max_velocity, color, particle_type) {
         for(var i=0; i<quantity; i++){
             theta = Math.random() * Math.PI * 2;

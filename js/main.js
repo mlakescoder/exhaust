@@ -48,6 +48,7 @@ var Game = Class.extend({
 			this.input.addVirtualButton('dev_die', FlynnKeyboardMap['9'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_rescue', FlynnKeyboardMap['0'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_base', FlynnKeyboardMap['-'], FlynnNotConfigurable);
+			this.input.addVirtualButton('dev_kill_human', FlynnKeyboardMap[']'], FlynnNotConfigurable);
 		}
 		if(this.mcp.arcadeModeEnabled){
 			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5'], FlynnConfigurable);

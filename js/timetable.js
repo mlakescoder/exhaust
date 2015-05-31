@@ -80,7 +80,7 @@ var SpawnManager = Class.extend({
 		else{
 			if(this.levelSecondsElapsed >= this.spawn_queue[0].seconds){
 				// Load spawn pool with the next wave
-				console.log("DEV: Spawning wave at " + Math.floor(this.levelSecondsElapsed) );
+				console.log('DEV: Spawning level ' + this.level + ' wave at ' + Math.floor(this.levelSecondsElapsed) );
 				this.loadSpawnPool(this.spawn_queue[0]);
 				if(this.spawn_queue[0].repeat){
 					// Last wave entry reached.  Repeat it.

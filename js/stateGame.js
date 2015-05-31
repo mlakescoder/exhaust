@@ -97,6 +97,7 @@ var PointsSaucer = 10;
 var PointsKamikaze = 30;
 var PointsLaserPod = 20;
 
+var levelCompleteMessageTicks = 60 * 2.5;
 
 var StateGame = FlynnState.extend({
 
@@ -154,27 +155,27 @@ var StateGame = FlynnState.extend({
 			volume: 0.25,
 			loop: true,
 		});
-		this.player_die_sound = new Howl({
+		this.soundPlayerDie = new Howl({
 			src: ['sounds/Playerexplosion2.ogg','sounds/Playerexplosion2.mp3'],
 			volume: 0.25,
 		});
-		this.extra_life_sound = new Howl({
+		this.soundExtraLife = new Howl({
 			src: ['sounds/ExtraLife.ogg','sounds/ExtraLife.mp3'],
 			volume: 1.00,
 		});
-		this.ship_respawn_sound = new Howl({
+		this.soundShipRespawn = new Howl({
 			src: ['sounds/ShipRespawn.ogg','sounds/ShipRespawn.mp3'],
 			volume: 0.25,
 		});
-		this.saucer_die_sound = new Howl({
+		this.soundSaucerDie = new Howl({
 			src: ['sounds/Drifterexplosion.ogg','sounds/Drifterexplosion.mp3'],
 			volume: 0.25,
 		});
-		this.sound_saucer_shoot = new Howl({
+		this.soundSaucerShoot = new Howl({
 			src: ['sounds/SaucerShoot.ogg','sounds/SaucerShoot.mp3'],
 			volume: 0.25,
 		});
-		this.sound_laser_pod = new Howl({
+		this.soundLaserPod = new Howl({
 			src: ['sounds/LaserPod4.ogg','sounds/LaserPod4.mp3'],
 			volume: 0.5,
 		});
@@ -193,7 +194,12 @@ var StateGame = FlynnState.extend({
 		// Timers
 		this.mcp.timers.add('shipRespawnDelay', ShipRespawnDelayGameStartTicks, null);  // Start game with a delay (for start sound to finish)
 		this.mcp.timers.add('shipRespawnAnimation', 0, null);
+		this.mcp.timers.add('levelCompleteMessage', 0, null);
+		this.levelAdvancePending = false;
 
+		// Set initial ship position (hidden; will respawn into world)
+		this.resetShip();
+		this.hideShip();
 
 		// Pop-up messages
 		//this.popUpText = "";
@@ -210,10 +216,24 @@ var StateGame = FlynnState.extend({
 
 	generateLvl: function() {
 		var margin = 20;
-		var seeded_rng = new Math.seedrandom('seed7');
+		var seed;
+		switch(this.lvl){
+			case 0:
+				seed = 'seed7';
+				break;
+			case 1:
+				seed = 'seed17';
+				break;
+			default:
+				seed = 'seed9';
+				break;
+			//seed = 'seed8';  // Another potentially useful seed
+		}
+		var seeded_rng = new Math.seedrandom(seed);
 
 		this.ship.angle = ShipStartAngle;
 		this.humans_rescued = 0;
+		this.spawn_manager.init(this.lvl);
 
 		this.stars = [];
 		for (var i=0; i<NumStars; i++){
@@ -225,12 +245,15 @@ var StateGame = FlynnState.extend({
 		// Generate mountains
 		//---------------------
 
+		this.particles.reset();
+		this.projectiles.reset();
 		this.mountains = [];
 		this.pads = [];
 		this.structures = [];
 		this.humans = [];
 		this.saucers = [];
 		this.kamikazes = [];
+		this.laserPods = [];
 		var mountain_x = 0;
 
 		// Starting point
@@ -354,8 +377,10 @@ var StateGame = FlynnState.extend({
 			this.radarMountains.push(this.mountains[i]/WorldWidth*this.radarWidth+RadarMargin);
 			this.radarMountains.push(this.mountains[i+1]/WorldHeight*this.radarHeight+RadarTopMargin);
 		}
+		
+		this.viewport_v = new Victor(WorldWidth - this.canvasWidth, WorldHeight - this.canvasHeight);
 
-		// this.bullets = [];
+		this.levelAdvancePending = false;
 	},
 
 	addPoints: function(points){
@@ -364,7 +389,7 @@ var StateGame = FlynnState.extend({
 			if(Math.floor(this.score / ExtraLifeScore) != Math.floor((this.score + points) / ExtraLifeScore)){
 				// Extra life
 				this.lives++;
-				this.extra_life_sound.play();
+				this.soundExtraLife.play();
 			}
 			this.score += points;
 		}
@@ -385,6 +410,23 @@ var StateGame = FlynnState.extend({
 		this.popUpLife = PopUpTextLife;
 	},
 
+	resetShip: function(){
+		this.ship.world_x = ShipStartX;
+		this.ship.world_y = ShipStartY;
+		this.ship.angle = ShipStartAngle;
+		this.ship.vel.x = 0;
+		this.ship.vel.y = 0;
+		this.ship.visible = true;
+	},
+
+	hideShip: function(){
+		// Hide (but don't kill) the ship.
+		// Used for idle time during level advancement.
+		this.engine_sound.stop();
+		this.engine_is_thrusting = false;
+		this.ship.visible = false;
+	},
+
 	doShipDie: function(){
 		// Visibility
 		this.ship.visible = false;
@@ -393,11 +435,12 @@ var StateGame = FlynnState.extend({
 		this.lives--;
 		if(this.lives <= 0){
 			this.gameOver = true;
+			this.mcp.timers.set('levelCompleteMessage', 0);
 		}
 
 		// Sounds
 		this.engine_sound.stop();
-		this.player_die_sound.play();
+		this.soundPlayerDie.play();
 
 		// Explosion
 		this.particles.explosion(
@@ -420,8 +463,8 @@ var StateGame = FlynnState.extend({
 			ParticleTypes.EXHAUST);
 		
 		// Timers
-		this.mcp.timers.set('shipRespawnDelay', ShipRespawnDelayTicks, null);
-		this.mcp.timers.set('shipRespawnAnimation', 0, null); // Set to zero to deactivate it
+		this.mcp.timers.set('shipRespawnDelay', ShipRespawnDelayTicks);
+		this.mcp.timers.set('shipRespawnAnimation', 0); // Set to zero to deactivate it
 
 		// State flags
 		this.ship.human_on_board = false; // Kill the passenger
@@ -454,6 +497,13 @@ var StateGame = FlynnState.extend({
 			// Die
 			if (input.virtualButtonIsPressed("dev_die") && this.ship.visible){
 				this.doShipDie();
+			}
+
+			// Kill Human
+			if (input.virtualButtonIsPressed("dev_kill_human")){
+				if(this.humans.length){
+					this.humans.splice(0,1);
+				}
 			}
 
 			// Jump to rescue Pad
@@ -619,16 +669,11 @@ var StateGame = FlynnState.extend({
 				if(this.mcp.timers.hasExpired('shipRespawnDelay')){
 					// Start the respawn animation timer (which also triggers the animation)
 					this.mcp.timers.set('shipRespawnAnimation', ShipRespawnAnimationTicks);
-					this.ship_respawn_sound.play();
+					this.soundShipRespawn.play();
 				}
 				if(this.mcp.timers.hasExpired('shipRespawnAnimation')){
 					// Respawn the ship
-					this.ship.world_x = ShipStartX;
-					this.ship.world_y = ShipStartY;
-					this.ship.angle = ShipStartAngle;
-					this.ship.vel.x = 0;
-					this.ship.vel.y = 0;
-					this.ship.visible = true;
+					this.resetShip();
 				}
 			}
 		}
@@ -698,7 +743,7 @@ var StateGame = FlynnState.extend({
 				i--;
 				len--;
 				this.addPoints(PointsKamikaze);
-				this.saucer_die_sound.play();
+				this.soundSaucerDie.play();
 			}
 		}
 
@@ -753,7 +798,7 @@ var StateGame = FlynnState.extend({
 								SaucerShootSize,
 								FlynnColors.YELLOW
 								);
-							this.sound_saucer_shoot.play();
+							this.soundSaucerShoot.play();
 						}
 					}
 				}
@@ -801,7 +846,7 @@ var StateGame = FlynnState.extend({
 				i--;
 				len--;
 				this.addPoints(PointsSaucer);
-				this.saucer_die_sound.play();
+				this.soundSaucerDie.play();
 			}
 		}
 
@@ -871,7 +916,7 @@ var StateGame = FlynnState.extend({
 			if(this.ship.visible){
 				if(this.laserPods[i].collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y))){
 					this.doShipDie();
-					this.sound_laser_pod.play();
+					this.soundLaserPod.play();
 					//killed = true;
 				}
 			}
@@ -904,14 +949,31 @@ var StateGame = FlynnState.extend({
 				i--;
 				len--;
 				this.addPoints(PointsLaserPod);
-				this.saucer_die_sound.play();
+				this.soundSaucerDie.play();
 			}
+		}
+
+		//------------------
+		// Wave completion
+		//------------------
+		if(!this.gameOver && this.humans.length === 0 && this.ship.human_on_board === false && !this.levelAdvancePending){
+			this.mcp.timers.set('levelCompleteMessage', levelCompleteMessageTicks);
+			this.levelAdvancePending = true;
+			this.hideShip();
+		}
+		if(this.mcp.timers.hasExpired('levelCompleteMessage')){
+			this.lvl++;
+			this.generateLvl();
+			this.resetShip();
+			this.hideShip();
+			this.mcp.timers.set('shipRespawnAnimation', ShipRespawnAnimationTicks);
+			this.soundShipRespawn.play();
 		}
 
 		// Viewport
 		var goal_x = this.ship.world_x;
 		var goal_y = this.ship.world_y;
-		if (!this.ship.visible && !this.mcp.timers.isRunning('shipRespawnDelay') && !this.gameOver){
+		if (!this.ship.visible && !this.mcp.timers.isRunning('shipRespawnDelay') && !this.gameOver && !this.levelAdvancePending){
 			// Pan to ship start location after ship death
 			goal_x = ShipStartX;
 			goal_y = ShipStartY;
@@ -990,9 +1052,6 @@ var StateGame = FlynnState.extend({
 		}
 		ctx.vectorEnd();
 
-		// Player
-		this.ship.draw(ctx, this.viewport_v.x, this.viewport_v.y);
-
 		// Particles
 		this.particles.draw(ctx, this.viewport_v.x, this.viewport_v.y);
 
@@ -1025,6 +1084,9 @@ var StateGame = FlynnState.extend({
 		for(i=0, len=this.laserPods.length; i<len; i+=1){
 			this.laserPods[i].draw(ctx, this.viewport_v.x, this.viewport_v.y);
 		}
+
+		// Player
+		this.ship.draw(ctx, this.viewport_v.x, this.viewport_v.y);
 
 		// Projectiles
 		this.projectiles.draw(ctx, this.viewport_v);
@@ -1075,14 +1137,6 @@ var StateGame = FlynnState.extend({
 		}
 		ctx.vectorEnd();
 
-		// Ship
-		var radar_location;
-		if(this.ship.visible){
-			radar_location = this.worldToRadar(this.ship.world_x, this.ship.world_y);
-			ctx.fillStyle=FlynnColors.YELLOW;
-			ctx.fillRect(radar_location[0], radar_location[1],2,2);
-		}
-
 		// Humans
 		ctx.fillStyle=FlynnColors.WHITE;
 		for(i=0, len=this.humans.length; i<len; i+=1){
@@ -1123,6 +1177,14 @@ var StateGame = FlynnState.extend({
 			ctx.fillRect(radar_location[0]-1, radar_location[1],4,2);
 		}
 
+		// Ship
+		var radar_location;
+		if(this.ship.visible){
+			radar_location = this.worldToRadar(this.ship.world_x, this.ship.world_y);
+			ctx.fillStyle=FlynnColors.YELLOW;
+			ctx.fillRect(radar_location[0], radar_location[1],2,2);
+		}
+
 		// Viewport
 		radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y + InfoPanelHeight);
 		var radar_scale = this.radarWidth / WorldWidth;
@@ -1139,6 +1201,9 @@ var StateGame = FlynnState.extend({
 		if(this.gameOver){
 			ctx.vectorText("GAME OVER", 6, null, 200, null, FlynnColors.ORANGE);
 			ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, FlynnColors.ORANGE);
+		}
+		if(this.mcp.timers.isRunning('levelCompleteMessage')){
+			ctx.vectorText("LEVEL COMPLETED", 4, null, 225, null, FlynnColors.ORANGE);
 		}
 	}
 });
