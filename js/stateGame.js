@@ -179,6 +179,10 @@ var StateGame = FlynnState.extend({
 			src: ['sounds/LaserPod4.ogg','sounds/LaserPod4.mp3'],
 			volume: 0.5,
 		});
+		this.soundLevelAdvance = new Howl({
+			src: ['sounds/LevelAdvance2.ogg','sounds/LevelAdvance2.mp3'],
+			volume: 0.5,
+		});
 
 		this.engine_is_thrusting = false;
 
@@ -960,6 +964,7 @@ var StateGame = FlynnState.extend({
 			this.mcp.timers.set('levelCompleteMessage', levelCompleteMessageTicks);
 			this.levelAdvancePending = true;
 			this.hideShip();
+			this.soundLevelAdvance.play();
 		}
 		if(this.mcp.timers.hasExpired('levelCompleteMessage')){
 			this.lvl++;
