@@ -50,7 +50,7 @@ var PopUpTextLife = 3 * 60;
 var PopUpThrustPromptTime = 4 * 60; //2 * 60;
 var PopUpCancelTime = 15; // Ticks to remove a pop-up when canceled
 
-var ExtraLifeScore = 20000;
+var ExtraLifeScore = 5000;
 
 var NumStars = 1000;
 
@@ -390,7 +390,7 @@ var StateGame = FlynnState.extend({
 	addPoints: function(points){
 		// Points only count when not dead
 		if(this.ship.visible){
-			if(Math.floor(this.score / ExtraLifeScore) != Math.floor((this.score + points) / ExtraLifeScore)){
+			if(Math.floor(this.score / ExtraLifeScore) !== Math.floor((this.score + points) / ExtraLifeScore)){
 				// Extra life
 				this.lives++;
 				this.soundExtraLife.play();
@@ -919,10 +919,15 @@ var StateGame = FlynnState.extend({
 
 				// Check for Ship/(LaserPod or beam) collision
 				if(this.ship.visible){
-					if(laserPod.collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y))){
-						this.doShipDie();
-						this.soundLaserPod.play();
-						//killed = true;
+					var collisionResult = laserPod.collide(this.ship, new Victor(this.ship.world_x, this.ship.world_y));
+					switch(collisionResult){
+						case LaserPodCollisionResult.POD:
+							this.doShipDie();
+							break;
+						case LaserPodCollisionResult.BEAM:
+							this.doShipDie();
+							this.soundLaserPod.play();
+							break;
 					}
 				}
 
@@ -1112,7 +1117,7 @@ var StateGame = FlynnState.extend({
 		ctx.vectorText(this.score, 3, 15, 15, null, FlynnColors.GREEN);
 		ctx.vectorText(this.highscore, 3, this.canvasWidth - 6	, 15, 0 , FlynnColors.GREEN);
 
-		// Extra Lives
+		// Remaining Lives
 		for(var i=0; i<this.lives; i++){
 			ctx.drawPolygon(this.lifepolygon, 20+20*i, 55);
 		}

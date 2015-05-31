@@ -1,12 +1,17 @@
 LaserPodBeamOffset = 10;
-LaserPodDescentVelocity = 3;
-//LaserPodDropProbability = 0.0001;
-LaserPodDropProbability = 0.1;
+LaserPodDescentVelocity = 2.5;
+LaserPodDropProbability = 0.0001;
 
 LaserPodState = {
 	DEAD: 0,
 	ACTIVE: 1,
 	DROPPING: 2,
+};
+
+LaserPodCollisionResult = {
+	NONE: 0,
+	POD: 1,
+	BEAM: 2,
 };
 
 var LaserPod = FlynnPolygon.extend({
@@ -40,7 +45,7 @@ var LaserPod = FlynnPolygon.extend({
 				y = this.points[i+1] + this.world_position_v.y;
 
 				if (polygon.hasPoint(x,y)){
-					return true;
+					return LaserPodCollisionResult.POD;
 				}
 			}
 		}
@@ -61,10 +66,10 @@ var LaserPod = FlynnPolygon.extend({
 			}
 			if (left && right){
 				// Polygon had points on left and right sides of the beam, so it must be hitting the beam.
-				return true;
+				return LaserPodCollisionResult.BEAM;
 			}
 		}
-		return false;
+		return LaserPodCollisionResult.NONE;
 	},
 
 	hasPoint: function(world_x, world_y) {

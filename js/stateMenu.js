@@ -82,7 +82,7 @@ var StateMenu = FlynnState.extend({
             ctx.vectorText("EXHAUST", 10,  x_pos + 3, y_pos +3, null, FlynnColors.RED);
         }
 
-        ctx.vectorText("VERSION 1.4", 1.5, null, 140, null, FlynnColors.ORANGE);
+        ctx.vectorText("VERSION 1.5", 1.5, null, 140, null, FlynnColors.ORANGE);
 
         var startText;
         var controlsText;
