@@ -50,7 +50,7 @@ var PopUpTextLife = 3 * 60;
 var PopUpThrustPromptTime = 4 * 60; //2 * 60;
 var PopUpCancelTime = 15; // Ticks to remove a pop-up when canceled
 
-var ExtraLifeScore = 5000;
+var ExtraLifeScore = 6000;
 
 var NumStars = 1000;
 
@@ -87,6 +87,7 @@ var ViewportSlewMax = 30;
 var PadScale = 4;
 
 var HumansNum = 3;
+var HumansPerfectRescuePoints = 2000;
 
 var ShipStartX = WorldWidth - MountainBaseAreaWidth - MountainBaseAreaMargin + ShipStartDistanceFromBaseEdge;
 var ShipStartY = WorldHeight - MountainBaseAreaHeight - ShipToBottomLength;
@@ -97,7 +98,10 @@ var PointsSaucer = 10;
 var PointsKamikaze = 30;
 var PointsLaserPod = 20;
 
-var levelCompleteMessageTicks = 60 * 2.5;
+var levelCompleteMessageTicks = 60 * 3.0;
+var levelNoticeMessageTicks = 60 * 2;
+var levelBonusDelayTicks = 60 * 2;
+var levelBonusTicks = levelCompleteMessageTicks - levelBonusDelayTicks;
 
 var StateGame = FlynnState.extend({
 
@@ -127,6 +131,7 @@ var StateGame = FlynnState.extend({
 		this.score = 0;
 		this.highscore = this.mcp.highscores[0][1];
 		this.humans_rescued = 0;
+		this.bonusAmount = 0;
 
 		this.stars = [];
 		this.mountains = [];
@@ -183,6 +188,10 @@ var StateGame = FlynnState.extend({
 			src: ['sounds/LevelAdvance2.ogg','sounds/LevelAdvance2.mp3'],
 			volume: 0.5,
 		});
+		this.soundBonus = new Howl({
+			src: ['sounds/Bonus.ogg','sounds/Bonus.mp3'],
+			volume: 0.5,
+		});
 
 		this.engine_is_thrusting = false;
 
@@ -193,13 +202,18 @@ var StateGame = FlynnState.extend({
 		this.radarWidth = this.canvasWidth - RadarMargin*2;
 		this.radarHeight = this.radarWidth * (WorldHeight/WorldWidth);
 
-		this.generateLvl();
 
 		// Timers
 		this.mcp.timers.add('shipRespawnDelay', ShipRespawnDelayGameStartTicks, null);  // Start game with a delay (for start sound to finish)
 		this.mcp.timers.add('shipRespawnAnimation', 0, null);
 		this.mcp.timers.add('levelCompleteMessage', 0, null);
+		this.mcp.timers.add('levelNoticeMessage', 0, null);
+		this.mcp.timers.add('levelBonusDelay', 0, null);
+		this.mcp.timers.add('levelBonus', 0, null);
 		this.levelAdvancePending = false;
+
+		// Generate level data
+		this.generateLvl();
 
 		// Set initial ship position (hidden; will respawn into world)
 		this.resetShip();
@@ -381,15 +395,18 @@ var StateGame = FlynnState.extend({
 			this.radarMountains.push(this.mountains[i]/WorldWidth*this.radarWidth+RadarMargin);
 			this.radarMountains.push(this.mountains[i+1]/WorldHeight*this.radarHeight+RadarTopMargin);
 		}
+
+		this.mcp.timers.set('levelNoticeMessage', levelNoticeMessageTicks);
 		
 		this.viewport_v = new Victor(WorldWidth - this.canvasWidth, WorldHeight - this.canvasHeight);
 
 		this.levelAdvancePending = false;
 	},
 
-	addPoints: function(points){
-		// Points only count when not dead
-		if(this.ship.visible){
+	addPoints: function(points, unconditional){
+		// Points only count when not visible, unless unconditional
+		// Unconditional is used for bonuses,etc. Which may be applied when not visible.
+		if(this.ship.visible || unconditional){
 			if(Math.floor(this.score / ExtraLifeScore) !== Math.floor((this.score + points) / ExtraLifeScore)){
 				// Extra life
 				this.lives++;
@@ -440,6 +457,9 @@ var StateGame = FlynnState.extend({
 		if(this.lives <= 0){
 			this.gameOver = true;
 			this.mcp.timers.set('levelCompleteMessage', 0);
+			this.mcp.timers.set('levelBonusDelay', 0);
+			this.mcp.timers.set('levelBonus', 0);
+
 		}
 
 		// Sounds
@@ -569,7 +589,7 @@ var StateGame = FlynnState.extend({
 			this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * ShipThrust * paceFactor;
 			this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * ShipThrust * paceFactor;
 			this.particles.exhaust(
-				this.ship.world_x + Math.cos(this.ship.angle + Math.PI/2) * ShipToExhastLength,
+				this.ship.world_x + Math.cos(this.ship.angle + Math.PI/2) * ShipToExhastLength - 1,
 				this.ship.world_y + Math.sin(this.ship.angle + Math.PI/2) * ShipToExhastLength,
 				this.ship.vel.x,
 				this.ship.vel.y,
@@ -967,6 +987,7 @@ var StateGame = FlynnState.extend({
 		//------------------
 		if(!this.gameOver && this.humans.length === 0 && this.ship.human_on_board === false && !this.levelAdvancePending){
 			this.mcp.timers.set('levelCompleteMessage', levelCompleteMessageTicks);
+			this.mcp.timers.set('levelBonusDelay', levelBonusDelayTicks);
 			this.levelAdvancePending = true;
 			this.hideShip();
 			this.soundLevelAdvance.play();
@@ -978,6 +999,17 @@ var StateGame = FlynnState.extend({
 			this.hideShip();
 			this.mcp.timers.set('shipRespawnAnimation', ShipRespawnAnimationTicks);
 			this.soundShipRespawn.play();
+		}
+		if(this.mcp.timers.hasExpired('levelBonusDelay')){
+			this.mcp.timers.set('levelBonus', levelBonusTicks);
+			this.soundBonus.play();
+			if(this.humans_rescued === HumansNum){
+				this.addPoints(HumansPerfectRescuePoints, true);
+				this.bonusAmount = HumansPerfectRescuePoints;
+			}
+			else{
+				this.bonusAmount = 0;
+			}
 		}
 
 		// Viewport
@@ -1227,6 +1259,12 @@ var StateGame = FlynnState.extend({
 		}
 		if(this.mcp.timers.isRunning('levelCompleteMessage')){
 			ctx.vectorText("LEVEL COMPLETED", 4, null, 225, null, FlynnColors.ORANGE);
+		}
+		if(this.mcp.timers.isRunning('levelBonus')){
+			ctx.vectorText("PERFECT RESCUE BONUS: " + this.bonusAmount, 2, null, 270, null, FlynnColors.ORANGE);
+		}
+		if(this.mcp.timers.isRunning('levelNoticeMessage')){
+			ctx.vectorText("LEVEL " + (this.level+1), 3, null, 250, null, FlynnColors.ORANGE);
 		}
 	}
 });

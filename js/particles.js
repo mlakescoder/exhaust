@@ -135,8 +135,8 @@ var Particles = Class.extend({
             var exhaust_dy = Math.sin(theta) * exit_velocity + dy;
             this.particles.push(new Particle(
                 this,
-                x + Math.random() * -dx, // Jitter start position in opposite of direciton of motion
-                y + Math.random() * -dy, // Jitter start position in opposite of direciton of motion
+                x - (dx * Math.random() * paceFactor) + (Math.random() * exhaust_dx * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
+                y - (dy * Math.random() * paceFactor) + (Math.random() * exhaust_dy * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
                 exhaust_dx,
                 exhaust_dy,
                 null,
