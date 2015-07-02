@@ -28,13 +28,36 @@ var Game = Class.extend({
 					case States.GAME:
 						return new StateGame(self.mcp);
 					case States.END:
-						return new StateEnd(self.mcp);
+						return new FlynnStateEnd(
+							self.mcp,
+							self.mcp.custom.score,
+							self.mcp.custom.leaderboard,
+							FlynnColors.ORANGE,
+							'HIGH SCORES',
+							'YOU MADE IT TO THE HIGH SCORE LIST!');
 					case States.CONFIG:
 						return new FlynnStateConfig(self.mcp, FlynnColors.ORANGE, FlynnColors.YELLOW, FlynnColors.CYAN, FlynnColors.MAGENTA);
 				}
 			}
 		);
 		this.mcp.nextState = States.MENU;
+		this.mcp.custom.score = 0;
+		this.mcp.custom.leaderboard = new FlynnLeaderboard(
+			['name', 'score'],  // attributeList
+			6,                  // maxItems
+			true                // sortDescending
+			);
+		this.mcp.custom.leaderboard.setDefaultList(
+			[
+				{'name': 'FIENDFODDER', 'score': 2000},
+				{'name': 'FLOATINHEAD', 'score': 1300},
+				{'name': 'WILLIAMS',    'score': 1200},
+				{'name': 'GORLIN',      'score': 1100},
+				{'name': 'DELMAN',      'score': 600 },
+				{'name': 'BURNESS',     'score': 500 },
+			]);
+		this.mcp.custom.leaderboard.loadFromCookies();
+		this.mcp.custom.leaderboard.saveToCookies();
 
         // Setup inputs
 		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
@@ -65,9 +88,6 @@ var Game = Class.extend({
 		this.mcp.optionManager.addOption('musicEnabled', FlynnOptionType.BOOLEAN, true, true, 'MUSIC', null, null);
 		this.mcp.optionManager.addOption('resetScores', FlynnOptionType.COMMAND, true, true, 'RESET HIGH SCORES', null,
 			function(){self.resetScores();});
-
-		// Reset Scores
-		this.resetScores();
 		
 		// Set resize handler and force a resize
 		this.mcp.setResizeFunc( function(width, height){
@@ -82,15 +102,7 @@ var Game = Class.extend({
 	},
 
 	resetScores: function(){
-		this.mcp.highscores = [
-			["FIENDFODDER", 2000],
-			["FLOATINHEAD", 1300],
-			["WILLIAMS", 1200],
-			["GORLIN", 1100],
-			["DELMAN", 600],
-			["BURNESS", 500],
-		];
-		this.mcp.custom.score = 0;
+		this.mcp.custom.leaderboard.restoreDefaults();
 	},
 
 	run: function() {
