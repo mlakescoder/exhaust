@@ -57,6 +57,10 @@ var StateMenu = FlynnState.extend({
         if (input.virtualButtonIsPressed("UI_escape")) {
             this.mcp.nextState = States.CONFIG;
         }
+
+        if (input.virtualButtonIsPressed("UI_exit") && this.mcp.backEnabled){
+            window.history.back();
+        }
 	},
 
 	update: function(paceFactor) {
@@ -133,8 +137,11 @@ var StateMenu = FlynnState.extend({
 
 		ctx.vectorText("WRITTEN BY ERIC MOYER (FIENDFODDER) FOR LUDAM DARE #32", 1.5, null, 700, null, FlynnColors.ORANGE);
         ctx.vectorText('PRESS <ESCAPE> TO CONFIGURE CONTROLS', 1.5, null, 715, null, FlynnColors.ORANGE);
+        if(this.mcp.backEnabled){
+            ctx.vectorText('PRESS <TAB> TO EXIT GAME', 1.5, null, 730, null, FlynnColors.ORANGE);
+        }
 
-
+        ctx.vectorText('FLYNN ' + this.mcp.version, 1.0, this.canvasWidth-3, this.canvasHeight-10, 0, FlynnColors.GRAY);
 	}
 
 });
