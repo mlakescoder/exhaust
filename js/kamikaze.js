@@ -1,3 +1,7 @@
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
+
 var KamikazeSpeed = 1.5;
 var KamikazeFollowTimeout = 3;
 var KamikazeAscendMargin = KamikazeSpeed * 3;

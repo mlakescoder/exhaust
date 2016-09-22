@@ -2,6 +2,13 @@
 // StateGame class
 //    Core gameplay
 //--------------------------------------------
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
+
+Game.config = {
+
+};
 
 var Gravity = 0.06;
 var AtmosphericFriction = 0.005;
