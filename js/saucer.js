@@ -1,8 +1,12 @@
-SaucerSpeedX = 2;
-SaucerSpeedYMax = 0.6;
-SaucerCannonWarmupTicks = 20;
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
 
-var Saucer = FlynnPolygon.extend({
+Game.Saucer = Flynn.Polygon.extend({
+
+    SAUCER_SPEED_X: 2,
+    SAUCER_SPEED_Y_MAX: 0.6,
+    SAUCER_CANNON_WARMUP_TICKS: 20,
 
     init: function(p, s, world_x, world_y, color){
         this._super(p, color);
@@ -12,11 +16,11 @@ var Saucer = FlynnPolygon.extend({
         this.world_y = world_y;
         this.cannon_warmup_timer = 0;
 
-        this.dx = SaucerSpeedX;
+        this.dx = this.SAUCER_SPEED_X;
         if(Math.random() < 0.5){
             this.dx = -this.dx;
         }
-        this.dy = Math.random() * SaucerSpeedYMax;
+        this.dy = Math.random() * this.SAUCER_SPEED_Y_MAX;
         if(Math.random() < 0.5){
             this.dy = -this.dy;
         }
@@ -26,7 +30,7 @@ var Saucer = FlynnPolygon.extend({
 
     cannonCooldown: function(){
         // Cool the cannon down.  It will need to warm up again before firing.
-        this.cannon_warmup_timer = SaucerCannonWarmupTicks;
+        this.cannon_warmup_timer = this.SAUCER_CANNON_WARMUP_TICKS;
     },
 
     cannonIsWarm: function(){
@@ -56,19 +60,19 @@ var Saucer = FlynnPolygon.extend({
         this.world_y += this.dy * paceFactor;
         if (this.world_x < 0){
             this.world_x = 0;
-            this.dx = SaucerSpeedX;
+            this.dx = this.SAUCER_SPEED_X;
         }
         if (this.world_x > WorldWidth - 40){
             this.world_x = WorldWidth - 40;
-            this.dx = -SaucerSpeedX;
+            this.dx = -this.SAUCER_SPEED_X;
         }
         if (this.world_y < 0){
             this.world_y = 0;
-            this.dy = Math.random() * SaucerSpeedYMax;
+            this.dy = Math.random() * this.SAUCER_SPEED_Y_MAX;
         }
         if (this.world_y > WorldHeight - MountainHeightMax - 40){
             this.world_y = WorldHeight - MountainHeightMax - 40;
-            this.dy = Math.random() * -SaucerSpeedYMax;
+            this.dy = Math.random() * -this.SAUCER_SPEED_Y_MAX;
         }
 
     },

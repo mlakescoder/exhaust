@@ -1,4 +1,8 @@
-var Structure = FlynnPolygon.extend({
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
+
+Game.Structure = Flynn.Polygon.extend({
 
     init: function(p, s, world_x, world_y, color){
         this._super(p, color);

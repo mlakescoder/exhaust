@@ -1,8 +1,11 @@
 //---------------------
 // Invasion timetable
 //---------------------
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
 
-var WaveEntry = Class.extend({
+Game.WaveEntry = Class.extend({
 
     init: function(seconds, saucers, kamikazes, repeat){
         this.seconds = seconds;
@@ -12,7 +15,7 @@ var WaveEntry = Class.extend({
     },
 
     clone: function(){
-        return new WaveEntry(
+        return new Game.WaveEntry(
             this.seconds,
             this.saucers,
             this.kamikazes,
@@ -20,7 +23,7 @@ var WaveEntry = Class.extend({
     },
 });
 
-var Timetable = [
+Game.timetable = [
 
     // Level 0
     [
@@ -43,7 +46,7 @@ var Timetable = [
     ]
 ];
 
-var SpawnManager = Class.extend({
+Game.SpawnManager = Class.extend({
 
     init: function(level){
         this.spawn_pool = {
@@ -55,12 +58,12 @@ var SpawnManager = Class.extend({
         this.repeatTimerSeconds = 0;
 
         var timetable_index = level;
-        if (timetable_index >= Timetable.length){
-            timetable_index = Timetable.length - 1;
+        if (timetable_index >= Game.timetable.length){
+            timetable_index = Game.timetable.length - 1;
         }
         this.spawn_queue = [];
-        for(var i=0, len=Timetable[timetable_index].length; i<len; i++){
-            this.spawn_queue.push(Timetable[timetable_index][i].clone());
+        for(var i=0, len=Game.timetable[timetable_index].length; i<len; i++){
+            this.spawn_queue.push(Game.timetable[timetable_index][i].clone());
         }
     },
 

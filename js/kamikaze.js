@@ -2,35 +2,36 @@ if (typeof Game == "undefined") {
    var Game = {};  // Create namespace
 }
 
-var KamikazeSpeed = 1.5;
-var KamikazeFollowTimeout = 3;
-var KamikazeAscendMargin = KamikazeSpeed * 3;
-
-var KamikazeMode = {
-    FOLLOW: 0,
-    PATROL: 1,
-    ASCEND: 2,
-};
-
-var Kamikaze = FlynnPolygon.extend({
+Game.Kamikaze = Flynn.Polygon.extend({
 
     init: function(p, s, world_position_v, color){
         this._super(p, color);
 
+        // Constants
+        this.KAMIKAZE_SPEED = 1.5;
+        this.KAMIKAZE_FOLLOW_TIMEOUT = 3;
+        this.KAMIKAZE_ASCEND_MARGIN = this.KAMIKAZE_SPEED * 3;
+        this.KAMIKAZE_MODE = {
+            FOLLOW: 0,
+            PATROL: 1,
+            ASCEND: 2,
+        };
+
         this.scale = s;
         this.world_position_v = world_position_v.clone();
         this.velocity_v = new Victor(0, 0);
-        this.followTimer = KamikazeFollowTimeout;
-        this.mode = KamikazeMode.PATROL;
+        this.followTimer = this.KAMIKAZE_FOLLOW_TIMEOUT;
+        this.mode = this.KAMIKAZE_MODE.PATROL;
 
         this.setScale(s);
     },
 
     flyToward: function(target_v){
-        this.velocity_v = target_v.clone().subtract(this.world_position_v).normalize().multiply(new Victor(KamikazeSpeed, KamikazeSpeed));
-        // Set FOLLOW mode.  Will timeout to PATROL mode if another 'flyToward' is not issued in KamikazeFollowTimeout ticks.
-        this.mode = KamikazeMode.FOLLOW;
-        this.followTimer = KamikazeFollowTimeout;
+        this.velocity_v = target_v.clone().subtract(this.world_position_v).normalize().multiply(new Victor(this.KAMIKAZE_SPEED, this.KAMIKAZE_SPEED));
+        // Set FOLLOW mode.  Will timeout to PATROL mode if another 'flyToward' 
+        // is not issued in KAMIKAZE_FOLLOW_TIMEOUT ticks.
+        this.mode = this.KAMIKAZE_MODE.FOLLOW;
+        this.followTimer = this.KAMIKAZE_FOLLOW_TIMEOUT;
     },
 
     collide: function(polygon){
@@ -51,24 +52,24 @@ var Kamikaze = FlynnPolygon.extend({
 
     startPatrolling: function(){
         // Enter patrol mode
-        this.mode = KamikazeMode.PATROL;
+        this.mode = this.KAMIKAZE_MODE.PATROL;
         var patrolAngle = Math.random() * Math.PI/4 - Math.PI/8; // Fly right, within in a +/-22.5 degrees to horizontal.
         if(Math.random()<0.5){
             patrolAngle += Math.PI; // Fly left
         }
-        this.velocity_v.x = KamikazeSpeed * Math.cos(patrolAngle);
-        this.velocity_v.y = KamikazeSpeed * Math.sin(patrolAngle);
+        this.velocity_v.x = this.KAMIKAZE_SPEED * Math.cos(patrolAngle);
+        this.velocity_v.y = this.KAMIKAZE_SPEED * Math.sin(patrolAngle);
     },
 
     update: function(paceFactor) {
         // Update mode
         if(--this.followTimer <= 0){
-            if(this.mode === KamikazeMode.FOLLOW){
-                if (this.world_position_v.y > WorldHeight - MountainHeightMax - 40 + KamikazeAscendMargin){
+            if(this.mode === this.KAMIKAZE_MODE.FOLLOW){
+                if (this.world_position_v.y > WorldHeight - MountainHeightMax - 40 + this.KAMIKAZE_ASCEND_MARGIN){
                     // Lower than mountains, so start ascending (straigt up)
-                    this.mode = KamikazeMode.ASCEND;
+                    this.mode = this.KAMIKAZE_MODE.ASCEND;
                     this.velocity_v.x = 0;
-                    this.velocity_v.y = -KamikazeSpeed;
+                    this.velocity_v.y = -this.KAMIKAZE_SPEED;
                 }
                 else{
                     // Higher than mountains, so start patrolling
@@ -76,7 +77,7 @@ var Kamikaze = FlynnPolygon.extend({
                 }
             }
         }
-        if(this.mode === KamikazeMode.ASCEND){
+        if(this.mode === this.KAMIKAZE_MODE.ASCEND){
             if (this.world_position_v.y < WorldHeight - MountainHeightMax - 40){
                 // Above mountains now.  Start patrolling
                 this.startPatrolling();
@@ -84,21 +85,21 @@ var Kamikaze = FlynnPolygon.extend({
         }
 
         // Do patrol
-        if(this.mode === KamikazeMode.PATROL){
+        if(this.mode === this.KAMIKAZE_MODE.PATROL){
             if (this.world_position_v.x < 0){
                 this.world_position_v.x = 0;
-                this.velocity_v.x = KamikazeSpeed;
+                this.velocity_v.x = this.KAMIKAZE_SPEED;
             }
             if (this.world_position_v.x > WorldWidth - 40){
                 this.world_position_v.x = WorldWidth - 40;
-                this.velocity_v.x = -KamikazeSpeed;
+                this.velocity_v.x = -this.KAMIKAZE_SPEED;
             }
             if (this.world_position_v.y < 0){
                 this.world_position_v.y = 0;
-                this.velocity_v.y = Math.random() * KamikazeSpeed/2;
+                this.velocity_v.y = Math.random() * this.KAMIKAZE_SPEED/2;
             }
             if (this.world_position_v.y > WorldHeight - MountainHeightMax - 40){
-                this.velocity_v.y = Math.random() * -KamikazeSpeed/2;
+                this.velocity_v.y = Math.random() * -this.KAMIKAZE_SPEED/2;
             }
         }
         

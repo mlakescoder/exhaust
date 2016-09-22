@@ -1,4 +1,8 @@
-var Ship = FlynnPolygon.extend({
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
+
+Game.Ship = Flynn.Polygon.extend({
 
     maxX: null,
     maxY: null,

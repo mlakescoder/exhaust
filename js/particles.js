@@ -1,19 +1,21 @@
-var ParticleLife = 150;
-var ParticleLifeVariation = 20;
-var ExhaustLife = 150;
-var ExhaustLifeVariation = 30;
-var ExhaustVelocityVariationFactor = 0.1;
-var ExhastBounceDecay = 0.4;
-var ExhastPositionJitter = 3;
-var ParticleFriction = 0.99;
-var ParticleGravity = 0.06;
+if (typeof Game == "undefined") {
+   var Game = {};  // Create namespace
+}
 
-var ParticleTypes = {
-    PLAIN:     1,
-    EXHAUST:   2,
-};
+Game.Particle = Class.extend({
+    PARTICLE_LIFE: 150,
+    PARTICLE_LIFE_VARIATION: 20,
+    EXHAUST_LIFE: 150,
+    EXHAUST_LIFE_VARIATION: 30,
+    EXHAST_BOUNCE_DECAY: 0.4,
+    PARTICLE_FRICTION: 0.99,
+    PARTICLE_GRAVITY: 0.06,
 
-var Particle = Class.extend({
+    PARTICLE_TYPES: {
+        PLAIN:     1,
+        EXHAUST:   2,
+    },
+
     init: function(particles, x, y, dx, dy, color, type, gameState){
         this.particles = particles;
         this.x = x;
@@ -24,10 +26,10 @@ var Particle = Class.extend({
         this.type = type;
         this.gameState = gameState;
 
-        if(type == ParticleTypes.EXHAUST){
-            this.life = ExhaustLife + (Math.random()-0.5) * ExhaustLifeVariation;
+        if(type == this.PARTICLE_TYPES.EXHAUST){
+            this.life = this.EXHAUST_LIFE + (Math.random()-0.5) * this.EXHAUST_LIFE_VARIATION;
         } else {
-            this.life = ParticleLife + (Math.random()-0.5) * ParticleLifeVariation;
+            this.life = this.PARTICLE_LIFE + (Math.random()-0.5) * this.PARTICLE_LIFE_VARIATION;
         }
     },
 
@@ -41,13 +43,13 @@ var Particle = Class.extend({
         }
         else{
             // Gravity
-            this.dy += ParticleGravity * paceFactor;
+            this.dy += this.PARTICLE_GRAVITY * paceFactor;
             // Add impulse
             this.x += this.dx * paceFactor;
             this.y += this.dy * paceFactor;
             // Decay impulse
-            this.dx *= Math.pow(ParticleFriction, paceFactor);
-            this.dy *= Math.pow(ParticleFriction, paceFactor);
+            this.dx *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
+            this.dy *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
 
             // Mountain colision
             altitude = this.gameState.altitude[Math.floor(this.x)];
@@ -58,9 +60,9 @@ var Particle = Class.extend({
                     var magnitude = Math.sqrt(this.dy * this.dy + this.dx * this.dx);
                     var tangent = this.gameState.tangent[Math.floor(this.x)];
                     var new_angle = tangent + (tangent - (angle + Math.PI));
-                    this.dx = Math.cos(new_angle) * magnitude * ExhastBounceDecay;
-                    this.dy = Math.sin(new_angle) * magnitude * ExhastBounceDecay;
-                    //this.dy = -this.dy * ExhastBounceDecay;
+                    this.dx = Math.cos(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
+                    this.dy = Math.sin(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
+                    //this.dy = -this.dy * this.EXHAST_BOUNCE_DECAY;
                 }
             }
         }
@@ -68,11 +70,11 @@ var Particle = Class.extend({
     },
 
     draw: function(ctx, viewport_x, viewport_y) {
-        if(this.type == ParticleTypes.PLAIN){
+        if(this.type == this.PARTICLE_TYPES.PLAIN){
             ctx.fillStyle=this.color;
         } else {
             //ctx.fillStyle=FlynnColors.RED;
-            var red = 254 * (this.life / ExhaustLife);
+            var red = 254 * (this.life / this.EXHAUST_LIFE);
             red = Math.floor(red);
             if(red<0){
                 red = 0;
@@ -89,7 +91,8 @@ var Particle = Class.extend({
 
 });
 
-var Particles = Class.extend({
+Game.Particles = Class.extend({
+    EXHAUST_VELOCITY_VARIATION_FACTOR: 0.1,
 
     init: function(gameState){
         this.particles=[];
@@ -105,7 +108,7 @@ var Particles = Class.extend({
         for(var i=0; i<quantity; i++){
             theta = Math.random() * Math.PI * 2;
             velocity = Math.random() * max_velocity;
-            this.particles.push(new Particle(
+            this.particles.push(new Game.Particle(
                 this,
                 x,
                 y,
@@ -129,18 +132,18 @@ var Particles = Class.extend({
         for(var i=0; i<num_particles_int; i++){
             var theta = angle - (spread/2) + Math.random() * spread;
             var exit_velocity =
-                velocity - (velocity * ExhaustVelocityVariationFactor / 2) +
-                Math.random() * velocity * ExhaustVelocityVariationFactor;
+                velocity - (velocity * this.EXHAUST_VELOCITY_VARIATION_FACTOR / 2) +
+                Math.random() * velocity * this.EXHAUST_VELOCITY_VARIATION_FACTOR;
             var exhaust_dx = Math.cos(theta) * exit_velocity + dx;
             var exhaust_dy = Math.sin(theta) * exit_velocity + dy;
-            this.particles.push(new Particle(
+            this.particles.push(new Game.Particle(
                 this,
                 x - (dx * Math.random() * paceFactor) + (Math.random() * exhaust_dx * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
                 y - (dy * Math.random() * paceFactor) + (Math.random() * exhaust_dy * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
                 exhaust_dx,
                 exhaust_dy,
                 null,
-                ParticleTypes.EXHAUST,
+                this.PARTICLE_TYPES.EXHAUST,
                 this.gameState
             ));
         }
