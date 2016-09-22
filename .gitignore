@@ -1,0 +1,8 @@
+.DS_Store
+.dropbox
+.idea
+js/lib/flynn/*.sh
+scrapbook
+
+*Screenshot.png
+*Thumbnail.png
