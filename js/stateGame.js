@@ -124,9 +124,9 @@ var StateGame = FlynnState.extend({
         this.center_y = this.canvasHeight/2;
 
         this.ship = new Ship(Points.LANDER, 2.5,
-            this.SHIP_START_X,
-            this.SHIP_START_Y,
-            this.SHIP_START_ANGLE, FlynnColors.YELLOW);
+            Game.config.SHIP_START_X,
+            Game.config.SHIP_START_Y,
+            Game.config.SHIP_START_ANGLE, FlynnColors.YELLOW);
 
         this.ship.visible = true;
 
@@ -136,7 +136,7 @@ var StateGame = FlynnState.extend({
         this.lifepolygon.setScale(1.2);
         this.lifepolygon.setAngle(0);
 
-        this.viewport_v = new Victor(this.WORLD_WIDTH - this.canvasWidth, this.WORLD_HEIGHT - this.canvasHeight);
+        this.viewport_v = new Victor(Game.config.WORLD_WIDTH - this.canvasWidth, Game.config.WORLD_HEIGHT - this.canvasHeight);
 
         this.score = 0;
         this.highscore = this.mcp.highscores[0][1];
@@ -153,7 +153,7 @@ var StateGame = FlynnState.extend({
         this.particles = new Particles(this);
         this.projectiles = new FlynnProjectiles(
             new Victor(0,0),                    // Min projectile bounds
-            new Victor(this.WORLD_WIDTH, this.WORLD_HEIGHT) // Max projectile bounds
+            new Victor(Game.config.WORLD_WIDTH, Game.config.WORLD_HEIGHT) // Max projectile bounds
             );
         this.pads = [];
         this.structures = [];
@@ -209,12 +209,12 @@ var StateGame = FlynnState.extend({
         this.gameClock = 0;
 
         // Radar
-        this.radarWidth = this.canvasWidth - this.RADAR_MARGIN*2;
-        this.radarHeight = this.radarWidth * (this.WORLD_HEIGHT/this.WORLD_WIDTH);
+        this.radarWidth = this.canvasWidth - Game.config.RADAR_MARGIN*2;
+        this.radarHeight = this.radarWidth * (Game.config.WORLD_HEIGHT/Game.config.WORLD_WIDTH);
 
 
         // Timers
-        this.mcp.timers.add('shipRespawnDelay', this.SHIP_RESPAWN_DELAY_GAME_START_TICKS, null);  // Start game with a delay (for start sound to finish)
+        this.mcp.timers.add('shipRespawnDelay', Game.config.SHIP_RESPAWN_DELAY_GAME_START_TICKS, null);  // Start game with a delay (for start sound to finish)
         this.mcp.timers.add('shipRespawnAnimation', 0, null);
         this.mcp.timers.add('levelCompleteMessage', 0, null);
         this.mcp.timers.add('levelNoticeMessage', 0, null);
@@ -237,8 +237,8 @@ var StateGame = FlynnState.extend({
     },
 
     worldToRadar: function(world_x, world_y){
-        var radar_x = world_x/this.WORLD_WIDTH*this.radarWidth+this.RADAR_MARGIN;
-        var radar_y = world_y/this.WORLD_HEIGHT*this.radarHeight+this.RADAR_TOP_MARGIN;
+        var radar_x = world_x/Game.config.WORLD_WIDTH*this.radarWidth+Game.config.RADAR_MARGIN;
+        var radar_y = world_y/Game.config.WORLD_HEIGHT*this.radarHeight+Game.config.RADAR_TOP_MARGIN;
         return [radar_x, radar_y];
     },
 
@@ -259,14 +259,14 @@ var StateGame = FlynnState.extend({
         }
         var seeded_rng = new Math.seedrandom(seed);
 
-        this.ship.angle = this.SHIP_START_ANGLE;
+        this.ship.angle = Game.config.SHIP_START_ANGLE;
         this.humans_rescued = 0;
         this.spawn_manager.init(this.level);
 
         this.stars = [];
-        for (var i=0; i<this.NUM_STARS; i++){
-            this.stars.push(seeded_rng() * this.WORLD_WIDTH);
-            this.stars.push(seeded_rng() * (this.WORLD_HEIGHT - this.MOUNTAIN_HEIGHT_MAX));
+        for (var i=0; i<Game.config.NUM_STARS; i++){
+            this.stars.push(seeded_rng() * Game.config.WORLD_WIDTH);
+            this.stars.push(seeded_rng() * (Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_HEIGHT_MAX));
         }
 
         //---------------------
@@ -286,96 +286,96 @@ var StateGame = FlynnState.extend({
 
         // Starting point
         this.mountains.push(0);
-        this.mountains.push(this.WORLD_HEIGHT - 1 - seeded_rng() * this.MOUNTAIN_HEIGHT_MAX);
+        this.mountains.push(Game.config.WORLD_HEIGHT - 1 - seeded_rng() * Game.config.MOUNTAIN_HEIGHT_MAX);
 
         // Rescue area
-        this.mountains.push(this.MOUNTAIN_RESCUE_AREA_LEFT);
-        this.mountains.push(this.WORLD_HEIGHT - this.MOUNTAIN_RESCUE_AREA_HEIGHT);
-        this.pads.push(new Pad(Points.PAD, this.PAD_SCALE,
-            this.MOUNTAIN_RESCUE_AREA_LEFT + this.MOUNTAIN_RESCUE_AREA_PAD_POSITION,
-            this.WORLD_HEIGHT - this.MOUNTAIN_RESCUE_AREA_HEIGHT,
+        this.mountains.push(Game.config.MOUNTAIN_RESCUE_AREA_LEFT);
+        this.mountains.push(Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_RESCUE_AREA_HEIGHT);
+        this.pads.push(new Pad(Points.PAD, Game.config.PAD_SCALE,
+            Game.config.MOUNTAIN_RESCUE_AREA_LEFT + Game.config.MOUNTAIN_RESCUE_AREA_PAD_POSITION,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_RESCUE_AREA_HEIGHT,
             FlynnColors.CYAN));
-        for(i=0; i<this.HUMANS_NUM; i++){
+        for(i=0; i<Game.config.HUMANS_NUM; i++){
             this.humans.push(new Human(
                 FlynnColors.WHITE,
-                this.MOUNTAIN_RESCUE_AREA_LEFT + this.MOUNTAIN_RESCUE_AREA_PAD_POSITION + 200 + 20*i,
-                this.WORLD_HEIGHT - this.MOUNTAIN_RESCUE_AREA_HEIGHT,
+                Game.config.MOUNTAIN_RESCUE_AREA_LEFT + Game.config.MOUNTAIN_RESCUE_AREA_PAD_POSITION + 200 + 20*i,
+                Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_RESCUE_AREA_HEIGHT,
                 this
                 ));
         }
 
-        mountain_x = this.MOUNTAIN_RESCUE_AREA_LEFT + this.MOUNTAIN_RESCUE_AREA_WIDTH;
+        mountain_x = Game.config.MOUNTAIN_RESCUE_AREA_LEFT + Game.config.MOUNTAIN_RESCUE_AREA_WIDTH;
         this.mountains.push(mountain_x);
-        this.mountains.push(this.WORLD_HEIGHT - this.MOUNTAIN_RESCUE_AREA_HEIGHT);
+        this.mountains.push(Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_RESCUE_AREA_HEIGHT);
 
         // Wilderness
         var last_was_flat = true;
         var mountain_y = 0;
-        while(mountain_x < this.WORLD_WIDTH - this.MOUNTAIN_WIDTH_MAX - this.MOUNTAIN_BASE_AREA_WIDTH - this.MOUNTAIN_BASE_AREA_MARGIN){
-            var width = Math.floor(this.MOUNTAIN_WIDTH_MIN + seeded_rng() * (this.MOUNTAIN_WIDTH_MAX - this.MOUNTAIN_WIDTH_MIN));
+        while(mountain_x < Game.config.WORLD_WIDTH - Game.config.MOUNTAIN_WIDTH_MAX - Game.config.MOUNTAIN_BASE_AREA_WIDTH - Game.config.MOUNTAIN_BASE_AREA_MARGIN){
+            var width = Math.floor(Game.config.MOUNTAIN_WIDTH_MIN + seeded_rng() * (Game.config.MOUNTAIN_WIDTH_MAX - Game.config.MOUNTAIN_WIDTH_MIN));
             mountain_x += width;
             this.mountains.push(mountain_x);
-            if (!last_was_flat && seeded_rng()<this.MOUNTAIN_FLAT_PROBABILITY){
+            if (!last_was_flat && seeded_rng()<Game.config.MOUNTAIN_FLAT_PROBABILITY){
                 // Create a flat region; (maintain y from last time)
                 last_was_flat = true;
-                if (seeded_rng() < this.LASER_POD_SPAWN_PROBABILITY){
+                if (seeded_rng() < Game.config.LASER_POD_SPAWN_PROBABILITY){
                     this.laserPods.push(new LaserPod(
-                        Points.LASER_POD, this.LASER_POD_SCALE, new Victor(mountain_x-width/2, mountain_y-1), this.LASER_POD_COLOR, this.level));
+                        Points.LASER_POD, Game.config.LASER_POD_SCALE, new Victor(mountain_x-width/2, mountain_y-1), Game.config.LASER_POD_COLOR, this.level));
                 }
             } else{
                 // Create a mountain (slope)
-                mountain_y = this.WORLD_HEIGHT - 1 - seeded_rng() * this.MOUNTAIN_HEIGHT_MAX;
+                mountain_y = Game.config.WORLD_HEIGHT - 1 - seeded_rng() * Game.config.MOUNTAIN_HEIGHT_MAX;
                 last_was_flat = false;
             }
             this.mountains.push(mountain_y);
         }
 
         // Base Area
-        var base_left_x = this.WORLD_WIDTH - this.MOUNTAIN_BASE_AREA_WIDTH - this.MOUNTAIN_BASE_AREA_MARGIN;
+        var base_left_x = Game.config.WORLD_WIDTH - Game.config.MOUNTAIN_BASE_AREA_WIDTH - Game.config.MOUNTAIN_BASE_AREA_MARGIN;
         this.mountains.push(base_left_x);
-        this.mountains.push(this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT);
-        this.pads.push(new Pad(Points.PAD, this.PAD_SCALE,
-            base_left_x + this.SHIP_START_DISTANCE_FROM_BASE_EDGE,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT,
+        this.mountains.push(Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT);
+        this.pads.push(new Pad(Points.PAD, Game.config.PAD_SCALE,
+            base_left_x + Game.config.SHIP_START_DISTANCE_FROM_BASE_EDGE,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT,
             FlynnColors.CYAN));
-        this.structures.push(new Structure(Points.BASE_BUILDING, this.BASE_BUILDING_SCALE,
-            base_left_x + this.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 1,
+        this.structures.push(new Structure(Points.BASE_BUILDING, Game.config.BASE_BUILDING_SCALE,
+            base_left_x + Game.config.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 1,
             FlynnColors.CYAN_DK));
-        this.structures.push(new Structure(Points.TOWER, this.TOWER_SCALE,
-            base_left_x + this.TOWER_START_DISTANCE_FROM_BASE_EDGE,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT -1,
+        this.structures.push(new Structure(Points.TOWER, Game.config.TOWER_SCALE,
+            base_left_x + Game.config.TOWER_START_DISTANCE_FROM_BASE_EDGE,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT -1,
             FlynnColors.YELLOW_DK));
-        this.structures.push(new Structure(Points.LAUNCH_BUILDING, this.LAUNCH_BUILDING_SCALE,
-            base_left_x + this.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT -1,
+        this.structures.push(new Structure(Points.LAUNCH_BUILDING, Game.config.LAUNCH_BUILDING_SCALE,
+            base_left_x + Game.config.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT -1,
             FlynnColors.YELLOW_DK));
-        this.structures.push(new Structure(Points.WINDOW, this.WINDOW_SCALE,
-            base_left_x + this.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE - 5,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 32,
+        this.structures.push(new Structure(Points.WINDOW, Game.config.WINDOW_SCALE,
+            base_left_x + Game.config.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE - 5,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 32,
             FlynnColors.YELLOW_DK));
-        this.structures.push(new Structure(Points.WINDOW, this.WINDOW_SCALE,
-            base_left_x + this.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE +44,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 8,
+        this.structures.push(new Structure(Points.WINDOW, Game.config.WINDOW_SCALE,
+            base_left_x + Game.config.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE +44,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 8,
             FlynnColors.YELLOW_DK));
 
-        this.structures.push(new Structure(Points.BASE_DOOR, this.BASE_DOOR_SCALE,
-            base_left_x + this.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 1,
+        this.structures.push(new Structure(Points.BASE_DOOR, Game.config.BASE_DOOR_SCALE,
+            base_left_x + Game.config.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 1,
             FlynnColors.CYAN_DK));
-        this.structures.push(new Structure(Points.WINDOW, this.WINDOW_SCALE,
-            base_left_x + this.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE - 32,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 8,
+        this.structures.push(new Structure(Points.WINDOW, Game.config.WINDOW_SCALE,
+            base_left_x + Game.config.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE - 32,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 8,
             FlynnColors.CYAN_DK));
-        this.structures.push(new Structure(Points.WINDOW, this.WINDOW_SCALE,
-            base_left_x + this.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE + 20,
-            this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT - 8,
+        this.structures.push(new Structure(Points.WINDOW, Game.config.WINDOW_SCALE,
+            base_left_x + Game.config.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE + 20,
+            Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT - 8,
             FlynnColors.CYAN_DK));
 
-        this.mountains.push(this.WORLD_WIDTH - this.MOUNTAIN_BASE_AREA_MARGIN);
-        this.mountains.push(this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT);
-        this.mountains.push(this.WORLD_WIDTH);
-        this.mountains.push(this.WORLD_HEIGHT - 1 - seeded_rng() * this.MOUNTAIN_HEIGHT_MAX);
+        this.mountains.push(Game.config.WORLD_WIDTH - Game.config.MOUNTAIN_BASE_AREA_MARGIN);
+        this.mountains.push(Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT);
+        this.mountains.push(Game.config.WORLD_WIDTH);
+        this.mountains.push(Game.config.WORLD_HEIGHT - 1 - seeded_rng() * Game.config.MOUNTAIN_HEIGHT_MAX);
 
         // Calculate altitude and slope of mountain at every world x coordinate
         this.altitude = [];
@@ -402,13 +402,13 @@ var StateGame = FlynnState.extend({
         // Calculate radar plot of mountains
         this.radarMountains =[];
         for(i=0, len=this.mountains.length; i<len; i+=2){
-            this.radarMountains.push(this.mountains[i]/this.WORLD_WIDTH*this.radarWidth+this.RADAR_MARGIN);
-            this.radarMountains.push(this.mountains[i+1]/this.WORLD_HEIGHT*this.radarHeight+this.RADAR_TOP_MARGIN);
+            this.radarMountains.push(this.mountains[i]/Game.config.WORLD_WIDTH*this.radarWidth+Game.config.RADAR_MARGIN);
+            this.radarMountains.push(this.mountains[i+1]/Game.config.WORLD_HEIGHT*this.radarHeight+Game.config.RADAR_TOP_MARGIN);
         }
 
-        this.mcp.timers.set('levelNoticeMessage', this.LEVEL_NOTICE_MESSAGE_TICKS);
+        this.mcp.timers.set('levelNoticeMessage', Game.config.LEVEL_NOTICE_MESSAGE_TICKS);
         
-        this.viewport_v = new Victor(this.WORLD_WIDTH - this.canvasWidth, this.WORLD_HEIGHT - this.canvasHeight);
+        this.viewport_v = new Victor(Game.config.WORLD_WIDTH - this.canvasWidth, Game.config.WORLD_HEIGHT - this.canvasHeight);
 
         this.levelAdvancePending = false;
     },
@@ -417,7 +417,7 @@ var StateGame = FlynnState.extend({
         // Points only count when not visible, unless unconditional
         // Unconditional is used for bonuses,etc. Which may be applied when not visible.
         if(this.ship.visible || unconditional){
-            if(Math.floor(this.score / this.EXTRA_LIFE_SCORE) !== Math.floor((this.score + points) / this.EXTRA_LIFE_SCORE)){
+            if(Math.floor(this.score / Game.config.EXTRA_LIFE_SCORE) !== Math.floor((this.score + points) / Game.config.EXTRA_LIFE_SCORE)){
                 // Extra life
                 this.lives++;
                 this.soundExtraLife.play();
@@ -438,13 +438,13 @@ var StateGame = FlynnState.extend({
 
         this.popUpText = popUpText;
         this.popUpText2 = popUpText2;
-        this.popUpLife = this.POP_UP_TEXT_LIFE;
+        this.popUpLife = Game.config.POP_UP_TEXT_LIFE;
     },
 
     resetShip: function(){
-        this.ship.world_x = this.SHIP_START_X;
-        this.ship.world_y = this.SHIP_START_Y;
-        this.ship.angle = this.SHIP_START_ANGLE;
+        this.ship.world_x = Game.config.SHIP_START_X;
+        this.ship.world_y = Game.config.SHIP_START_Y;
+        this.ship.angle = Game.config.SHIP_START_ANGLE;
         this.ship.vel.x = 0;
         this.ship.vel.y = 0;
         this.ship.visible = true;
@@ -482,8 +482,8 @@ var StateGame = FlynnState.extend({
             this.ship.world_y,
             this.ship.vel.x,
             this.ship.vel.y,
-            this.SHIP_NUM_EXPLOSION_PARTICLES,
-            this.SHIP_EXPLOSION_MAX_VELOCITY,
+            Game.config.SHIP_NUM_EXPLOSION_PARTICLES,
+            Game.config.SHIP_EXPLOSION_MAX_VELOCITY,
             FlynnColors.YELLOW,
             ParticleTypes.PLAIN);
         this.particles.explosion(
@@ -491,13 +491,13 @@ var StateGame = FlynnState.extend({
             this.ship.world_y,
             this.ship.vel.x,
             this.ship.vel.y,
-            this.SHIP_NUM_EXPLOSION_PARTICLES / 2,
-            this.SHIP_EXPLOSION_MAX_VELOCITY,
+            Game.config.SHIP_NUM_EXPLOSION_PARTICLES / 2,
+            Game.config.SHIP_EXPLOSION_MAX_VELOCITY,
             FlynnColors.YELLOW,
             ParticleTypes.EXHAUST);
         
         // Timers
-        this.mcp.timers.set('shipRespawnDelay', this.SHIP_RESPAWN_DELAY_TICKS);
+        this.mcp.timers.set('shipRespawnDelay', Game.config.SHIP_RESPAWN_DELAY_TICKS);
         this.mcp.timers.set('shipRespawnAnimation', 0); // Set to zero to deactivate it
 
         // State flags
@@ -546,8 +546,8 @@ var StateGame = FlynnState.extend({
                 this.ship.world_y = this.pads[0].world_y - 40;
                 this.ship.vel.x = 0;
                 this.ship.vel.y = 0;
-                this.ship.angle = this.SHIP_START_ANGLE;
-                this.ship.setAngle(this.SHIP_START_ANGLE);
+                this.ship.angle = Game.config.SHIP_START_ANGLE;
+                this.ship.setAngle(Game.config.SHIP_START_ANGLE);
                 this.viewport_v.x = this.ship.world_x;
             }
 
@@ -557,8 +557,8 @@ var StateGame = FlynnState.extend({
                 this.ship.world_y = this.pads[1].world_y - 40;
                 this.ship.vel.x = 0;
                 this.ship.vel.y = 0;
-                this.ship.angle = this.SHIP_START_ANGLE;
-                this.ship.setAngle(this.SHIP_START_ANGLE);
+                this.ship.angle = Game.config.SHIP_START_ANGLE;
+                this.ship.setAngle(Game.config.SHIP_START_ANGLE);
                 this.viewport_v.x = this.ship.world_x - this.canvasWidth;
             }
 
@@ -583,10 +583,10 @@ var StateGame = FlynnState.extend({
         }
 
         if (input.virtualButtonIsDown("rotate left")){
-            this.ship.rotate_by(-this.SHIP_ROTATION_SPEED * paceFactor);
+            this.ship.rotate_by(-Game.config.SHIP_ROTATION_SPEED * paceFactor);
         }
         if (input.virtualButtonIsDown("rotate right")){
-            this.ship.rotate_by(this.SHIP_ROTATION_SPEED * paceFactor);
+            this.ship.rotate_by(Game.config.SHIP_ROTATION_SPEED * paceFactor);
         }
 
         if (input.virtualButtonIsDown("thrust")){
@@ -596,23 +596,23 @@ var StateGame = FlynnState.extend({
                 this.engine_sound.play();
                 this.engine_is_thrusting = true;
             }
-            this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * this.SHIP_THRUST * paceFactor;
-            this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * this.SHIP_THRUST * paceFactor;
+            this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * Game.config.SHIP_THRUST * paceFactor;
+            this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * Game.config.SHIP_THRUST * paceFactor;
             this.particles.exhaust(
-                this.ship.world_x + Math.cos(this.ship.angle + Math.PI/2) * this.SHIP_TO_EXHAST_LENGTH - 1,
-                this.ship.world_y + Math.sin(this.ship.angle + Math.PI/2) * this.SHIP_TO_EXHAST_LENGTH,
+                this.ship.world_x + Math.cos(this.ship.angle + Math.PI/2) * Game.config.SHIP_TO_EXHAST_LENGTH - 1,
+                this.ship.world_y + Math.sin(this.ship.angle + Math.PI/2) * Game.config.SHIP_TO_EXHAST_LENGTH,
                 this.ship.vel.x,
                 this.ship.vel.y,
-                this.SHIP_EXHAUST_RATE,
-                this.SHIP_EXHAUST_VELOCITY,
+                Game.config.SHIP_EXHAUST_RATE,
+                Game.config.SHIP_EXHAUST_VELOCITY,
                 this.ship.angle + Math.PI/2,
-                this.SHIP_EXHAUST_SPREAD,
+                Game.config.SHIP_EXHAUST_SPREAD,
                 paceFactor
             );
 
             // Cancel PopUp
             if(this.popUpThrustActive){
-                this.popUpLife = Math.min(this.POP_UP_CANCEL_TIME, this.popUpLife);
+                this.popUpLife = Math.min(Game.config.POP_UP_CANCEL_TIME, this.popUpLife);
             }
         } else {
             if (this.engine_is_thrusting){
@@ -634,13 +634,13 @@ var StateGame = FlynnState.extend({
         if (this.ship.visible){
             // Update ship
             this.ship.vel.y += Game.config.GRAVITY * paceFactor;
-            this.ship.vel.x *= Math.pow((1-this.ATMOSPHERIC_FRICTION), paceFactor);
-            this.ship.vel.y *= Math.pow((1-this.ATMOSPHERIC_FRICTION), paceFactor);
+            this.ship.vel.x *= Math.pow((1-Game.config.ATMOSPHERIC_FRICTION), paceFactor);
+            this.ship.vel.y *= Math.pow((1-Game.config.ATMOSPHERIC_FRICTION), paceFactor);
             this.ship.world_x += this.ship.vel.x * paceFactor;
             this.ship.world_y += this.ship.vel.y * paceFactor;
             var ground_y = this.altitude[Math.floor(this.ship.world_x)];
-            if (this.ship.world_y > ground_y - this.SHIP_TO_BOTTOM_LENGTH){
-                this.ship.world_y = ground_y - this.SHIP_TO_BOTTOM_LENGTH;
+            if (this.ship.world_y > ground_y - Game.config.SHIP_TO_BOTTOM_LENGTH){
+                this.ship.world_y = ground_y - Game.config.SHIP_TO_BOTTOM_LENGTH;
                 var landed=false;
                 // Crash or land
                 for(i=0, len=this.pads.length; i<len; i++){
@@ -652,13 +652,13 @@ var StateGame = FlynnState.extend({
                         console.log("Landing velocity:", landing_vel);
                         console.log("Landing angle:", landing_angle);
                     }
-                    if ((distance_to_center <= this.SHIP_LANDING_MARGIN) &&
-                        (landing_vel < this.SHIP_LANDING_VELOCITY_MAX) &&
-                        (lateral_vel_abs < this.SHIP_LANDING_LATERAL_VELOCITYMAX) &&
-                        ( (landing_angle < this.SHIP_LANDING_ANGLE_MAX) || (landing_angle>Math.PI*2-this.SHIP_LANDING_ANGLE_MAX))
+                    if ((distance_to_center <= Game.config.SHIP_LANDING_MARGIN) &&
+                        (landing_vel < Game.config.SHIP_LANDING_VELOCITY_MAX) &&
+                        (lateral_vel_abs < Game.config.SHIP_LANDING_LATERAL_VELOCITYMAX) &&
+                        ( (landing_angle < Game.config.SHIP_LANDING_ANGLE_MAX) || (landing_angle>Math.PI*2-Game.config.SHIP_LANDING_ANGLE_MAX))
                         )
                         {
-                        this.ship.angle = this.SHIP_START_ANGLE;
+                        this.ship.angle = Game.config.SHIP_START_ANGLE;
                         this.ship.setAngle(this.ship.angle);
                         this.ship.vel.x = 0;
                         landed = true;
@@ -674,25 +674,25 @@ var StateGame = FlynnState.extend({
                 this.ship.world_y = 30;
                 this.ship.vel.y = 0;
             }
-            if (this.ship.world_x > this.WORLD_WIDTH - 40){
-                this.ship.world_x = this.WORLD_WIDTH - 40;
+            if (this.ship.world_x > Game.config.WORLD_WIDTH - 40){
+                this.ship.world_x = Game.config.WORLD_WIDTH - 40;
                 this.ship.vel.x = 0;
             } else if (this.ship.world_x < 40){
                 this.ship.world_x = 40;
                 this.ship.vel.x = 0;
             }
 
-            if (this.ship.world_y < ground_y - this.SHIP_TO_BOTTOM_LENGTH - 5){
+            if (this.ship.world_y < ground_y - Game.config.SHIP_TO_BOTTOM_LENGTH - 5){
                 this.ship.is_landed = false;
             }
 
             // Unload passenger
-            if(this.ship.is_landed && this.ship.human_on_board && this.ship.world_x > this.SHIP_START_X - 100){  //TODO: Lazy math
+            if(this.ship.is_landed && this.ship.human_on_board && this.ship.world_x > Game.config.SHIP_START_X - 100){  //TODO: Lazy math
                 this.ship.human_on_board = false;
                 this.humans.push(new Human(
                     FlynnColors.WHITE,
                     this.ship.world_x + 20,
-                    this.WORLD_HEIGHT - this.MOUNTAIN_BASE_AREA_HEIGHT,
+                    Game.config.WORLD_HEIGHT - Game.config.MOUNTAIN_BASE_AREA_HEIGHT,
                     this
                     ));
             }
@@ -702,7 +702,7 @@ var StateGame = FlynnState.extend({
             if(!this.gameOver){
                 if(this.mcp.timers.hasExpired('shipRespawnDelay')){
                     // Start the respawn animation timer (which also triggers the animation)
-                    this.mcp.timers.set('shipRespawnAnimation', this.SHIP_RESPAWN_ANIMATION_TICKS);
+                    this.mcp.timers.set('shipRespawnAnimation', Game.config.SHIP_RESPAWN_ANIMATION_TICKS);
                     this.soundShipRespawn.play();
                 }
                 if(this.mcp.timers.hasExpired('shipRespawnAnimation')){
@@ -716,15 +716,15 @@ var StateGame = FlynnState.extend({
         // Kamikazes
         //-------------------
         // Kamikaze: Spawn
-        if (Math.random() < this.KAMIKAZE_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.kamikazes > 0) {
+        if (Math.random() < Game.config.KAMIKAZE_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.kamikazes > 0) {
             --this.spawn_manager.spawn_pool.kamikazes;
             this.kamikazes.push(new Kamikaze(
                 Points.MONSTER,
-                this.KAMIKAZE_SCALE,
+                Game.config.KAMIKAZE_SCALE,
                 new Victor(
-                    Math.random() * (this.WORLD_WIDTH - 200) + 100,
+                    Math.random() * (Game.config.WORLD_WIDTH - 200) + 100,
                     Math.random() * 50),
-                this.KAMIKAZE_COLOR
+                Game.config.KAMIKAZE_COLOR
                 ));
         }
 
@@ -769,14 +769,14 @@ var StateGame = FlynnState.extend({
                     this.kamikazes[i].world_position_v.y,
                     this.kamikazes[i].velocity_v.x,
                     this.kamikazes[i].velocity_v.y,
-                    this.SHIP_NUM_EXPLOSION_PARTICLES,
-                    this.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
-                    this.KAMIKAZE_COLOR,
+                    Game.config.SHIP_NUM_EXPLOSION_PARTICLES,
+                    Game.config.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
+                    Game.config.KAMIKAZE_COLOR,
                     ParticleTypes.PLAIN);
                 this.kamikazes.splice(i,1);
                 i--;
                 len--;
-                this.addPoints(this.POINTS_KAMIKAZE);
+                this.addPoints(Game.config.POINTS_KAMIKAZE);
                 this.soundSaucerDie.play();
             }
         }
@@ -786,14 +786,14 @@ var StateGame = FlynnState.extend({
         //-------------------
 
         // Saucer: Spawn
-        if (Math.random() < this.SAUCER_SPAWN_PROBABILIY && this.spawn_manager.spawn_pool.saucers > 0) {
+        if (Math.random() < Game.config.SAUCER_SPAWN_PROBABILIY && this.spawn_manager.spawn_pool.saucers > 0) {
             --this.spawn_manager.spawn_pool.saucers;
             this.saucers.push(new Saucer(
                 Points.SAUCER,
-                this.SAUCER_SCALE,
-                Math.random() * (this.WORLD_WIDTH - 200) + 100,
+                Game.config.SAUCER_SCALE,
+                Math.random() * (Game.config.WORLD_WIDTH - 200) + 100,
                 Math.random() * 30,
-                this.SAUCER_COLOR
+                Game.config.SAUCER_COLOR
                 ));
         }
 
@@ -807,18 +807,18 @@ var StateGame = FlynnState.extend({
                 }
 
                 // Shoot
-                if(this.saucers[i].cannonIsWarm() && Math.random() < this.SAUCER_SHOOT_PROBABILITY){
+                if(this.saucers[i].cannonIsWarm() && Math.random() < Game.config.SAUCER_SHOOT_PROBABILITY){
                     var ship_pos_v = new Victor(this.ship.world_x, this.ship.world_y);
                     var saucer_pos_v = new Victor(this.saucers[i].world_x, this.saucers[i].world_y);
                     distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
 
                     // If ship within firing range
-                    if (distance < this.SAUCER_SHOOT_RANGE){
+                    if (distance < Game.config.SAUCER_SHOOT_RANGE){
                         var solution = flynnInterceptSolution(
                             new Victor(this.ship.world_x, this.ship.world_y),
                             new Victor(this.ship.vel.x, this.ship.vel.y),
-                            new Victor(this.saucers[i].world_x, this.saucers[i].world_y + this.SAUCER_CANNON_OFFSET),
-                            this.SAUCER_SHOOT_VELOCITY
+                            new Victor(this.saucers[i].world_x, this.saucers[i].world_y + Game.config.SAUCER_CANNON_OFFSET),
+                            Game.config.SAUCER_SHOOT_VELOCITY
                             );
 
                         // If firing solution results in an upward projectile velocity
@@ -826,10 +826,10 @@ var StateGame = FlynnState.extend({
                             this.projectiles.add(
                                 new Victor(
                                     this.saucers[i].world_x,
-                                    this.saucers[i].world_y + this.SAUCER_CANNON_OFFSET),
+                                    this.saucers[i].world_y + Game.config.SAUCER_CANNON_OFFSET),
                                 solution.velocity_v,
-                                this.SAUCER_SHOOT_LIFE,
-                                this.SAUCER_SHOOT_SIZE,
+                                Game.config.SAUCER_SHOOT_LIFE,
+                                Game.config.SAUCER_SHOOT_SIZE,
                                 FlynnColors.YELLOW
                                 );
                             this.soundSaucerShoot.play();
@@ -872,14 +872,14 @@ var StateGame = FlynnState.extend({
                     this.saucers[i].world_y,
                     this.saucers[i].dx,
                     this.saucers[i].dy,
-                    this.SHIP_NUM_EXPLOSION_PARTICLES,
-                    this.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
-                    this.SAUCER_COLOR,
+                    Game.config.SHIP_NUM_EXPLOSION_PARTICLES,
+                    Game.config.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
+                    Game.config.SAUCER_COLOR,
                     ParticleTypes.PLAIN);
                 this.saucers.splice(i,1);
                 i--;
                 len--;
-                this.addPoints(this.POINTS_SAUCER);
+                this.addPoints(Game.config.POINTS_SAUCER);
                 this.soundSaucerDie.play();
             }
         }
@@ -917,12 +917,12 @@ var StateGame = FlynnState.extend({
 
         // Generation
         if(this.popUpThrustPending){
-            if (this.gameClock >= this.POP_UP_THRUST_PROMPT_TIME)
+            if (this.gameClock >= Game.config.POP_UP_THRUST_PROMPT_TIME)
             {
                 this.popUpThrustPending = false;
                 this.popUpThrustActive = true;
                 this.showPopUp(this.mcp.custom.thrustPrompt);
-                this.popUpLife = this.POP_UP_TEXT_LIFE;
+                this.popUpLife = Game.config.POP_UP_TEXT_LIFE;
             }
         }
 
@@ -981,12 +981,12 @@ var StateGame = FlynnState.extend({
                         laserPod.world_position_v.y,
                         0,
                         0,
-                        this.LASER_POD_NUM_EXPLOSION_PARTICLES,
-                        this.LASER_POD_EXPLOSION_MAX_VELOCITY * 0.6,
-                        this.LASER_POD_COLOR,
+                        Game.config.LASER_POD_NUM_EXPLOSION_PARTICLES,
+                        Game.config.LASER_POD_EXPLOSION_MAX_VELOCITY * 0.6,
+                        Game.config.LASER_POD_COLOR,
                         ParticleTypes.PLAIN);
                     laserPod.setDead();
-                    this.addPoints(this.POINTS_LASER_POD);
+                    this.addPoints(Game.config.POINTS_LASER_POD);
                     this.soundSaucerDie.play();
                 }
             }
@@ -996,8 +996,8 @@ var StateGame = FlynnState.extend({
         // Wave completion
         //------------------
         if(!this.gameOver && this.humans.length === 0 && this.ship.human_on_board === false && !this.levelAdvancePending){
-            this.mcp.timers.set('levelCompleteMessage', this.LEVEL_COMPLETE_MESSAGE_TICKS);
-            this.mcp.timers.set('levelBonusDelay', this.LEVEL_BONUS_DELAY_TICKS);
+            this.mcp.timers.set('levelCompleteMessage', Game.config.LEVEL_COMPLETE_MESSAGE_TICKS);
+            this.mcp.timers.set('levelBonusDelay', Game.config.LEVEL_BONUS_DELAY_TICKS);
             this.levelAdvancePending = true;
             this.hideShip();
             this.soundLevelAdvance.play();
@@ -1007,15 +1007,15 @@ var StateGame = FlynnState.extend({
             this.generateLvl();
             this.resetShip();
             this.hideShip();
-            this.mcp.timers.set('shipRespawnAnimation', this.SHIP_RESPAWN_ANIMATION_TICKS);
+            this.mcp.timers.set('shipRespawnAnimation', Game.config.SHIP_RESPAWN_ANIMATION_TICKS);
             this.soundShipRespawn.play();
         }
         if(this.mcp.timers.hasExpired('levelBonusDelay')){
-            this.mcp.timers.set('levelBonus', this.LEVEL_BONUS_TICKS);
+            this.mcp.timers.set('levelBonus', Game.config.LEVEL_BONUS_TICKS);
             this.soundBonus.play();
-            if(this.humans_rescued === this.HUMANS_NUM){
-                this.addPoints(this.HUMANS_PERFECT_RESCUE_POINTS, true);
-                this.bonusAmount = this.HUMANS_PERFECT_RESCUE_POINTS;
+            if(this.humans_rescued === Game.config.HUMANS_NUM){
+                this.addPoints(Game.config.HUMANS_PERFECT_RESCUE_POINTS, true);
+                this.bonusAmount = Game.config.HUMANS_PERFECT_RESCUE_POINTS;
             }
             else{
                 this.bonusAmount = 0;
@@ -1027,27 +1027,27 @@ var StateGame = FlynnState.extend({
         var goal_y = this.ship.world_y;
         if (!this.ship.visible && !this.mcp.timers.isRunning('shipRespawnDelay') && !this.gameOver && !this.levelAdvancePending){
             // Pan to ship start location after ship death
-            goal_x = this.SHIP_START_X;
-            goal_y = this.SHIP_START_Y;
+            goal_x = Game.config.SHIP_START_X;
+            goal_y = Game.config.SHIP_START_Y;
         }
 
         var target_viewport_x = goal_x - this.canvasWidth/2;
         if(target_viewport_x < 0){
             target_viewport_x= 0;
-        } else if  (target_viewport_x > this.WORLD_WIDTH - this.canvasWidth){
-            target_viewport_x = this.WORLD_WIDTH - this.canvasWidth;
+        } else if  (target_viewport_x > Game.config.WORLD_WIDTH - this.canvasWidth){
+            target_viewport_x = Game.config.WORLD_WIDTH - this.canvasWidth;
         }
-        var slew = flynnMinMaxBound(target_viewport_x - this.viewport_v.x, -this.VIEWPORT_SLEW_MAX, this.VIEWPORT_SLEW_MAX);
+        var slew = flynnMinMaxBound(target_viewport_x - this.viewport_v.x, -Game.config.VIEWPORT_SLEW_MAX, Game.config.VIEWPORT_SLEW_MAX);
         this.viewport_v.x += slew;
 
-        var target_viewport_y = goal_y - (this.canvasHeight-this.INFO_PANEL_HEIGHT)/2 - this.INFO_PANEL_HEIGHT;
-        if (target_viewport_y < 0 - this.INFO_PANEL_HEIGHT){
-            target_viewport_y = 0 - this.INFO_PANEL_HEIGHT;
+        var target_viewport_y = goal_y - (this.canvasHeight-Game.config.INFO_PANEL_HEIGHT)/2 - Game.config.INFO_PANEL_HEIGHT;
+        if (target_viewport_y < 0 - Game.config.INFO_PANEL_HEIGHT){
+            target_viewport_y = 0 - Game.config.INFO_PANEL_HEIGHT;
         }
-        else if (target_viewport_y> this.WORLD_HEIGHT - this.canvasHeight){
-            target_viewport_y = this.WORLD_HEIGHT - this.canvasHeight;
+        else if (target_viewport_y> Game.config.WORLD_HEIGHT - this.canvasHeight){
+            target_viewport_y = Game.config.WORLD_HEIGHT - this.canvasHeight;
         }
-        slew = flynnMinMaxBound(target_viewport_y - this.viewport_v.y, -this.VIEWPORT_SLEW_MAX, this.VIEWPORT_SLEW_MAX);
+        slew = flynnMinMaxBound(target_viewport_y - this.viewport_v.y, -Game.config.VIEWPORT_SLEW_MAX, Game.config.VIEWPORT_SLEW_MAX);
         this.viewport_v.y += slew;
 
     },
@@ -1065,7 +1065,7 @@ var StateGame = FlynnState.extend({
 
         // Ship respawn animation
         if(this.mcp.timers.isRunning('shipRespawnAnimation')){
-            var animationPercentage = this.mcp.timers.get('shipRespawnAnimation') / this.SHIP_RESPAWN_ANIMATION_TICKS;
+            var animationPercentage = this.mcp.timers.get('shipRespawnAnimation') / Game.config.SHIP_RESPAWN_ANIMATION_TICKS;
             var sizePercentageStep = 0.005;
             var rotationPercentageStep = 0.1;
             var startRadius = 200 * animationPercentage;
@@ -1077,8 +1077,8 @@ var StateGame = FlynnState.extend({
             for(i=0; i<numParticles; i++){
                 var angle = startAngle + i * angleStep;
                 var radius = startRadius + radiusStep * i;
-                var x = this.SHIP_START_X + Math.cos(angle) * radius - this.viewport_v.x;
-                var y = this.SHIP_START_Y + Math.sin(angle) * radius - this.viewport_v.y;
+                var x = Game.config.SHIP_START_X + Math.cos(angle) * radius - this.viewport_v.x;
+                var y = Game.config.SHIP_START_Y + Math.sin(angle) * radius - this.viewport_v.y;
                 ctx.fillRect(x,y,2,2);
             }
         }
@@ -1149,10 +1149,10 @@ var StateGame = FlynnState.extend({
 
         // Clear panel area
         ctx.fillStyle=FlynnColors.BLACK;
-        ctx.fillRect(0, 0, this.canvasWidth, this.INFO_PANEL_HEIGHT);
+        ctx.fillRect(0, 0, this.canvasWidth, Game.config.INFO_PANEL_HEIGHT);
         ctx.vectorStart(FlynnColors.WHITE);
-        ctx.vectorMoveTo(0, this.INFO_PANEL_HEIGHT + 0.5);
-        ctx.vectorLineTo(this.canvasWidth-1, this.INFO_PANEL_HEIGHT + 0.5);
+        ctx.vectorMoveTo(0, Game.config.INFO_PANEL_HEIGHT + 0.5);
+        ctx.vectorLineTo(this.canvasWidth-1, Game.config.INFO_PANEL_HEIGHT + 0.5);
         ctx.vectorEnd();
 
         // Scores
@@ -1174,8 +1174,8 @@ var StateGame = FlynnState.extend({
 
         // Console
         ctx.fillStyle=FlynnColors.BLACK;
-        ctx.fillRect(this.RADAR_MARGIN,3,this.radarWidth,this.radarHeight);
-        ctx.vectorRect(this.RADAR_MARGIN-1,this.RADAR_TOP_MARGIN-1,this.radarWidth+2,this.radarHeight+2, FlynnColors.WHITE);
+        ctx.fillRect(Game.config.RADAR_MARGIN,3,this.radarWidth,this.radarHeight);
+        ctx.vectorRect(Game.config.RADAR_MARGIN-1,Game.config.RADAR_TOP_MARGIN-1,this.radarWidth+2,this.radarHeight+2, FlynnColors.WHITE);
 
         // Mountains
         ctx.vectorStart(FlynnColors.BROWN);
@@ -1197,26 +1197,26 @@ var StateGame = FlynnState.extend({
         }
 
         // Saucers
-        ctx.fillStyle=this.SAUCER_COLOR;
+        ctx.fillStyle=Game.config.SAUCER_COLOR;
         for(i=0, len=this.saucers.length; i<len; i+=1){
             radar_location = this.worldToRadar(this.saucers[i].world_x, this.saucers[i].world_y);
             ctx.fillRect(radar_location[0], radar_location[1],2,2);
         }
 
         // Kamikazes
-        ctx.fillStyle=this.KAMIKAZE_COLOR;
+        ctx.fillStyle=Game.config.KAMIKAZE_COLOR;
         for(i=0, len=this.kamikazes.length; i<len; i+=1){
             radar_location = this.worldToRadar(this.kamikazes[i].world_position_v.x, this.kamikazes[i].world_position_v.y);
             ctx.fillRect(radar_location[0], radar_location[1],2,2);
         }
 
         // LaserPods
-        ctx.vectorStart(this.LASER_POD_BEAM_COLOR);
+        ctx.vectorStart(Game.config.LASER_POD_BEAM_COLOR);
         for(i=0, len=this.laserPods.length; i<len; i+=1){
             var laserPod = this.laserPods[i];
             
             if(laserPod.state === LaserPodState.DROPPING){
-                ctx.fillStyle=this.LASER_POD_COLOR;
+                ctx.fillStyle=Game.config.LASER_POD_COLOR;
                 radar_location = this.worldToRadar(laserPod.world_position_v.x, laserPod.world_position_v.y);
                 ctx.fillRect(radar_location[0]-1, radar_location[1]-3,4,4);
                 ctx.fillStyle=FlynnColors.WHITE;
@@ -1224,13 +1224,13 @@ var StateGame = FlynnState.extend({
             }
 
             if(laserPod.state === LaserPodState.ACTIVE){
-                ctx.fillStyle=this.LASER_POD_COLOR;
+                ctx.fillStyle=Game.config.LASER_POD_COLOR;
                 radar_location = this.worldToRadar(laserPod.world_position_v.x, laserPod.world_position_v.y);
                 ctx.fillRect(radar_location[0], radar_location[1]-2,2,2);
 
                 radar_location[0] = Math.floor(radar_location[0]) + 1.5;
                 ctx.vectorMoveTo(radar_location[0], radar_location[1]-3);
-                ctx.vectorLineTo(radar_location[0], this.RADAR_TOP_MARGIN+2);
+                ctx.vectorLineTo(radar_location[0], Game.config.RADAR_TOP_MARGIN+2);
             }
         }
         ctx.vectorEnd();
@@ -1251,11 +1251,11 @@ var StateGame = FlynnState.extend({
         }
 
         // Viewport
-        radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y + this.INFO_PANEL_HEIGHT);
-        var radar_scale = this.radarWidth / this.WORLD_WIDTH;
+        radar_location = this.worldToRadar(this.viewport_v.x, this.viewport_v.y + Game.config.INFO_PANEL_HEIGHT);
+        var radar_scale = this.radarWidth / Game.config.WORLD_WIDTH;
         ctx.vectorRect(
             radar_location[0],radar_location[1],
-            this.canvasWidth*radar_scale, (this.canvasHeight - this.INFO_PANEL_HEIGHT)*radar_scale,
+            this.canvasWidth*radar_scale, (this.canvasHeight - Game.config.INFO_PANEL_HEIGHT)*radar_scale,
             "#606060");
 
         //------------
