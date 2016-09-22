@@ -61,9 +61,18 @@ var Game = Class.extend({
 		this.mcp.custom.leaderboard.saveToCookies();
 
         // Setup inputs
-		this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
-		this.input.addVirtualButton('rotate right', FlynnKeyboardMap['x'], FlynnConfigurable);
-		this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
+        if(!this.mcp.iCadeModeEnabled){
+			this.input.addVirtualButton('rotate left', FlynnKeyboardMap['z'], FlynnConfigurable);
+			this.input.addVirtualButton('rotate right', FlynnKeyboardMap['x'], FlynnConfigurable);
+			this.input.addVirtualButton('thrust', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
+		}
+		else{
+			this.input.addVirtualButton('rotate left', FlynnKeyboardMap['ICADE_T1'], FlynnConfigurable);
+			this.input.addVirtualButton('rotate right', FlynnKeyboardMap['ICADE_T2'], FlynnConfigurable);
+			this.input.addVirtualButton('thrust', FlynnKeyboardMap['ICADE_T3'], FlynnConfigurable);
+		}
+
+
 		if(this.mcp.developerModeEnabled){
 			this.input.addVirtualButton('dev_metrics', FlynnKeyboardMap['6'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_slow_mo', FlynnKeyboardMap['7'], FlynnNotConfigurable);
@@ -74,9 +83,7 @@ var Game = Class.extend({
 			this.input.addVirtualButton('dev_base', FlynnKeyboardMap['-'], FlynnNotConfigurable);
 			this.input.addVirtualButton('dev_kill_human', FlynnKeyboardMap[']'], FlynnNotConfigurable);
 		}
-		if(this.mcp.arcadeModeEnabled){
-			this.input.addVirtualButton('quarter', FlynnKeyboardMap['5'], FlynnConfigurable);
-			this.input.addVirtualButton('start_1', FlynnKeyboardMap['1'], FlynnConfigurable);
+		if(this.mcp.arcadeModeEnabled && !this.mcp.iCadeModeEnabled){
 			this.input.addVirtualButton('thrust', FlynnKeyboardMap['r'], FlynnConfigurable);
 			// In arcade mode re-bind rotate right to spacebar
 			this.input.addVirtualButton('rotate right', FlynnKeyboardMap['spacebar'], FlynnConfigurable);
