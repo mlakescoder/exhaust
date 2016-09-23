@@ -83,7 +83,7 @@ Game.Particle = Class.extend({
             if(green<0){
                 green = 0;
             }
-            ctx.fillStyle = flynnRgbToHex(red, green, 0);
+            ctx.fillStyle = Flynn.Util.rgbToHex(red, green, 0);
         }
         //console.log(this.x, this.y);
         ctx.fillRect(this.x - viewport_x,this.y - viewport_y,2,2);
@@ -143,7 +143,7 @@ Game.Particles = Class.extend({
                 exhaust_dx,
                 exhaust_dy,
                 null,
-                this.PARTICLE_TYPES.EXHAUST,
+                Game.Particle.prototype.PARTICLE_TYPES.EXHAUST,
                 this.gameState
             ));
         }

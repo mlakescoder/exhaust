@@ -62,16 +62,16 @@ Game.Saucer = Flynn.Polygon.extend({
             this.world_x = 0;
             this.dx = this.SAUCER_SPEED_X;
         }
-        if (this.world_x > WorldWidth - 40){
-            this.world_x = WorldWidth - 40;
+        if (this.world_x > g_.WORLD_WIDTH - 40){
+            this.world_x = g_.WORLD_WIDTH - 40;
             this.dx = -this.SAUCER_SPEED_X;
         }
         if (this.world_y < 0){
             this.world_y = 0;
             this.dy = Math.random() * this.SAUCER_SPEED_Y_MAX;
         }
-        if (this.world_y > WorldHeight - MountainHeightMax - 40){
-            this.world_y = WorldHeight - MountainHeightMax - 40;
+        if (this.world_y > g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40){
+            this.world_y = g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40;
             this.dy = Math.random() * -this.SAUCER_SPEED_Y_MAX;
         }
 

@@ -65,7 +65,7 @@ Game.Kamikaze = Flynn.Polygon.extend({
         // Update mode
         if(--this.followTimer <= 0){
             if(this.mode === this.KAMIKAZE_MODE.FOLLOW){
-                if (this.world_position_v.y > WorldHeight - MountainHeightMax - 40 + this.KAMIKAZE_ASCEND_MARGIN){
+                if (this.world_position_v.y > g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40 + this.KAMIKAZE_ASCEND_MARGIN){
                     // Lower than mountains, so start ascending (straigt up)
                     this.mode = this.KAMIKAZE_MODE.ASCEND;
                     this.velocity_v.x = 0;
@@ -78,7 +78,7 @@ Game.Kamikaze = Flynn.Polygon.extend({
             }
         }
         if(this.mode === this.KAMIKAZE_MODE.ASCEND){
-            if (this.world_position_v.y < WorldHeight - MountainHeightMax - 40){
+            if (this.world_position_v.y < g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40){
                 // Above mountains now.  Start patrolling
                 this.startPatrolling();
             }
@@ -90,15 +90,15 @@ Game.Kamikaze = Flynn.Polygon.extend({
                 this.world_position_v.x = 0;
                 this.velocity_v.x = this.KAMIKAZE_SPEED;
             }
-            if (this.world_position_v.x > WorldWidth - 40){
-                this.world_position_v.x = WorldWidth - 40;
+            if (this.world_position_v.x > g_.WORLD_WIDTH - 40){
+                this.world_position_v.x = g_.WORLD_WIDTH - 40;
                 this.velocity_v.x = -this.KAMIKAZE_SPEED;
             }
             if (this.world_position_v.y < 0){
                 this.world_position_v.y = 0;
                 this.velocity_v.y = Math.random() * this.KAMIKAZE_SPEED/2;
             }
-            if (this.world_position_v.y > WorldHeight - MountainHeightMax - 40){
+            if (this.world_position_v.y > g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40){
                 this.velocity_v.y = Math.random() * -this.KAMIKAZE_SPEED/2;
             }
         }

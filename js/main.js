@@ -36,7 +36,7 @@ Game.Main = Class.extend({
                             self.mcp,
                             self.mcp.custom.score,
                             self.mcp.custom.leaderboard,
-                            FlynnColors.ORANGE,
+                            Flynn.Colors.ORANGE,
                             'HIGH SCORES',
                             'YOU MADE IT TO THE HIGH SCORE LIST!',
                             Game.States.MENU     // Parent state
@@ -44,10 +44,10 @@ Game.Main = Class.extend({
                     case Game.States.CONFIG:
                         return new Flynn.StateConfig(
                             self.mcp,
-                            FlynnColors.ORANGE,
-                            FlynnColors.YELLOW,
-                            FlynnColors.CYAN,
-                            FlynnColors.MAGENTA,
+                            Flynn.Colors.ORANGE,
+                            Flynn.Colors.YELLOW,
+                            Flynn.Colors.CYAN,
+                            Flynn.Colors.MAGENTA,
                             Game.States.MENU     // Parent state
                             );
                 }

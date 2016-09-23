@@ -53,7 +53,6 @@ Game.humanConfig = {
         [80,    -15,   -130,  -85,    -180,  -145, -90,   -95,  0,     5],  // 5 Airborne
     ],
     runningAnimationLeft: [],
-    runningAnimationsGenerated: false,  // Set after Right has been doubled for other body side, and left has been generated
 
     stanceStand:
     //   Torso  Hip1   Hip2   Knee1  Knee2  Shld1  Shld2  Arm1  Arm2   Jump
@@ -72,42 +71,40 @@ Game.humanConfig = {
         this.headRadius = 3 * this.scale;
         this.shoulderHeight = this.torsoLength * 0.80;
 
-        var len = this.RunningAnimationRight.length;
+        var len = this.runningAnimationRight.length;
         var i;
 
         for (i=0; i<len; i++){
             // Other side of body for running animation is same as first set, just swap left/right arms
-            this.RunningAnimationRight.push(
-                [   this.RunningAnimationRight[i][this.idx.torso_ang],
-                    this.RunningAnimationRight[i][this.idx.hip2_ang],
-                    this.RunningAnimationRight[i][this.idx.hip1_ang],
-                    this.RunningAnimationRight[i][this.idx.knee2_ang],
-                    this.RunningAnimationRight[i][this.idx.knee1_ang],
-                    this.RunningAnimationRight[i][this.idx.shoulder2_ang],
-                    this.RunningAnimationRight[i][this.idx.shoulder1_ang],
-                    this.RunningAnimationRight[i][this.idx.arm2_ang],
-                    this.RunningAnimationRight[i][this.idx.arm1_ang],
-                    this.RunningAnimationRight[i][this.idx.jump],
+            this.runningAnimationRight.push(
+                [   this.runningAnimationRight[i][this.idx.torso_ang],
+                    this.runningAnimationRight[i][this.idx.hip2_ang],
+                    this.runningAnimationRight[i][this.idx.hip1_ang],
+                    this.runningAnimationRight[i][this.idx.knee2_ang],
+                    this.runningAnimationRight[i][this.idx.knee1_ang],
+                    this.runningAnimationRight[i][this.idx.shoulder2_ang],
+                    this.runningAnimationRight[i][this.idx.shoulder1_ang],
+                    this.runningAnimationRight[i][this.idx.arm2_ang],
+                    this.runningAnimationRight[i][this.idx.arm1_ang],
+                    this.runningAnimationRight[i][this.idx.jump],
                 ]
             );
         }
 
-
-        RunningAnimationLeft = [];
-        len = RunningAnimationRight.length;
+        len = this.runningAnimationRight.length;
         for (i=0; i<len; i++){
             // Other direction (running left) is mirror of running right
-            RunningAnimationLeft.push(
-                [   this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.torso_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.hip1_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.hip2_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.knee1_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.knee2_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.shoulder1_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.shoulder2_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.arm1_ang]),
-                    this.mirror_run_angle(this.RunningAnimationRight[i][this.idx.arm2_ang]),
-                    this.RunningAnimationRight[i][this.idx.jump],
+            this.runningAnimationLeft.push(
+                [   this.mirror_run_angle(this.runningAnimationRight[i][this.idx.torso_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.hip1_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.hip2_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.knee1_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.knee2_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.shoulder1_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.shoulder2_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.arm1_ang]),
+                    this.mirror_run_angle(this.runningAnimationRight[i][this.idx.arm2_ang]),
+                    this.runningAnimationRight[i][this.idx.jump],
                 ]
             );
         }
@@ -123,7 +120,7 @@ Game.humanConfig = {
 }.init();
 
 // TODO: This does not need to be a polygon class extension
-var Human = Flynn.Polygon.extend({
+Game.Human = Flynn.Polygon.extend({
 
     init: function(color, world_x, world_y, game_state){
 
@@ -189,7 +186,7 @@ var Human = Flynn.Polygon.extend({
 
             if (safehouse_distance < 4 * Game.humanConfig.runSpeed){
                 this.game_state.humans_rescued++;
-                this.game_state.addPoints(Game.config.pointsRescuedHuman);
+                this.game_state.addPoints(g_.POINTS_RESCUED_HUMAN);
                 this.valid = false;
             }
         }
@@ -200,7 +197,7 @@ var Human = Flynn.Polygon.extend({
 
                 if (ship_distance < 4 * Game.humanConfig.runSpeed){
                     this.game_state.ship.human_on_board = true;
-                    this.game_state.addPoints(Game.config.pointsPickUpHuman);
+                    this.game_state.addPoints(g_.POINTS_PICK_UP_HUMAN);
                     this.valid = false;
                 }
             }
@@ -279,10 +276,10 @@ var Human = Flynn.Polygon.extend({
             var delta = this.angles_deg_goal[i] - this.angles_deg[i];
             if(delta !==0){
                 if(i!==Game.humanConfig.idx.jump){
-                    update = flynnMinMaxBound( delta, -Game.humanConfig.limbSpeed*paceFactor, Game.humanConfig.limbSpeed*paceFactor);
+                    update = Flynn.Util.minMaxBound( delta, -Game.humanConfig.limbSpeed*paceFactor, Game.humanConfig.limbSpeed*paceFactor);
                 }
                 else{
-                    update = flynnMinMaxBound( delta, -Game.humanConfig.jumpSpeed*paceFactor, Game.humanConfig.jumpSpeed*paceFactor);
+                    update = Flynn.Util.minMaxBound( delta, -Game.humanConfig.jumpSpeed*paceFactor, Game.humanConfig.jumpSpeed*paceFactor);
                 }
 
                 this.angles_deg[i] += update;
