@@ -79,8 +79,8 @@ Game.StateMenu = Flynn.State.extend({
         var title_step = 5;
 
         for (var angle = 0; angle < Math.PI + 0.1; angle += Math.PI) {
-            x_pos = 300;
-            y_pos = 50;
+            var x_pos = 300;
+            var y_pos = 50;
             ctx.vectorText("EXHAUST", 10, x_pos, y_pos, null, Flynn.Colors.ORANGE);
             ctx.vectorText("EXHAUST", 10,  x_pos + 3, y_pos +3, null, Flynn.Colors.RED);
         }

@@ -246,6 +246,8 @@ Game.StateGame = Flynn.State.extend({
     generateLvl: function() {
         var margin = 20;
         var seed;
+        var i, len;
+
         switch(this.level){
             case 0:
                 seed = 'seed7';
@@ -265,7 +267,7 @@ Game.StateGame = Flynn.State.extend({
         this.spawn_manager.init(this.level);
 
         this.stars = [];
-        for (var i=0; i<g_.NUM_STARS; i++){
+        for (i=0; i<g_.NUM_STARS; i++){
             this.stars.push(seeded_rng() * g_.WORLD_WIDTH);
             this.stars.push(seeded_rng() * (g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX));
         }
@@ -624,7 +626,10 @@ Game.StateGame = Flynn.State.extend({
     },
 
     update: function(paceFactor) {
-        var i, len, b, numOusideEnemies, outsideEnemyAngles;
+        var b, numOusideEnemies, outsideEnemyAngles, ptc;
+        var killed;
+        var i, j;
+        var len, len2;
 
         this.gameClock += paceFactor;
 
@@ -729,9 +734,6 @@ Game.StateGame = Flynn.State.extend({
                 ));
         }
 
-
-        var killed, j, len2;
-
         // Kamikaze: Collisions
         for(i=0, len=this.kamikazes.length; i<len; i+=1){
             killed = false;
@@ -811,7 +813,7 @@ Game.StateGame = Flynn.State.extend({
                 if(this.saucers[i].cannonIsWarm() && Math.random() < g_.SAUCER_SHOOT_PROBABILITY){
                     var ship_pos_v = new Victor(this.ship.world_x, this.ship.world_y);
                     var saucer_pos_v = new Victor(this.saucers[i].world_x, this.saucers[i].world_y);
-                    distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
+                    var distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
 
                     // If ship within firing range
                     if (distance < g_.SAUCER_SHOOT_RANGE){
@@ -1054,6 +1056,8 @@ Game.StateGame = Flynn.State.extend({
     },
 
     render: function(ctx){
+        var i, len; 
+
         ctx.clearAll();
 
         // PopUp Text
@@ -1161,7 +1165,7 @@ Game.StateGame = Flynn.State.extend({
         ctx.vectorText(this.highscore, 3, this.canvasWidth - 6  , 15, 0 , Flynn.Colors.GREEN);
 
         // Remaining Lives
-        for(var i=0; i<this.lives; i++){
+        for(i=0; i<this.lives; i++){
             ctx.drawPolygon(this.lifepolygon, 20+20*i, 55);
         }
 

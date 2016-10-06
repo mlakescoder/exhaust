@@ -39,6 +39,8 @@ Game.Saucer = Flynn.Polygon.extend({
 
 
     collide: function(polygon){
+        var i, len;
+        
         for(i=0, len=this.points.length -2; i<len; i+=2){
             var x = this.points[i] + this.world_x;
             var y = this.points[i+1] + this.world_y;

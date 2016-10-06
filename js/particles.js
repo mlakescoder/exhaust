@@ -34,6 +34,7 @@ Game.Particle = Class.extend({
     },
 
     update: function(paceFactor) {
+        var altitude;
         var isAlive = true;
         // Decay and die
         this.life -= paceFactor;
@@ -79,7 +80,7 @@ Game.Particle = Class.extend({
             if(red<0){
                 red = 0;
             }
-            green = red - 150;
+            var green = red - 150;
             if(green<0){
                 green = 0;
             }
@@ -105,6 +106,8 @@ Game.Particles = Class.extend({
     },
 
     explosion: function(x, y, dx, dy, quantity, max_velocity, color, particle_type) {
+        var theta, velocity;
+
         for(var i=0; i<quantity; i++){
             theta = Math.random() * Math.PI * 2;
             velocity = Math.random() * max_velocity;
@@ -150,7 +153,9 @@ Game.Particles = Class.extend({
     },
 
     update: function(paceFactor) {
-        for(var i=0, len=this.particles.length; i<len; i+=1){
+        var i, len;
+        
+        for(i=0, len=this.particles.length; i<len; i+=1){
             if(!this.particles[i].update(paceFactor)){
                 // Particle has died.  Remove it
                 this.particles.splice(i, 1);
@@ -161,7 +166,9 @@ Game.Particles = Class.extend({
     },
 
     draw: function(ctx, viewport_x, viewport_y) {
-        for(var i=0, len=this.particles.length; i<len; i+=1){
+        var i, len;
+
+        for(i=0, len=this.particles.length; i<len; i+=1){
             this.particles[i].draw(ctx, viewport_x, viewport_y);
         }
     }
