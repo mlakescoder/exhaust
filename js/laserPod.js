@@ -27,7 +27,6 @@ Game.LaserPod = Flynn.Polygon.extend({
             scale,
             position);
 
-        this.world_position_v = world_position_v.clone();
         this.level = level;
 
         this.parachute_p = new Flynn.Polygon(

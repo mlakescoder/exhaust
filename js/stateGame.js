@@ -164,7 +164,7 @@ Game.StateGame = Flynn.State.extend({
 
         this.particles = new Game.Particles(this);
         this.projectiles = new Flynn.Projectiles(
-            Flynn.Rect(0,0,g_.WORLD_WIDTH, g_.WORLD_HEIGHT), // Projectile bounds
+            new Flynn.Rect(0,0,g_.WORLD_WIDTH, g_.WORLD_HEIGHT), // Projectile bounds
             true // Use world coordinates
             );
         this.pads = [];
@@ -307,8 +307,8 @@ Game.StateGame = Flynn.State.extend({
         this.mountains.push(g_.WORLD_HEIGHT - g_.MOUNTAIN_RESCUE_AREA_HEIGHT);
         this.pads.push(new Flynn.Polygon(
                 Game.points.PAD, 
-                g_.PAD_SCALE,
                 Flynn.Colors.CYAN,
+                g_.PAD_SCALE,
                 {   x: g_.MOUNTAIN_RESCUE_AREA_LEFT + g_.MOUNTAIN_RESCUE_AREA_PAD_POSITION,
                     y: g_.WORLD_HEIGHT - g_.MOUNTAIN_RESCUE_AREA_HEIGHT,
                     is_world: true
@@ -364,8 +364,8 @@ Game.StateGame = Flynn.State.extend({
         this.mountains.push(g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT);
         this.pads.push(new Flynn.Polygon(
             Game.points.PAD, 
-            g_.PAD_SCALE,
             Flynn.Colors.CYAN,
+            g_.PAD_SCALE,
             {   x: base_left_x + g_.SHIP_START_DISTANCE_FROM_BASE_EDGE,
                 y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT,
                 is_world: true
@@ -585,69 +585,69 @@ Game.StateGame = Flynn.State.extend({
 
         if(Flynn.mcp.developerModeEnabled){
             // Metrics toggle
-            if (input.virtualButtonIsPressed("dev_metrics")){
+            if (input.virtualButtonWasPressed("dev_metrics")){
                 Flynn.mcp.canvas.showMetrics = !Flynn.mcp.canvas.showMetrics;
             }
 
             // Toggle DEV pacing mode slow mo
-            if (input.virtualButtonIsPressed("dev_slow_mo")){
+            if (input.virtualButtonWasPressed("dev_slow_mo")){
                 Flynn.mcp.toggleDevPacingSlowMo();
             }
 
             // Toggle DEV pacing mode fps 20
-            if (input.virtualButtonIsPressed("dev_fps_20")){
+            if (input.virtualButtonWasPressed("dev_fps_20")){
                 Flynn.mcp.toggleDevPacingFps20();
             }
 
             // Points
-            if (input.virtualButtonIsPressed("dev_add_points")){
+            if (input.virtualButtonWasPressed("dev_add_points")){
                 this.addPoints(100);
             }
 
             // Die
-            if (input.virtualButtonIsPressed("dev_die") && this.ship.visible){
+            if (input.virtualButtonWasPressed("dev_die") && this.ship.visible){
                 this.doShipDie();
             }
 
             // Kill Human
-            if (input.virtualButtonIsPressed("dev_kill_human")){
+            if (input.virtualButtonWasPressed("dev_kill_human")){
                 if(this.humans.length){
                     this.humans.splice(0,1);
                 }
             }
 
             // Jump to rescue Pad
-            if (input.virtualButtonIsPressed("dev_rescue")){
+            if (input.virtualButtonWasPressed("dev_rescue")){
                 this.ship.position.x = this.pads[0].position.x;
                 this.ship.position.y = this.pads[0].position.y - 40;
                 this.ship.vel.x = 0;
                 this.ship.vel.y = 0;
                 this.ship.setAngle(g_.SHIP_START_ANGLE);
-                Flynn.mcp_viewport.x = this.ship.position.x;
+                Flynn.mcp.viewport.x = this.ship.position.x;
             }
 
             // Jump to base Pad
-            if (input.virtualButtonIsPressed("dev_base")){
+            if (input.virtualButtonWasPressed("dev_base")){
                 this.ship.position.x = this.pads[1].position.x;
                 this.ship.position.y = this.pads[1].position.y - 40;
                 this.ship.vel.x = 0;
                 this.ship.vel.y = 0;
                 this.ship.setAngle(g_.SHIP_START_ANGLE);
-                Flynn.mcp_viewport.x = this.ship.position.x - Game.CANVAS_WIDTH;
+                Flynn.mcp.viewport.x = this.ship.position.x - Game.CANVAS_WIDTH;
             }
 
         }
         
         if(!this.ship.visible){
-            if (input.virtualButtonIsPressed("UI_enter")){
+            if (input.virtualButtonWasPressed("UI_enter")){
                 if (this.gameOver){
                     if(Flynn.mcp.browserSupportsTouch){
                         // On touch devices just update high score and go back to menu
                         Flynn.mcp.updateHighScores("NONAME", this.score);
 
-                        Flynn.mcp.nextState = Game.States.MENU;
+                        Flynn.mcp.changeState(Game.States.MENU);
                     } else {
-                        Flynn.mcp.nextState = Game.States.END;
+                        Flynn.mcp.changeState(Game.States.END);
                     }
                     Flynn.mcp.custom.score = this.score;
                     return;
@@ -841,8 +841,8 @@ Game.StateGame = Flynn.State.extend({
                 this.particles.explosion(
                     this.kamikazes[i].position.x,
                     this.kamikazes[i].position.y,
-                    this.kamikazes[i].velocity_v.x,
-                    this.kamikazes[i].velocity_v.y,
+                    this.kamikazes[i].velocity.x,
+                    this.kamikazes[i].velocity.y,
                     g_.SHIP_NUM_EXPLOSION_PARTICLES,
                     g_.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
                     g_.KAMIKAZE_COLOR,
@@ -1115,8 +1115,8 @@ Game.StateGame = Flynn.State.extend({
         } else if  (target_viewport_x > g_.WORLD_WIDTH - Game.CANVAS_WIDTH){
             target_viewport_x = g_.WORLD_WIDTH - Game.CANVAS_WIDTH;
         }
-        var slew = Flynn.Util.minMaxBound(target_viewport_x - Flynn.mcp_viewport.x, -g_.VIEWPORT_SLEW_MAX, g_.VIEWPORT_SLEW_MAX);
-        Flynn.mcp_viewport.x += slew;
+        var slew = Flynn.Util.minMaxBound(target_viewport_x - Flynn.mcp.viewport.x, -g_.VIEWPORT_SLEW_MAX, g_.VIEWPORT_SLEW_MAX);
+        Flynn.mcp.viewport.x += slew;
 
         var target_viewport_y = goal_y - (Game.CANVAS_HEIGHT-g_.INFO_PANEL_HEIGHT)/2 - g_.INFO_PANEL_HEIGHT;
         if (target_viewport_y < 0 - g_.INFO_PANEL_HEIGHT){
@@ -1157,7 +1157,7 @@ Game.StateGame = Flynn.State.extend({
             for(i=0; i<numParticles; i++){
                 var angle = startAngle + i * angleStep;
                 var radius = startRadius + radiusStep * i;
-                var x = g_.SHIP_START_X + Math.cos(angle) * radius - Flynn.mcp_viewport.x;
+                var x = g_.SHIP_START_X + Math.cos(angle) * radius - Flynn.mcp.viewport.x;
                 var y = g_.SHIP_START_Y + Math.sin(angle) * radius - Flynn.mcp.viewport.y;
                 ctx.fillRect(x,y,2,2);
             }
@@ -1167,7 +1167,7 @@ Game.StateGame = Flynn.State.extend({
         ctx.fillStyle="#808080";
         for(i=0, len=this.stars.length; i<len; i+=2){
             ctx.fillRect(
-                this.stars[i] - Flynn.mcp_viewport.x,
+                this.stars[i] - Flynn.mcp.viewport.x,
                 this.stars[i+1] - Flynn.mcp.viewport.y,
                 2,2);
         }
@@ -1175,17 +1175,17 @@ Game.StateGame = Flynn.State.extend({
         // Mountains
         ctx.vectorStart(Flynn.Colors.BROWN);
         ctx.vectorMoveTo(
-            this.mountains[0] - Flynn.mcp_viewport.x,
+            this.mountains[0] - Flynn.mcp.viewport.x,
             this.mountains[1] - Flynn.mcp.viewport.y);
         for(i=2, len=this.mountains.length; i<len; i+=2){
             ctx.vectorLineTo(
-                this.mountains[i] - Flynn.mcp_viewport.x,
+                this.mountains[i] - Flynn.mcp.viewport.x,
                 this.mountains[i+1] - Flynn.mcp.viewport.y);
         }
         ctx.vectorEnd();
 
         // Particles
-        this.particles.draw(ctx, Flynn.mcp_viewport.x, Flynn.mcp.viewport.y);
+        this.particles.render(ctx);
 
         // Pads
         for(i=0, len=this.pads.length; i<len; i+=1){
@@ -1221,7 +1221,7 @@ Game.StateGame = Flynn.State.extend({
         this.ship.render(ctx);
 
         // Projectiles
-        this.projectiles.draw(ctx, this.viewport_v);
+        this.projectiles.render(ctx);
 
         //------------
         // Info Panel
@@ -1236,8 +1236,8 @@ Game.StateGame = Flynn.State.extend({
         ctx.vectorEnd();
 
         // Scores
-        ctx.vectorText(this.score, 3, 15, 15, null, Flynn.Colors.GREEN);
-        ctx.vectorText(this.highscore, 3, Game.CANVAS_WIDTH - 6  , 15, 0 , Flynn.Colors.GREEN);
+        ctx.vectorText(this.score, 3, 15, 15, 'left', Flynn.Colors.GREEN);
+        ctx.vectorText(this.highscore, 3, Game.CANVAS_WIDTH - 6  , 15, 'right' , Flynn.Colors.GREEN);
 
         // Remaining Lives
         for(i=0; i<this.lives; i++){
@@ -1332,7 +1332,7 @@ Game.StateGame = Flynn.State.extend({
         }
 
         // Viewport
-        radar_location = this.worldToRadar(Flynn.mcp_viewport.x, Flynn.mcp.viewport.y + g_.INFO_PANEL_HEIGHT);
+        radar_location = this.worldToRadar(Flynn.mcp.viewport.x, Flynn.mcp.viewport.y + g_.INFO_PANEL_HEIGHT);
         var radar_scale = this.radarWidth / g_.WORLD_WIDTH;
         ctx.vectorRect(
             radar_location[0],radar_location[1],
