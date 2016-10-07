@@ -165,7 +165,7 @@ Game.Human = Class.extend({
     update: function(paceFactor){
         // Action state machine
         if (this.action === Game.humanConfig.actions.STAND){
-            if( Math.abs(this.position.x - this.game_state.ship.world_x) < Game.humanConfig.waveDistance){
+            if( Math.abs(this.position.x - this.game_state.ship.position.x) < Game.humanConfig.waveDistance){
                 // START: WAVE
                 this.action = Game.humanConfig.actions.WAVE;
                 this.angles_deg_goal = Game.humanConfig.stanceStand;
@@ -177,7 +177,7 @@ Game.Human = Class.extend({
 
         // Determine goal position
         var goal_x = this.home_x;
-        var safehouse_x = this.game_state.structures[0].world_x;
+        var safehouse_x = this.game_state.structures[0].position.x;
         var safehouse_distance = Math.abs(safehouse_x - this.position.x);
         if(safehouse_distance < 400){
             goal_x = safehouse_x;
@@ -189,9 +189,9 @@ Game.Human = Class.extend({
             }
         }
         else if (this.game_state.ship.is_landed && !this.game_state.ship.human_on_board){
-            var ship_distance = Math.abs(this.game_state.ship.world_x - this.position.x);
+            var ship_distance = Math.abs(this.game_state.ship.position.x - this.position.x);
             if (ship_distance < 400){  //TODO: remove magic number
-                goal_x = this.game_state.ship.world_x;
+                goal_x = this.game_state.ship.position.x;
 
                 if (ship_distance < 4 * Game.humanConfig.runSpeed){
                     this.game_state.ship.human_on_board = true;
@@ -221,7 +221,7 @@ Game.Human = Class.extend({
 
         if (this.action === Game.humanConfig.actions.WAVE) {
 
-            if( Math.abs(this.position.x - this.game_state.ship.world_x) >= Game.humanConfig.waveDistance){
+            if( Math.abs(this.position.x - this.game_state.ship.position.x) >= Game.humanConfig.waveDistance){
                 // START: STAND
                 this.action = Game.humanConfig.actions.STAND;
                 this.angles_deg_goal[Game.humanConfig.idx.shoulder1_ang] = -30;

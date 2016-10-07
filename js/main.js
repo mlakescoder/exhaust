@@ -114,26 +114,27 @@ Game.Main = Class.extend({
         Flynn.mcp.optionManager.loadFromCookies();
         
         // Setup touch controls
-        var button_size = 80;
+        var button_size   = 80;
+        var joystick_radius = 60;
         var x, y;
         if(Flynn.mcp.browserSupportsTouch){
-            x = 0.1*button_size;
-            y = Game.CANVAS_HEIGHT - 1.1*button_size;
 
             Flynn.mcp.input.addVirtualJoystick({
+                radius: joystick_radius,
                 pos: {
-                    x: 0.1*button_size, 
-                    y: y
+                    x: 1.1*joystick_radius, 
+                    y: Game.CANVAS_HEIGHT - 1.1*joystick_radius
                 },
                 name: 'stick',
                 button_map: {
                     left:  'rotate left',
                     right: 'rotate right'
                 },
-                visible_states: [Game.States.DEMO3],
+                visible_states: [Game.States.GAME],
             });
 
-            x = Game.CANVAS_WIDTH - 1.1*button_size;
+            x = Game.CANVAS_WIDTH  - 1.1*button_size;
+            y = Game.CANVAS_HEIGHT - 1.1*button_size;
             Flynn.mcp.input.addTouchRegion("thrust",
                 x, y, x+button_size, y+button_size,
                 'round',

@@ -767,10 +767,11 @@ Game.StateGame = Flynn.State.extend({
                 this.ship.human_on_board = false;
                 this.humans.push(new Game.Human(
                     Flynn.Colors.WHITE,
-                    this.ship.position.x + 20,
-                    g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT,
+                    {  x: this.ship.position.x + 20,
+                       y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT
+                    },
                     this
-                    ));
+                ));
             }
         }
         else{
