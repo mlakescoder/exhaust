@@ -119,14 +119,12 @@ Game.humanConfig = {
     },
 }.init();
 
-// TODO: This does not need to be a polygon class extension
-Game.Human = Flynn.Polygon.extend({
+Game.Human = Class.extend({
 
-    init: function(color, world_x, world_y, game_state){
+    init: function(color, position, game_state){
 
-        this.world_x = world_x;
-        this.world_y = world_y;
-        this.home_world_x = world_x;
+        this.position = {x:position.x, y:position.y};
+        this.home_x = position.x;
         this.color = color;
         this.game_state = game_state;
 
@@ -167,7 +165,7 @@ Game.Human = Flynn.Polygon.extend({
     update: function(paceFactor){
         // Action state machine
         if (this.action === Game.humanConfig.actions.STAND){
-            if( Math.abs(this.world_x - this.game_state.ship.world_x) < Game.humanConfig.waveDistance){
+            if( Math.abs(this.position.x - this.game_state.ship.world_x) < Game.humanConfig.waveDistance){
                 // START: WAVE
                 this.action = Game.humanConfig.actions.WAVE;
                 this.angles_deg_goal = Game.humanConfig.stanceStand;
@@ -178,9 +176,9 @@ Game.Human = Flynn.Polygon.extend({
         }
 
         // Determine goal position
-        var goal_x = this.home_world_x;
+        var goal_x = this.home_x;
         var safehouse_x = this.game_state.structures[0].world_x;
-        var safehouse_distance = Math.abs(safehouse_x - this.world_x);
+        var safehouse_distance = Math.abs(safehouse_x - this.position.x);
         if(safehouse_distance < 400){
             goal_x = safehouse_x;
 
@@ -191,7 +189,7 @@ Game.Human = Flynn.Polygon.extend({
             }
         }
         else if (this.game_state.ship.is_landed && !this.game_state.ship.human_on_board){
-            var ship_distance = Math.abs(this.game_state.ship.world_x - this.world_x);
+            var ship_distance = Math.abs(this.game_state.ship.world_x - this.position.x);
             if (ship_distance < 400){  //TODO: remove magic number
                 goal_x = this.game_state.ship.world_x;
 
@@ -203,7 +201,7 @@ Game.Human = Flynn.Polygon.extend({
             }
         }
 
-        var goal_distance = goal_x - this.world_x;
+        var goal_distance = goal_x - this.position.x;
         if (Math.abs(goal_distance) > Game.humanConfig.runSpeed * 2){
             // Run toward Goal
             if(goal_distance<0){
@@ -223,7 +221,7 @@ Game.Human = Flynn.Polygon.extend({
 
         if (this.action === Game.humanConfig.actions.WAVE) {
 
-            if( Math.abs(this.world_x - this.game_state.ship.world_x) >= Game.humanConfig.waveDistance){
+            if( Math.abs(this.position.x - this.game_state.ship.world_x) >= Game.humanConfig.waveDistance){
                 // START: STAND
                 this.action = Game.humanConfig.actions.STAND;
                 this.angles_deg_goal[Game.humanConfig.idx.shoulder1_ang] = -30;
@@ -256,7 +254,7 @@ Game.Human = Flynn.Polygon.extend({
                 this.angles_deg_goal = Game.humanConfig.runningAnimationRight[this.run_frame];
                 this.frame_counter = Game.humanConfig.timerRun;
             }
-            this.world_x += Game.humanConfig.runSpeed * paceFactor;
+            this.position.x += Game.humanConfig.runSpeed * paceFactor;
         }
         else if (this.action === Game.humanConfig.actions.RUN_LEFT) {
             this.frame_counter-=paceFactor;
@@ -268,7 +266,7 @@ Game.Human = Flynn.Polygon.extend({
                 this.angles_deg_goal = Game.humanConfig.runningAnimationLeft[this.run_frame];
                 this.frame_counter = Game.humanConfig.timerRun;
             }
-            this.world_x -= Game.humanConfig.runSpeed * paceFactor;
+            this.position.x -= Game.humanConfig.runSpeed * paceFactor;
         }
 
         // Move toward goal angles
@@ -287,7 +285,7 @@ Game.Human = Flynn.Polygon.extend({
         }
     },
 
-    draw: function(ctx, viewport_x, viewport_y){
+    render: function(ctx){
 
         this.translate_angles();
 
@@ -299,8 +297,8 @@ Game.Human = Flynn.Polygon.extend({
             Game.humanConfig.shinLength * Math.sin(this.angles_rad[Game.humanConfig.idx.knee2_ang]);
         var pelvis_height = Math.max(pelvis_1_height, pelvis_2_height) + this.angles_deg[Game.humanConfig.idx.jump];
         var pelvis_pt = [
-            this.world_x - viewport_x,
-            this.world_y - pelvis_height - viewport_y
+            this.position.x - Flynn.mcp.viewport.x,
+            this.position.y - pelvis_height - Flynn.mcp.viewport.y
         ];
         var knee1_pt = [
             pelvis_pt[0] + Game.humanConfig.thighLength * Math.cos(this.angles_rad[Game.humanConfig.idx.hip1_ang]),

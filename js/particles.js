@@ -70,7 +70,7 @@ Game.Particle = Class.extend({
         return isAlive;
     },
 
-    draw: function(ctx, viewport_x, viewport_y) {
+    render: function(ctx) {
         if(this.type == this.PARTICLE_TYPES.PLAIN){
             ctx.fillStyle=this.color;
         } else {
@@ -87,7 +87,10 @@ Game.Particle = Class.extend({
             ctx.fillStyle = Flynn.Util.rgbToHex(red, green, 0);
         }
         //console.log(this.x, this.y);
-        ctx.fillRect(this.x - viewport_x,this.y - viewport_y,2,2);
+        ctx.fillRect(
+            this.x - Flynn.mcp.viewport.x,
+            this.y - Flynn.mcp.viewport.y,
+            2,2);
     }
 
 });
@@ -165,11 +168,11 @@ Game.Particles = Class.extend({
         }
     },
 
-    draw: function(ctx, viewport_x, viewport_y) {
+    render: function(ctx) {
         var i, len;
 
         for(i=0, len=this.particles.length; i<len; i+=1){
-            this.particles[i].draw(ctx, viewport_x, viewport_y);
+            this.particles[i].render(ctx);
         }
     }
 });
