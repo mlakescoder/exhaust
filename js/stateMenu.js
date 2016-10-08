@@ -73,15 +73,15 @@ Game.StateMenu = Flynn.State.extend({
         var title_x = 160;
         var title_y = 150;
         var title_step = 5;
+        var is_world = false;
 
-        for (var angle = 0; angle < Math.PI + 0.1; angle += Math.PI) {
-            var x_pos = 300;
-            var y_pos = 50;
-            ctx.vectorText("EXHAUST", 10, x_pos, y_pos, 'left', Flynn.Colors.ORANGE);
-            ctx.vectorText("EXHAUST", 10,  x_pos + 3, y_pos +3, 'left', Flynn.Colors.RED);
-        }
+        var title = "EXHAUST";
+        var x_pos = Game.CANVAS_WIDTH /2;
+        var y_pos = 50;
+        ctx.vectorText(title, 10, x_pos, y_pos, 'center', Flynn.Colors.ORANGE, is_world, Flynn.Font.Block);
+        ctx.vectorText(title, 10,  x_pos + 3, y_pos +3, 'center', Flynn.Colors.RED, is_world, Flynn.Font.Block);
 
-        ctx.vectorText("VERSION 1.6", 1.5, null, 140, null, Flynn.Colors.ORANGE);
+        ctx.vectorText("VERSION " + Game.VERSION, 1.5, null, 180, null, Flynn.Colors.ORANGE);
 
         var startText;
         var controlsText;
