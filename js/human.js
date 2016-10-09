@@ -1,6 +1,4 @@
-if (typeof Game == "undefined") {
-   var Game = {};  // Create namespace
-}
+var Game = Game || {}; // Create namespace
 
 Game.humanConfig = {
     // This is not a class.  This is a single instance

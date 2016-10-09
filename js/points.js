@@ -1,6 +1,4 @@
-if (typeof Game == "undefined") {
-   var Game = {};  // Create namespace
-}
+var Game = Game || {}; // Create namespace
 
 Game.points = {
     LANDER: [-1,3,1,3,2,1,3,2,3,5,2,6,4,5,5,3,5,0,2,-4,2,-7,1,-9,0,-10,-1,-9,-2,-7,-2,-4,-5,0,-5,3,-4,5,-2,6,-3,5,-3,2,-2,1,-1,3,-2,4,2,4,1,3,-1,3],

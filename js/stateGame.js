@@ -2,9 +2,7 @@
 // StateGame class
 //    Core gameplay
 //--------------------------------------------
-if (typeof Game == "undefined") {
-   var Game = {};  // Create namespace
-}
+var Game = Game || {}; // Create namespace
 
 // Game globals
 g_ = {

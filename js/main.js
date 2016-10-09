@@ -1,6 +1,4 @@
-if (typeof Game == "undefined") {
-   var Game = {};  // Create namespace
-}
+var Game = Game || {}; // Create namespace
 
 Game.VERSION = '1.7';
 Game.CANVAS_HEIGHT = 768;

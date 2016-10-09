@@ -2,9 +2,7 @@
 // StateMenu class
 //    Startup screen
 //--------------------------------------------
-if (typeof Game == "undefined") {
-   var Game = {};  // Create namespace
-}
+var Game = Game || {}; // Create namespace
 
 Game.StateMenu = Flynn.State.extend({
 
