@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.Particle = Class.extend({
     PARTICLE_LIFE: 150,
     PARTICLE_LIFE_VARIATION: 20,
@@ -174,3 +176,5 @@ Game.Particles = Class.extend({
         }
     }
 });
+
+}()); // "use strict" wrapper

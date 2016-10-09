@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.Saucer = Flynn.Polygon.extend({
 
     SAUCER_SPEED_X: 2,
@@ -57,3 +59,5 @@ Game.Saucer = Flynn.Polygon.extend({
 
     // render() is performed in super class
 });
+
+}()); // "use strict" wrapper

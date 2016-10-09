@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.LaserPod = Flynn.Polygon.extend({
 
     BEAM_OFFSET: 10,
@@ -128,3 +130,5 @@ Game.LaserPod = Flynn.Polygon.extend({
         }
     }
 });
+
+}()); // "use strict" wrapper

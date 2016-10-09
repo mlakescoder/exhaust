@@ -3,6 +3,8 @@
 //---------------------
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.WaveEntry = Class.extend({
 
     init: function(seconds, saucers, kamikazes, repeat){
@@ -99,3 +101,5 @@ Game.SpawnManager = Class.extend({
         this.spawn_pool.kamikazes += waveEntry.kamikazes;
     }
 });
+
+}()); // "use strict" wrapper

@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.Kamikaze = Flynn.Polygon.extend({
 
     init: function(points, color, scale, position){
@@ -101,3 +103,5 @@ Game.Kamikaze = Flynn.Polygon.extend({
 
     // render() is performed in super class
 });
+
+}()); // "use strict" wrapper

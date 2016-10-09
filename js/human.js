@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.humanConfig = {
     // This is not a class.  This is a single instance
     // object whicn contains configuration information
@@ -270,6 +272,7 @@ Game.Human = Class.extend({
         // Move toward goal angles
         for (var i=0, len=this.angles_deg_goal.length; i<len; i++){
             var delta = this.angles_deg_goal[i] - this.angles_deg[i];
+            var update;
             if(delta !==0){
                 if(i!==Game.humanConfig.idx.jump){
                     update = Flynn.Util.minMaxBound( delta, -Game.humanConfig.limbSpeed*paceFactor, Game.humanConfig.limbSpeed*paceFactor);
@@ -372,3 +375,5 @@ Game.Human = Class.extend({
         ctx.stroke();
     }
 });
+
+}()); // "use strict" wrapper

@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.VERSION = '1.7';
 Game.CANVAS_HEIGHT = 768;
 Game.CANVAS_WIDTH = 1024;
@@ -163,3 +165,5 @@ Game.Main = Class.extend({
         Flynn.mcp.run();
     }
 });
+
+}()); // "use strict" wrapper

@@ -4,6 +4,8 @@
 //--------------------------------------------
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.StateMenu = Flynn.State.extend({
 
     init: function(){
@@ -129,3 +131,5 @@ Game.StateMenu = Flynn.State.extend({
     }
 
 });
+
+}()); // "use strict" wrapper

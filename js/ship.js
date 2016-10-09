@@ -1,5 +1,7 @@
 var Game = Game || {}; // Create namespace
 
+(function () { "use strict";
+
 Game.Ship = Flynn.Polygon.extend({
 
     maxX: null,
@@ -29,3 +31,5 @@ Game.Ship = Flynn.Polygon.extend({
 
     // render() is performed in super class
 });
+
+}()); // "use strict" wrapper

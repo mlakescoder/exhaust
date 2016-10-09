@@ -112,6 +112,8 @@ g_ = {
     }
 }.init();
 
+(function () { "use strict";
+
 Game.StateGame = Flynn.State.extend({
 
     init: function() {
@@ -1361,3 +1363,5 @@ Game.StateGame = Flynn.State.extend({
         }
     }
 });
+
+}()); // "use strict" wrapper
