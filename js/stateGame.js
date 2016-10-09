@@ -148,8 +148,8 @@ Game.StateGame = Flynn.State.extend({
             y: g_.WORLD_HEIGHT - Game.CANVAS_HEIGHT
         };
 
-        this.score = 0;
-        this.highscore = Flynn.mcp.highscores[0][1];
+        Game.config.score = 0;
+        Game.config.high_score = Game.config.leaderboard.getBestEntry().score;
         this.humans_rescued = 0;
         this.bonusAmount = 0;
 
@@ -491,17 +491,17 @@ Game.StateGame = Flynn.State.extend({
         // Points only count when not visible, unless unconditional
         // Unconditional is used for bonuses,etc. Which may be applied when not visible.
         if(this.ship.visible || unconditional){
-            if(Math.floor(this.score / g_.EXTRA_LIFE_SCORE) !== Math.floor((this.score + points) / g_.EXTRA_LIFE_SCORE)){
+            if(Math.floor(Game.config.score / g_.EXTRA_LIFE_SCORE) !== Math.floor((Game.config.score + points) / g_.EXTRA_LIFE_SCORE)){
                 // Extra life
                 this.lives++;
                 this.soundExtraLife.play();
             }
-            this.score += points;
+            Game.config.score += points;
         }
 
         // Update highscore if exceeded
-        if (this.score > this.highscore){
-            this.highscore = this.score;
+        if (Game.config.score > Game.config.high_score){
+            Game.config.high_score = Game.config.score;
         }
     },
 
@@ -641,13 +641,16 @@ Game.StateGame = Flynn.State.extend({
                 if (this.gameOver){
                     if(Flynn.mcp.browserSupportsTouch){
                         // On touch devices just update high score and go back to menu
-                        Flynn.mcp.updateHighScores("NONAME", this.score);
+                        Game.config.leaderboard.add(
+                                {  score: Game.config.score,
+                                   name: "NONAME"
+                                }
+                            );
 
                         Flynn.mcp.changeState(Game.States.MENU);
                     } else {
                         Flynn.mcp.changeState(Game.States.END);
                     }
-                    Flynn.mcp.custom.score = this.score;
                     return;
                 }
             }
@@ -1235,8 +1238,8 @@ Game.StateGame = Flynn.State.extend({
         ctx.vectorEnd();
 
         // Scores
-        ctx.vectorText(this.score, 3, 15, 15, 'left', Flynn.Colors.GREEN);
-        ctx.vectorText(this.highscore, 3, Game.CANVAS_WIDTH - 6  , 15, 'right' , Flynn.Colors.GREEN);
+        ctx.vectorText(Game.config.score, 3, 15, 15, 'left', Flynn.Colors.GREEN);
+        ctx.vectorText(Game.config.high_score, 3, Game.CANVAS_WIDTH - 6  , 15, 'right' , Flynn.Colors.GREEN);
 
         // Remaining Lives
         for(i=0; i<this.lives; i++){
