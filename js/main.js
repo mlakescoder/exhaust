@@ -152,7 +152,6 @@ Game.Main = Class.extend({
                 src: ['sounds/Bonus.ogg','sounds/Bonus.mp3'],
                 volume: 0.5 }),
         };
-
         Game.updateMusic = function(){
             var enabled = (
                 Flynn.mcp.optionManager.getOption('musicEnabled') &&
@@ -237,6 +236,10 @@ Game.Main = Class.extend({
             // Do nothing
         });
         Flynn.mcp.resize();
+
+        // Initialize sound and music
+        Game.updateSound();
+        Game.updateMusic();
     },
 
     resetScores: function(){

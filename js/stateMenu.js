@@ -61,9 +61,6 @@ Game.StateMenu = Flynn.State.extend({
 
     render: function(ctx) {
         ctx.clearAll();
-        var title_x = 160;
-        var title_y = 150;
-        var title_step = 5;
         var is_world = false;
 
         var title = "EXHAUST";
