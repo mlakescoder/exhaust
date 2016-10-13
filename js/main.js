@@ -18,7 +18,6 @@ Game.States = {
 Game.Main = Class.extend({
     
     init: function() {
-        "use strict";
 
         var self = this;
 
@@ -103,11 +102,95 @@ Game.Main = Class.extend({
             input.addVirtualButton('rotate right', Flynn.KeyboardMap.spacebar, Flynn.BUTTON_CONFIGURABLE);
         }
 
+        //----------------------
+        // Sounds
+        //----------------------
+        Game.sounds = {
+            music:{ 
+                // background: new Howl({
+                //     src: ['sounds/SpaceThemev3.mp3'],
+                //     loop: true,
+                //     buffer: !this.browserIsIos,  // Buffering causes problems on iOS devices
+                //     volume: 0.5 }),
+            },
+
+            // Interface
+            start: new Howl({
+                src: ['sounds/Tripple_blip.ogg','sounds/Tripple_blip.mp3'],
+                volume: 0.5 }),
+            insert_coin: new Howl({
+                src: ['sounds/InsertCoin.ogg','sounds/InsertCoin.mp3'],
+                volume: 0.5 }),
+
+            // Primary
+            engine: new Howl({
+                src: ['sounds/Engine.ogg','sounds/Engine.mp3'],
+                volume: 0.25,
+                loop: true,}),
+            player_die: new Howl({
+                src: ['sounds/Playerexplosion2.ogg','sounds/Playerexplosion2.mp3'],
+                volume: 0.25 }),
+            extra_life: new Howl({
+                src: ['sounds/ExtraLife.ogg','sounds/ExtraLife.mp3'],
+                volume: 1.00 }),
+            ship_respawn: new Howl({
+                src: ['sounds/ShipRespawn.ogg','sounds/ShipRespawn.mp3'],
+                volume: 0.25 }),
+            saucer_die: new Howl({
+                src: ['sounds/Drifterexplosion.ogg','sounds/Drifterexplosion.mp3'],
+                volume: 0.25 }),
+            saucer_shoot: new Howl({
+                src: ['sounds/SaucerShoot.ogg','sounds/SaucerShoot.mp3'],
+                volume: 0.25 }),
+            laser_pod: new Howl({
+                src: ['sounds/LaserPod4.ogg','sounds/LaserPod4.mp3'],
+                volume: 0.5 }),
+            level_advance: new Howl({
+                src: ['sounds/LevelAdvance2.ogg','sounds/LevelAdvance2.mp3'],
+                volume: 0.5 }),
+            bonus: new Howl({
+                src: ['sounds/Bonus.ogg','sounds/Bonus.mp3'],
+                volume: 0.5 }),
+        };
+
+        Game.updateMusic = function(){
+            var enabled = (
+                Flynn.mcp.optionManager.getOption('musicEnabled') &&
+                Flynn.mcp.optionManager.getOption('soundEnabled')
+                );
+            if(enabled){
+                // if(!Game.sounds.music.background.playing()){
+                //     Game.sounds.music.background.play();
+                // }
+            }
+            else{
+                // Game.sounds.music.background.stop();
+            }
+        };
+        Game.updateSound = function(){
+            var sound_enabled = Flynn.mcp.optionManager.getOption('soundEnabled');
+            Flynn.mcp.muteAudio(!sound_enabled);
+            Game.updateMusic();
+        };
+        Game.updateSoundOptionChange = function(){
+            Game.updateSound();
+            var sound;
+            var sound_enabled = Flynn.mcp.optionManager.getOption('soundEnabled');
+            if (sound_enabled){
+                Game.sounds.insert_coin.play();
+            }
+        };
+
         // Options
         Flynn.mcp.optionManager.addOptionFromVirtualButton('rotate left');
         Flynn.mcp.optionManager.addOptionFromVirtualButton('rotate right');
         Flynn.mcp.optionManager.addOptionFromVirtualButton('thrust');
-        Flynn.mcp.optionManager.addOption('musicEnabled', Flynn.OptionType.BOOLEAN, true, true, 'MUSIC', null, null);
+        Flynn.mcp.optionManager.addOption('soundEnabled', Flynn.OptionType.BOOLEAN, true, true, 'SOUND', null,
+            Game.updateSoundOptionChange // Callback on option change
+            );
+        Flynn.mcp.optionManager.addOption('musicEnabled', Flynn.OptionType.BOOLEAN, true, true, 'MUSIC', null,
+            Game.updateMusic // Callback on option change
+            );
         Flynn.mcp.optionManager.addOption('resetScores', Flynn.OptionType.COMMAND, true, true, 'RESET HIGH SCORES', null,
             function(){self.resetScores();});
 

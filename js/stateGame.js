@@ -177,46 +177,6 @@ Game.StateGame = Flynn.State.extend({
         this.level = 0;
         this.spawn_manager = new Game.SpawnManager(this.level);
 
-        this.engine_sound = new Howl({
-            src: ['sounds/Engine.ogg','sounds/Engine.mp3'],
-            volume: 0.25,
-            loop: true,
-        });
-        this.soundPlayerDie = new Howl({
-            src: ['sounds/Playerexplosion2.ogg','sounds/Playerexplosion2.mp3'],
-            volume: 0.25,
-        });
-        this.soundExtraLife = new Howl({
-            src: ['sounds/ExtraLife.ogg','sounds/ExtraLife.mp3'],
-            volume: 1.00,
-        });
-        this.soundShipRespawn = new Howl({
-            src: ['sounds/ShipRespawn.ogg','sounds/ShipRespawn.mp3'],
-            volume: 0.25,
-        });
-        this.soundSaucerDie = new Howl({
-            src: ['sounds/Drifterexplosion.ogg','sounds/Drifterexplosion.mp3'],
-            volume: 0.25,
-        });
-        this.soundSaucerShoot = new Howl({
-            src: ['sounds/SaucerShoot.ogg','sounds/SaucerShoot.mp3'],
-            volume: 0.25,
-        });
-        this.soundLaserPod = new Howl({
-            src: ['sounds/LaserPod4.ogg','sounds/LaserPod4.mp3'],
-            volume: 0.5,
-        });
-        this.soundLevelAdvance = new Howl({
-            src: ['sounds/LevelAdvance2.ogg','sounds/LevelAdvance2.mp3'],
-            volume: 0.5,
-        });
-        this.soundBonus = new Howl({
-            src: ['sounds/Bonus.ogg','sounds/Bonus.mp3'],
-            volume: 0.5,
-        });
-
-        this.engine_is_thrusting = false;
-
         // Game Clock
         this.gameClock = 0;
 
@@ -496,7 +456,7 @@ Game.StateGame = Flynn.State.extend({
             if(Math.floor(Game.config.score / g_.EXTRA_LIFE_SCORE) !== Math.floor((Game.config.score + points) / g_.EXTRA_LIFE_SCORE)){
                 // Extra life
                 this.lives++;
-                this.soundExtraLife.play();
+                Game.sounds.extra_life.play();
             }
             Game.config.score += points;
         }
@@ -529,8 +489,7 @@ Game.StateGame = Flynn.State.extend({
     hideShip: function(){
         // Hide (but don't kill) the ship.
         // Used for idle time during level advancement.
-        this.engine_sound.stop();
-        this.engine_is_thrusting = false;
+        Game.sounds.engine.stop();
         this.ship.visible = false;
     },
 
@@ -549,8 +508,8 @@ Game.StateGame = Flynn.State.extend({
         }
 
         // Sounds
-        this.engine_sound.stop();
-        this.soundPlayerDie.play();
+        Game.sounds.engine.stop();
+        Game.sounds.player_die.play();
 
         // Explosion
         this.particles.explosion(
@@ -669,9 +628,8 @@ Game.StateGame = Flynn.State.extend({
         if (input.virtualButtonIsDown("thrust")){
             this.thrustHasOccurred = true;
             this.popUpThrustPending = false;
-            if(!this.engine_is_thrusting){
-                this.engine_sound.play();
-                this.engine_is_thrusting = true;
+            if(!Game.sounds.engine.playing()){
+                Game.sounds.engine.play();
             }
             this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * g_.SHIP_THRUST * paceFactor;
             this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * g_.SHIP_THRUST * paceFactor;
@@ -692,9 +650,8 @@ Game.StateGame = Flynn.State.extend({
                 this.popUpLife = Math.min(g_.POP_UP_CANCEL_TIME, this.popUpLife);
             }
         } else {
-            if (this.engine_is_thrusting){
-                this.engine_sound.stop();
-                this.engine_is_thrusting = false;
+            if (Game.sounds.engine.playing()){
+                Game.sounds.engine.stop();
             }
         }
     },
@@ -783,7 +740,7 @@ Game.StateGame = Flynn.State.extend({
                 if(Flynn.mcp.timers.hasExpired('shipRespawnDelay')){
                     // Start the respawn animation timer (which also triggers the animation)
                     Flynn.mcp.timers.set('shipRespawnAnimation', g_.SHIP_RESPAWN_ANIMATION_TICKS);
-                    this.soundShipRespawn.play();
+                    Game.sounds.ship_respawn.play();
                 }
                 if(Flynn.mcp.timers.hasExpired('shipRespawnAnimation')){
                     // Respawn the ship
@@ -855,7 +812,7 @@ Game.StateGame = Flynn.State.extend({
                 i--;
                 len--;
                 this.addPoints(g_.POINTS_KAMIKAZE);
-                this.soundSaucerDie.play();
+                Game.sounds.saucer_die.play();
             }
         }
 
@@ -914,7 +871,7 @@ Game.StateGame = Flynn.State.extend({
                                 g_.SAUCER_SHOOT_SIZE,
                                 Flynn.Colors.YELLOW
                             );
-                            this.soundSaucerShoot.play();
+                            Game.sounds.saucer_shoot.play();
                         }
                     }
                 }
@@ -962,7 +919,7 @@ Game.StateGame = Flynn.State.extend({
                 i--;
                 len--;
                 this.addPoints(g_.POINTS_SAUCER);
-                this.soundSaucerDie.play();
+                Game.sounds.saucer_die.play();
             }
         }
 
@@ -1038,7 +995,7 @@ Game.StateGame = Flynn.State.extend({
                             break;
                         case laserPod.COLLISION_RESULT.BEAM:
                             this.doShipDie();
-                            this.soundLaserPod.play();
+                            Game.sounds.laser_pod.play();
                             break;
                     }
                 }
@@ -1069,7 +1026,7 @@ Game.StateGame = Flynn.State.extend({
                         Game.Particle.prototype.PARTICLE_TYPES.PLAIN);
                     laserPod.setDead();
                     this.addPoints(g_.POINTS_LASER_POD);
-                    this.soundSaucerDie.play();
+                    Game.sounds.saucer_die.play();
                 }
             }
         }
@@ -1082,7 +1039,7 @@ Game.StateGame = Flynn.State.extend({
             Flynn.mcp.timers.set('levelBonusDelay', g_.LEVEL_BONUS_DELAY_TICKS);
             this.levelAdvancePending = true;
             this.hideShip();
-            this.soundLevelAdvance.play();
+            Game.sounds.level_advance.play();
         }
         if(Flynn.mcp.timers.hasExpired('levelCompleteMessage')){
             this.level++;
@@ -1090,11 +1047,11 @@ Game.StateGame = Flynn.State.extend({
             this.resetShip();
             this.hideShip();
             Flynn.mcp.timers.set('shipRespawnAnimation', g_.SHIP_RESPAWN_ANIMATION_TICKS);
-            this.soundShipRespawn.play();
+            Game.sounds.ship_respawn.play();
         }
         if(Flynn.mcp.timers.hasExpired('levelBonusDelay')){
             Flynn.mcp.timers.set('levelBonus', g_.LEVEL_BONUS_TICKS);
-            this.soundBonus.play();
+            Game.sounds.bonus.play();
             if(this.humans_rescued === g_.HUMANS_NUM){
                 this.addPoints(g_.HUMANS_PERFECT_RESCUE_POINTS, true);
                 this.bonusAmount = g_.HUMANS_PERFECT_RESCUE_POINTS;
