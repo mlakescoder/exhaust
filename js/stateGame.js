@@ -596,6 +596,11 @@ Game.StateGame = Flynn.State.extend({
             }
 
         }
+
+        // Config
+        if (input.virtualButtonWasPressed("UI_escape")){
+            Flynn.mcp.changeState(Game.States.CONFIG);
+        }
         
         if(!this.ship.visible){
             if (input.virtualButtonWasPressed("UI_enter")){

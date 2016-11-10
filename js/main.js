@@ -29,10 +29,18 @@ Game.Main = Class.extend({
             function(state){
                 switch(state){
                     case Game.States.MENU:
+                        Game.state_game = null;
                         return new Game.StateMenu();
                     case Game.States.GAME:
-                        return new Game.StateGame();
+                        if(Game.state_game){
+                            // Game in progress
+                            return Game.state_game;
+                        }
+                        // Start new game
+                        Game.state_game = new Game.StateGame();
+                        return Game.state_game;
                     case Game.States.END:
+                        Game.state_game = null;
                         return new Flynn.StateEnd(
                             Game.config.score,
                             Game.config.leaderboard,
@@ -47,7 +55,9 @@ Game.Main = Class.extend({
                             Flynn.Colors.YELLOW,
                             Flynn.Colors.CYAN,
                             Flynn.Colors.MAGENTA,
-                            Game.States.MENU     // Parent state
+                            Game.state_game ? Game.States.GAME : Game.States.MENU,  // Parent state
+                            Game.States.MENU,         // Abort state
+                            Game.state_game !== null  // Abort enable
                             );
                 }
             }
