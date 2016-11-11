@@ -117,11 +117,11 @@ Game.Main = Class.extend({
         //----------------------
         Game.sounds = {
             music:{ 
-                // background: new Howl({
-                //     src: ['sounds/SpaceThemev3.mp3'],
-                //     loop: true,
-                //     buffer: !this.browserIsIos,  // Buffering causes problems on iOS devices
-                //     volume: 0.5 }),
+                background: new Howl({
+                    src: ['sounds/DST-Expander.mp3'],
+                    loop: true,
+                    buffer: !this.browserIsIos,  // Buffering causes problems on iOS devices
+                    volume: 0.5 }),
             },
 
             // Interface
@@ -168,12 +168,12 @@ Game.Main = Class.extend({
                 Flynn.mcp.optionManager.getOption('soundEnabled')
                 );
             if(enabled){
-                // if(!Game.sounds.music.background.playing()){
-                //     Game.sounds.music.background.play();
-                // }
+                if(!Game.sounds.music.background.playing()){
+                    Game.sounds.music.background.play();
+                }
             }
             else{
-                // Game.sounds.music.background.stop();
+                Game.sounds.music.background.stop();
             }
         };
         Game.updateSound = function(){
@@ -186,7 +186,7 @@ Game.Main = Class.extend({
             var sound;
             var sound_enabled = Flynn.mcp.optionManager.getOption('soundEnabled');
             if (sound_enabled){
-                Game.sounds.insert_coin.play();
+                Flynn.sounds.ui_select.play();
             }
         };
 

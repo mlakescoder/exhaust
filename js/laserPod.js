@@ -40,7 +40,7 @@ Game.LaserPod = Flynn.Polygon.extend({
                 }
             );
 
-        this.ground_position = {
+        this.ground_position_v = {
             x: this.position.x,
             y: this.position.y
             };
