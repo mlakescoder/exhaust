@@ -126,8 +126,8 @@ Game.StateMenu = Flynn.State.extend({
                         Game.config.thrustPrompt = "PRESS SPACE TO THRUST";
                     }
                     else{
-                        startText = "PUSH AYWHERE TO START";
-                        controlsText = "ROTATE LEFT:TAP FAR LEFT       ROTATE RIGHT: TAP MID LEFT       THRUST:TAP RIGHT";
+                        startText = "TAP AYWHERE TO START";
+                        controlsText = "ROTATE:JOYSTICK (LEFT)          THRUST:BUTTON (RIGHT)";
                         Game.config.thrustPrompt = "PRESS RIGHT TO THRUST";
                     }
                 }
