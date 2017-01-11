@@ -187,7 +187,7 @@ Game.StateMenu = Flynn.State.extend({
                     line_text = credit_text[i];
                     line_color = Flynn.Colors.ORANGE;
                     if(line_text.startsWith('*')){
-                        line_color = Flynn.Colors.RED;
+                        line_color = Flynn.Colors.YELLOW;
                         line_text = line_text.substring(1);
                     }
                     ctx.vectorText(line_text, 2, null, y_text + y_step*i, null, line_color);
