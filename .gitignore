@@ -3,6 +3,7 @@
 .idea
 js/lib/flynn/*.sh
 scrapbook
+deploy.sh
 
 *Screenshot.png
 *Thumbnail.png
