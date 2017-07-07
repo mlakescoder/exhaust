@@ -2,8 +2,11 @@
 .dropbox
 .idea
 js/lib/flynn/*.sh
+js/lib/flynn/flynn*.js
+js/lib/flynn/flynn.min.js.source-map
 scrapbook
 deploy.sh
+deploy-exclude.txt
 
 *Screenshot.png
 *Thumbnail.png

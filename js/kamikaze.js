@@ -9,7 +9,10 @@ Game.Kamikaze = Flynn.Polygon.extend({
             points,
             color,
             scale,
-            position);
+            position,
+            false, // constrained
+            true   // is_world
+            );
 
         // Constants
         this.KAMIKAZE_SPEED = 1.5;

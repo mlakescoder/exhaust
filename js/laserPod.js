@@ -25,7 +25,10 @@ Game.LaserPod = Flynn.Polygon.extend({
             points,
             color,
             scale,
-            position);
+            position,
+            false, // constrained
+            true   // is_world
+            );
 
         this.level = level;
 
@@ -33,17 +36,12 @@ Game.LaserPod = Flynn.Polygon.extend({
                 Game.points.PARACHUTE, 
                 Flynn.Colors.WHITE,
                 scale,
-                {
-                    x: this.position.x,
-                    y: this.position.y,
-                    is_world: this.position.is_world,
-                }
+                this.position.clone(),
+                false, // constrained
+                true   // is_world
             );
 
-        this.ground_position_v = {
-            x: this.position.x,
-            y: this.position.y
-            };
+        this.ground_position_v = this.position.clone();
         this.state = this.STATE.ACTIVE;
     },
 

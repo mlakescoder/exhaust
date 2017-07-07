@@ -13,7 +13,10 @@ Game.Saucer = Flynn.Polygon.extend({
             points,
             color,
             scale,
-            position);
+            position,
+            false, // constrained
+            true   // is_world
+            );
 
         this.dx = this.SAUCER_SPEED_X;
         if(Math.random() < 0.5){

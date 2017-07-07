@@ -125,10 +125,7 @@ Game.StateGame = Flynn.State.extend({
             Game.points.LANDER,
             Flynn.Colors.YELLOW,
             2.5, // scale
-            {  x: g_.SHIP_START_X,
-               y: g_.SHIP_START_Y,
-               is_world: true
-            }
+            new Victor(g_.SHIP_START_X, g_.SHIP_START_Y)
         );
         this.ship.setAngle(g_.SHIP_START_ANGLE);
 
@@ -138,10 +135,9 @@ Game.StateGame = Flynn.State.extend({
             Game.points.LANDER,
             Flynn.Colors.YELLOW,
             1.2, //scale
-            {   x:0, // Will be set when rendering instances
-                y:55, 
-                is_world:false
-            }
+            new Victor(0, 55), // Position will be set when rendering instances
+            false, // constrained
+            false  // is_world
         );
         this.lifepolygon.setAngle(0);
 
@@ -269,10 +265,11 @@ Game.StateGame = Flynn.State.extend({
                 Game.points.PAD, 
                 Flynn.Colors.CYAN,
                 g_.PAD_SCALE,
-                {   x: g_.MOUNTAIN_RESCUE_AREA_LEFT + g_.MOUNTAIN_RESCUE_AREA_PAD_POSITION,
-                    y: g_.WORLD_HEIGHT - g_.MOUNTAIN_RESCUE_AREA_HEIGHT,
-                    is_world: true
-                }
+                new Victor(
+                    g_.MOUNTAIN_RESCUE_AREA_LEFT + g_.MOUNTAIN_RESCUE_AREA_PAD_POSITION,
+                    g_.WORLD_HEIGHT - g_.MOUNTAIN_RESCUE_AREA_HEIGHT),
+                false, // constrained
+                true  // is_world
             ));
         for(i=0; i<g_.HUMANS_NUM; i++){
             this.humans.push(new Game.Human(
@@ -303,10 +300,9 @@ Game.StateGame = Flynn.State.extend({
                         Game.points.LASER_POD,
                         g_.LASER_POD_COLOR,
                         g_.LASER_POD_SCALE,
-                        {   x: mountain_x-width/2,
-                            y: mountain_y-1,
-                            is_world: true
-                        },
+                        new Victor(
+                            mountain_x-width/2,
+                            mountain_y-1),
                         this.level
                     ));
                 }
@@ -326,83 +322,91 @@ Game.StateGame = Flynn.State.extend({
             Game.points.PAD, 
             Flynn.Colors.CYAN,
             g_.PAD_SCALE,
-            {   x: base_left_x + g_.SHIP_START_DISTANCE_FROM_BASE_EDGE,
-                y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT,
-                is_world: true
-            }
+            new Victor(
+                base_left_x + g_.SHIP_START_DISTANCE_FROM_BASE_EDGE,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.BASE_BUILDING,
             Flynn.Colors.CYAN_DK,
             g_.BASE_BUILDING_SCALE,
-            {  x: base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 1,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 1),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.TOWER,
             Flynn.Colors.YELLOW_DK,
             g_.TOWER_SCALE,
-            {  x: base_left_x + g_.TOWER_START_DISTANCE_FROM_BASE_EDGE,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT -1,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.TOWER_START_DISTANCE_FROM_BASE_EDGE,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT -1),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.LAUNCH_BUILDING,
             Flynn.Colors.YELLOW_DK,
             g_.LAUNCH_BUILDING_SCALE,
-            {  x: base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT -1,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT -1),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.WINDOW,
             Flynn.Colors.YELLOW_DK,
             g_.WINDOW_SCALE,
-            {  x: base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE - 5,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 32,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE - 5,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 32),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.WINDOW,
             Flynn.Colors.YELLOW_DK,
             g_.WINDOW_SCALE,
-            {  x: base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE +44,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.LAUNCH_BUILDING_DISTANCE_FROM_BASE_EDGE +44,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8),
+            false, // constrained
+            true   // is_world
         ));
-
         this.structures.push(new Flynn.Polygon(
             Game.points.BASE_DOOR,
             Flynn.Colors.CYAN_DK,
             g_.BASE_DOOR_SCALE,
-            {  x: base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 1,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 1),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.WINDOW,
             Flynn.Colors.CYAN_DK,
             g_.WINDOW_SCALE,
-            {  x: base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE - 32,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE - 32,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8),
+            false, // constrained
+            true   // is_world
         ));
         this.structures.push(new Flynn.Polygon(
             Game.points.WINDOW,
             Flynn.Colors.CYAN_DK,
             g_.WINDOW_SCALE,
-            {  x: base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE + 20,
-               y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8,
-               is_world: true
-            }
+            new Victor(
+                base_left_x + g_.BASE_BUILDING_DISTANCE_FROM_BASE_EDGE + 20,
+                g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT - 8),
+            false, // constrained
+            true   // is_world
         ));
 
         this.mountains.push(g_.WORLD_WIDTH - g_.MOUNTAIN_BASE_AREA_MARGIN);
@@ -764,10 +768,9 @@ Game.StateGame = Flynn.State.extend({
                 Game.points.MONSTER,
                 g_.KAMIKAZE_COLOR,
                 g_.KAMIKAZE_SCALE,
-                {  x: Math.random() * (g_.WORLD_WIDTH - 200) + 100,
-                   y: Math.random() * 50,
-                   is_world: true
-                }
+                new Victor(
+                    Math.random() * (g_.WORLD_WIDTH - 200) + 100,
+                    Math.random() * 50)
                 ));
         }
 
@@ -832,10 +835,9 @@ Game.StateGame = Flynn.State.extend({
                 Game.points.SAUCER,
                 g_.SAUCER_COLOR,
                 g_.SAUCER_SCALE,
-                {  x: Math.random() * (g_.WORLD_WIDTH - 200) + 100,
-                   y: Math.random() * 30,
-                   is_world: true
-                }    
+                new Victor(
+                    Math.random() * (g_.WORLD_WIDTH - 200) + 100,
+                    Math.random() * 30)
             ));
         }
 
@@ -866,12 +868,10 @@ Game.StateGame = Flynn.State.extend({
                         // If firing solution results in an upward projectile velocity
                         if (solution.velocity_v.y < 0){
                             this.projectiles.add(
-                                {  x: this.saucers[i].position.x,
-                                   y: this.saucers[i].position.y + g_.SAUCER_CANNON_OFFSET
-                                },
-                                {  x: solution.velocity_v.x,
-                                   y: solution.velocity_v.y
-                                },
+                                new Victor(
+                                    this.saucers[i].position.x,
+                                    this.saucers[i].position.y + g_.SAUCER_CANNON_OFFSET),
+                                solution.velocity_v,
                                 g_.SAUCER_SHOOT_LIFE,
                                 g_.SAUCER_SHOOT_SIZE,
                                 Flynn.Colors.YELLOW
