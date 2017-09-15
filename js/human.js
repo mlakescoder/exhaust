@@ -4,7 +4,7 @@ var Game = Game || {}; // Create namespace
 
 Game.humanConfig = {
     // This is not a class.  This is a single instance
-    // object whicn contains configuration information
+    // object which contains configuration information
     // (constants) relevant to the Human class.
     
     limbSpeed: 6,
@@ -12,7 +12,7 @@ Game.humanConfig = {
     runSpeed: 1,
 
     idx: {
-        // Angle indecies
+        // Angle indices
         torso_ang: 0,
         hip1_ang: 1,
         hip2_ang: 2,
@@ -126,6 +126,7 @@ Game.Human = Class.extend({
         this.position = {x:position.x, y:position.y};
         this.home_x = position.x;
         this.color = color;
+        this.colorAsNumber = Flynn.Util.parseColor(color, true);
         this.game_state = game_state;
 
         this.angles_deg_goal = Game.humanConfig.stanceStand;
@@ -367,12 +368,19 @@ Game.Human = Class.extend({
         ctx.vectorMoveTo(shoulder_pt[0], shoulder_pt[1]);
         ctx.vectorLineTo(elbow2_pt[0], elbow2_pt[1]);
         ctx.vectorLineTo(hand2_pt[0], hand2_pt[1]);
-        ctx.vectorEnd();
-        // Head
-        ctx.beginPath();
-        ctx.arc(head_pt[0], head_pt[1], Game.humanConfig.headRadius, 0, 2 * Math.PI, false);
 
-        ctx.stroke();
+        // Head
+        // Note: The head is so small that we'll "fake" it with a circle,
+        //       rather than decompose it into a vector polygon.      
+        ctx.graphics.drawCircle(
+            head_pt[0],
+            head_pt[1],
+            Game.humanConfig.headRadius);
+        ctx.vectorEnd();
+
+        // ctx.beginPath();
+        // ctx.arc(head_pt[0], head_pt[1], Game.humanConfig.headRadius, 0, 2 * Math.PI, false);
+        // ctx.stroke();
     }
 });
 

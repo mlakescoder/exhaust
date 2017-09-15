@@ -95,7 +95,6 @@ Game.StateMenu = Flynn.State.extend({
     },
 
     render: function(ctx) {
-        ctx.clearAll();
         var i, len, leader;
         var is_world = false;
 

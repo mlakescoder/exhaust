@@ -1098,9 +1098,7 @@ Game.StateGame = Flynn.State.extend({
 
     render: function(ctx){
         var i, len; 
-
-        ctx.clearAll();
-
+        
         // PopUp Text
         // if(this.popUpLife > 0){
         //     ctx.vectorText();
