@@ -15,7 +15,7 @@ Game.Kamikaze = Flynn.Polygon.extend({
             );
 
         // Constants
-        this.KAMIKAZE_SPEED = 1.5;
+        this.KAMIKAZE_SPEED = 1.3;
         this.KAMIKAZE_FOLLOW_TIMEOUT = 3;
         this.KAMIKAZE_ASCEND_MARGIN = this.KAMIKAZE_SPEED * 3;
         this.KAMIKAZE_MODE = {
@@ -27,6 +27,10 @@ Game.Kamikaze = Flynn.Polygon.extend({
         this.velocity = {x:0, y:0};
         this.followTimer = this.KAMIKAZE_FOLLOW_TIMEOUT;
         this.mode = this.KAMIKAZE_MODE.PATROL;
+    },
+
+    setLevel: function(level) {
+        this.KAMIKAZE_SPEED = 1.3 + (.2 * level);
     },
 
     flyToward: function(target_position){

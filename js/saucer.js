@@ -28,6 +28,12 @@ Game.Saucer = Flynn.Polygon.extend({
         }
     },
 
+    setLevel(level){
+        this.SAUCER_CANNON_WARMUP_TICKS = 20 - (level * 1);
+        this.SAUCER_SPEED_X = 1.8 + (.2 * level);
+        this.SAUCER_CANNON_WARMUP_TICKS = level < 10 ? 20 - level : 10;
+    },
+
     cannonCooldown: function(){
         // Cool the cannon down.  It will need to warm up again before firing.
         this.cannon_warmup_timer = this.SAUCER_CANNON_WARMUP_TICKS;

@@ -31,8 +31,8 @@ g_ = {
     SAUCER_SPAWN_PROBABILIY: 0.03,
     SAUCER_SCALE: 3.5,
     SAUCER_SHOOT_PROBABILITY: 0.05,
-    SAUCER_SHOOT_VELOCITY: 4.0,
-    SAUCER_SHOOT_LIFE: 60 * 4,
+    SAUCER_SHOOT_VELOCITY: 3.0,
+    SAUCER_SHOOT_LIFE: 60 * 3,
     SAUCER_SHOOT_RANGE: 1000,
     SAUCER_SHOOT_SIZE: 4,
     SAUCER_COLOR: Flynn.Colors.GREEN,
@@ -764,14 +764,16 @@ Game.StateGame = Flynn.State.extend({
         // Kamikaze: Spawn
         if (Math.random() < g_.KAMIKAZE_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.kamikazes > 0) {
             --this.spawn_manager.spawn_pool.kamikazes;
-            this.kamikazes.push(new Game.Kamikaze(
+            var kamikaze = new Game.Kamikaze(
                 Game.points.MONSTER,
                 g_.KAMIKAZE_COLOR,
                 g_.KAMIKAZE_SCALE,
                 new Victor(
                     Math.random() * (g_.WORLD_WIDTH - 200) + 100,
                     Math.random() * 50)
-                ));
+                );
+            kamikaze.setLevel(this.level);
+            this.kamikazes.push(kamikaze);
         }
 
         // Kamikaze: Collisions
@@ -831,14 +833,16 @@ Game.StateGame = Flynn.State.extend({
         // Saucer: Spawn
         if (Math.random() < g_.SAUCER_SPAWN_PROBABILIY && this.spawn_manager.spawn_pool.saucers > 0) {
             --this.spawn_manager.spawn_pool.saucers;
-            this.saucers.push(new Game.Saucer(
+            var saucer = new Game.Saucer(
                 Game.points.SAUCER,
                 g_.SAUCER_COLOR,
                 g_.SAUCER_SCALE,
                 new Victor(
                     Math.random() * (g_.WORLD_WIDTH - 200) + 100,
                     Math.random() * 30)
-            ));
+            );
+            saucer.setLevel(this.level);
+            this.saucers.push(saucer);
         }
 
         // Saucer: shoot
@@ -855,6 +859,7 @@ Game.StateGame = Flynn.State.extend({
                     var ship_pos_v = new Victor(this.ship.position.x, this.ship.position.y);
                     var saucer_pos_v = new Victor(this.saucers[i].position.x, this.saucers[i].position.y);
                     var distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
+                    var gun_velocity = g_.SAUCER_SHOOT_VELOCITY + (this.level * .5);
 
                     // If ship within firing range
                     if (distance < g_.SAUCER_SHOOT_RANGE){
@@ -862,17 +867,24 @@ Game.StateGame = Flynn.State.extend({
                             new Victor(this.ship.position.x, this.ship.position.y),
                             new Victor(this.ship.vel.x, this.ship.vel.y),
                             new Victor(this.saucers[i].position.x, this.saucers[i].position.y + g_.SAUCER_CANNON_OFFSET),
-                            g_.SAUCER_SHOOT_VELOCITY
+                            gun_velocity
                             );
-
+                        
                         // If firing solution results in an upward projectile velocity
                         if (solution.velocity_v.y < 0){
+                        
+                            // scale the vector to the max velocity
+                            var normalizedSolution = solution.velocity_v.clone().normalize();
+                            var scaledSolution = new Victor(normalizedSolution.x * gun_velocity, normalizedSolution.y * gun_velocity);
+                            
+                            console.log("Solution_mag:" + solution.velocity_v.magnitude() + " scaled_mag: " + scaledSolution.magnitude());
+
                             this.projectiles.add(
                                 new Victor(
                                     this.saucers[i].position.x,
                                     this.saucers[i].position.y + g_.SAUCER_CANNON_OFFSET),
-                                solution.velocity_v,
-                                g_.SAUCER_SHOOT_LIFE,
+                                scaledSolution,
+                                g_.SAUCER_SHOOT_LIFE + (this.level * .5),
                                 g_.SAUCER_SHOOT_SIZE,
                                 Flynn.Colors.YELLOW
                             );
