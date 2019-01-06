@@ -9,6 +9,7 @@ scrapbook
 deploy.sh
 deploy-exclude.txt
 update_flynn.py
+*.iml
 
 *Screenshot.png
 *Thumbnail.png

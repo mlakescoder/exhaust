@@ -66,6 +66,10 @@ Game.Main = Class.extend({
 
         Game.config = {};
         Game.config.score = 0;
+        Game.config.fuel = 0;
+
+        this.fuelRemaining = 0;
+
         Game.config.leaderboard = new Flynn.Leaderboard(
             ['name', 'score'],  // attributeList
             6,                  // maxItems

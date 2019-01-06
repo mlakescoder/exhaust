@@ -27,6 +27,8 @@ g_ = {
     SHIP_RESPAWN_DELAY_GAME_START_TICKS: 60 * 1.25, // Respawn delay at inital start
     SHIP_RESPAWN_ANIMATION_TICKS: 60 * 1.8,
     SHIP_RESPAWN_DELAY_TICKS: 60 * 3,
+    SHIP_FULL_FUEL: 500,
+    SHIP_LOW_FUEL: 75,
 
     SAUCER_SPAWN_PROBABILIY: 0.03,
     SAUCER_SCALE: 3.5,
@@ -148,6 +150,10 @@ Game.StateGame = Flynn.State.extend({
 
         Game.config.score = 0;
         Game.config.high_score = Game.config.leaderboard.getBestEntry().score;
+
+        this.resetFuel();
+
+
         this.humans_rescued = 0;
         this.bonusAmount = 0;
 
@@ -471,6 +477,18 @@ Game.StateGame = Flynn.State.extend({
         }
     },
 
+    updateFuel: function(amountConsumed) {
+        this.fuelRemaining -= amountConsumed;
+
+        Game.config.fuel = Math.round(this.fuelRemaining);
+    },
+
+    resetFuel: function() {
+        this.fuelRemaining = g_.SHIP_FULL_FUEL - (this.level < 4 ? this.level * 50 : 200);
+
+        Game.config.fuel = Math.round(this.fuelRemaining);
+    },
+
     showPopUp: function(popUpText, popUpText2){
         if(typeof(popUpText2)==='undefined'){
             popUpText2 = null;
@@ -634,25 +652,30 @@ Game.StateGame = Flynn.State.extend({
             this.ship.rotate_by(g_.SHIP_ROTATION_SPEED * paceFactor);
         }
 
-        if (input.virtualButtonIsDown("thrust")){
-            this.thrustHasOccurred = true;
-            this.popUpThrustPending = false;
-            if(!Game.sounds.engine.playing()){
-                Game.sounds.engine.play();
+        if (input.virtualButtonIsDown("thrust")) {
+            if (this.fuelRemaining > 0) {
+
+                this.thrustHasOccurred = true;
+                this.popUpThrustPending = false;
+                if (!Game.sounds.engine.playing()) {
+                    Game.sounds.engine.play();
+                }
+                this.ship.vel.x += Math.cos(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor;
+                this.ship.vel.y += Math.sin(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor;
+                this.particles.exhaust(
+                    this.ship.position.x + Math.cos(this.ship.angle + Math.PI / 2) * g_.SHIP_TO_EXHAST_LENGTH - 1,
+                    this.ship.position.y + Math.sin(this.ship.angle + Math.PI / 2) * g_.SHIP_TO_EXHAST_LENGTH,
+                    this.ship.vel.x,
+                    this.ship.vel.y,
+                    g_.SHIP_EXHAUST_RATE,
+                    g_.SHIP_EXHAUST_VELOCITY,
+                    this.ship.angle + Math.PI / 2,
+                    g_.SHIP_EXHAUST_SPREAD,
+                    paceFactor
+                );
+
+                this.updateFuel(g_.SHIP_THRUST);
             }
-            this.ship.vel.x += Math.cos(this.ship.angle - Math.PI/2) * g_.SHIP_THRUST * paceFactor;
-            this.ship.vel.y += Math.sin(this.ship.angle - Math.PI/2) * g_.SHIP_THRUST * paceFactor;
-            this.particles.exhaust(
-                this.ship.position.x + Math.cos(this.ship.angle + Math.PI/2) * g_.SHIP_TO_EXHAST_LENGTH - 1,
-                this.ship.position.y + Math.sin(this.ship.angle + Math.PI/2) * g_.SHIP_TO_EXHAST_LENGTH,
-                this.ship.vel.x,
-                this.ship.vel.y,
-                g_.SHIP_EXHAUST_RATE,
-                g_.SHIP_EXHAUST_VELOCITY,
-                this.ship.angle + Math.PI/2,
-                g_.SHIP_EXHAUST_SPREAD,
-                paceFactor
-            );
 
             // Cancel PopUp
             if(this.popUpThrustActive){
@@ -731,16 +754,23 @@ Game.StateGame = Flynn.State.extend({
                 this.ship.is_landed = false;
             }
 
-            // Unload passenger
-            if(this.ship.is_landed && this.ship.human_on_board && this.ship.position.x > g_.SHIP_START_X - 100){  //TODO: Lazy math
-                this.ship.human_on_board = false;
-                this.humans.push(new Game.Human(
-                    Flynn.Colors.WHITE,
-                    {  x: this.ship.position.x + 20,
-                       y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT
-                    },
-                    this
-                ));
+            // Handle landing at base
+            if(this.ship.is_landed  && this.ship.position.x > g_.SHIP_START_X - 100){  //TODO: Lazy math
+                if ( this.ship.human_on_board ) {
+                    // Unload passenger
+                    this.ship.human_on_board = false;
+                    this.humans.push(new Game.Human(
+                        Flynn.Colors.WHITE,
+                        {
+                            x: this.ship.position.x + 20,
+                            y: g_.WORLD_HEIGHT - g_.MOUNTAIN_BASE_AREA_HEIGHT
+                        },
+                        this
+                    ));
+                }
+
+                // Update the fuel
+                this.resetFuel();
             }
         }
         else{
@@ -1214,6 +1244,25 @@ Game.StateGame = Flynn.State.extend({
         // Scores
         ctx.vectorText(Game.config.score, 3, 15, 15, 'left', Flynn.Colors.GREEN);
         ctx.vectorText(Game.config.high_score, 3, Game.CANVAS_WIDTH - 6  , 15, 'right' , Flynn.Colors.GREEN);
+
+        // Fuel
+        ctx.vectorText(
+            'FUEL: ',
+            3,
+            Game.CANVAS_WIDTH - 300,
+            50,
+            'left',
+            Flynn.Colors.YELLOW
+        );
+
+        ctx.vectorText(
+                Game.config.fuel,
+                3,
+                Game.CANVAS_WIDTH - 190,
+                50,
+                'center',
+                Game.config.fuel > g_.SHIP_LOW_FUEL ? Flynn.Colors.YELLOW : Flynn.Colors.RED
+        );
 
         // Remaining Lives
         for(i=0; i<this.lives; i++){
