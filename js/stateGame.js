@@ -520,7 +520,6 @@ Game.StateGame = Flynn.State.extend({
         this.ship.visible = false;
 
         // Lives
-        this.lives--;
         if(this.lives <= 0){
             this.gameOver = true;
             Flynn.mcp.timers.set('levelCompleteMessage', 0);
@@ -653,7 +652,7 @@ Game.StateGame = Flynn.State.extend({
         }
 
         if (input.virtualButtonIsDown("thrust")) {
-            if (this.fuelRemaining > 0) {
+            if (this.ship.visible && this.fuelRemaining > 0) {
 
                 this.thrustHasOccurred = true;
                 this.popUpThrustPending = false;
@@ -784,6 +783,7 @@ Game.StateGame = Flynn.State.extend({
                 if(Flynn.mcp.timers.hasExpired('shipRespawnAnimation')){
                     // Respawn the ship
                     this.resetShip();
+                    this.lives--;
                 }
             }
         }
@@ -1084,6 +1084,7 @@ Game.StateGame = Flynn.State.extend({
         if(!this.gameOver && this.humans.length === 0 && this.ship.human_on_board === false && !this.levelAdvancePending){
             Flynn.mcp.timers.set('levelCompleteMessage', g_.LEVEL_COMPLETE_MESSAGE_TICKS);
             Flynn.mcp.timers.set('levelBonusDelay', g_.LEVEL_BONUS_DELAY_TICKS);
+            this.lives++;
             this.levelAdvancePending = true;
             this.hideShip();
             Game.sounds.level_advance.play();
