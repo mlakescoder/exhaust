@@ -7,6 +7,7 @@ Game.LaserPod = Flynn.Polygon.extend({
     BEAM_OFFSET: 10,
     DESCENT_VELOCITY: 2.5,
     DROP_PROBABILITY: 0.0001,
+    LASER_PODS_DROP_LEVEL: 2,
 
     STATE: {
         DEAD: 0,
@@ -89,7 +90,7 @@ Game.LaserPod = Flynn.Polygon.extend({
         switch(this.state){
             case this.STATE.DEAD:
                 // Level 1 and greater laserPods can drop to respawn
-                if(this.level > 0 && Math.random() < this.DROP_PROBABILITY){
+                if(this.level >= this.LASER_PODS_DROP_LEVEL && Math.random() < this.DROP_PROBABILITY){
                     this.state = this.STATE.DROPPING;
                     this.position.y = 0;
                 }

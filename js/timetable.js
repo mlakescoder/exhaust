@@ -39,20 +39,20 @@ Game.timetable = [
     [
         //                  SEC SCR  KAM    RPT 
         new Game.WaveEntry(  0,  4,   4,  null),
-        new Game.WaveEntry( 50,  6,   6,  null),
-        new Game.WaveEntry(100,  7,   6,  null),
-        new Game.WaveEntry(150,  8,   6,  null),
-        new Game.WaveEntry(220, 10,   8,    60),
+        new Game.WaveEntry( 50,  5,   5,  null),
+        new Game.WaveEntry(100,  5,   5,  null),
+        new Game.WaveEntry(150,  7,   5,  null),
+        new Game.WaveEntry(230,  9,   7,    60),
     ],
 
     // Level 2
     [
         //                  SEC SCR  KAM    RPT 
-        new Game.WaveEntry(  0,  8,   6,  null),
-        new Game.WaveEntry( 45,  8,   6,  null),
-        new Game.WaveEntry( 90,  8,   6,  null),
-        new Game.WaveEntry(135,  8,   6,  null),
-        new Game.WaveEntry(170, 12,  10,    60),
+        new Game.WaveEntry(  0,  8,   4,  null),
+        new Game.WaveEntry( 45,  8,   5,  null),
+        new Game.WaveEntry( 90,  8,   5,  null),
+        new Game.WaveEntry(135,  8,   5,  null),
+        new Game.WaveEntry(170, 10,   8,    60),
     ]
 ];
 

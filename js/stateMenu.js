@@ -161,6 +161,7 @@ Game.StateMenu = Flynn.State.extend({
                     leader = Game.config.leaderboard.leaderList[i];
                     ctx.vectorText(leader.name, 2, 360, y_top+25*i, 'left', Flynn.Colors.ORANGE);
                     ctx.vectorText(leader.score, 2, 660, y_top+25*i,'right', Flynn.Colors.ORANGE);
+                    ctx.vectorText("Level " + leader.level, 2, 750, y_top+25*i,'right', Flynn.Colors.ORANGE);
                 }
                 break;
 

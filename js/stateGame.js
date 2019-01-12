@@ -95,9 +95,9 @@ g_ = {
 
     POINTS_RESCUED_HUMAN: 1000,
     POINTS_PICK_UP_HUMAN: 100,
-    POINTS_SAUCER: 10,
+    POINTS_SAUCER: 100,
     POINTS_KAMIKAZE: 30,
-    POINTS_LASER_POD: 20,
+    POINTS_LASER_POD: 50,
 
     init: function(){
         this.LEVEL_COMPLETE_MESSAGE_TICKS = 60 * 3.0;
@@ -1263,6 +1263,15 @@ Game.StateGame = Flynn.State.extend({
                 50,
                 'center',
                 Game.config.fuel > g_.SHIP_LOW_FUEL ? Flynn.Colors.YELLOW : Flynn.Colors.RED
+        );
+
+        ctx.vectorText(
+            "LEVEL " + (this.level+1),
+            3,
+            Game.CANVAS_WIDTH - 190,
+            15,
+            'right',
+            Flynn.Colors.YELLOW
         );
 
         // Remaining Lives
