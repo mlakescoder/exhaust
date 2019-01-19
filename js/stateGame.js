@@ -43,6 +43,10 @@ g_ = {
     KAMIKAZE_SCALE: 4,
     KAMIKAZE_COLOR: Flynn.Colors.RED,
 
+    FUELER_SPAWN_PROBABILITY: 0.0005,
+    FUELER_SCALE: 3.5,
+    FUELER_COLOR: Flynn.Colors.YELLOW,
+
     LASER_POD_COLOR: Flynn.Colors.RED,
     LASER_POD_BEAM_COLOR: Flynn.Colors.MAGENTA,
     LASER_POD_SCALE: 3,
@@ -175,6 +179,7 @@ Game.StateGame = Flynn.State.extend({
         this.saucers = [];
         this.kamikazes = [];
         this.laserPods = [];
+        this.fuelers = [];
 
         this.level = 0;
         this.spawn_manager = new Game.SpawnManager(this.level);
@@ -806,6 +811,10 @@ Game.StateGame = Flynn.State.extend({
             this.kamikazes.push(kamikaze);
         }
 
+        for(i=0, len=this.fuelers.length; i<len; i++) {
+            this.fuelers[i].update(paceFactor);
+        }
+
         // Kamikaze: Collisions
         for(i=0, len=this.kamikazes.length; i<len; i+=1){
             killed = false;
@@ -854,6 +863,22 @@ Game.StateGame = Flynn.State.extend({
                 this.addPoints(g_.POINTS_KAMIKAZE);
                 Game.sounds.saucer_die.play();
             }
+        }
+
+        //-------------------
+        // Fuelers
+        //-------------------
+        if ( this.spawn_manager.spawn_pool.fuelers > 0) {
+            // if (Math.random() < g_.FUELER_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.fuelers > 0) {
+            --this.spawn_manager.spawn_pool.fuelers;
+            var fueler = new Game.Fueler(
+                g_.SAUCER_SCALE,
+                new Victor(
+                    Math.random() * (g_.WORLD_WIDTH - 200) + 100,
+                    Math.random() * 60)
+            )
+            fueler.setLevel(this.level);
+            this.fuelers.push(fueler);
         }
 
         //-------------------
@@ -1224,6 +1249,11 @@ Game.StateGame = Flynn.State.extend({
             this.laserPods[i].render(ctx);
         }
 
+        // Fuelers
+        for(i=0, len=this.fuelers.length; i<len; i++ ) {
+            this.fuelers[i].render(ctx);
+        }
+
         // Player
         this.ship.render(ctx);
 
@@ -1325,6 +1355,13 @@ Game.StateGame = Flynn.State.extend({
             radar_location = this.worldToRadar(this.kamikazes[i].position.x, this.kamikazes[i].position.y);
             ctx.fillRect(radar_location[0], radar_location[1],2,2);
         }
+
+        // Fuelers
+        // ctx.fillStyle=g_.FUELER_COLOR;
+        // for(i=0, len=this.fuelers.length; i<len; i+=1){
+        //     radar_location = this.worldToRadar(this.fuelers[i].position.x, this.fuelers[i].position.y);
+        //     ctx.fillRect(radar_location[0], radar_location[1],2,2);
+        // }
 
         // LaserPods
         ctx.vectorStart(g_.LASER_POD_BEAM_COLOR);

@@ -7,10 +7,11 @@ var Game = Game || {}; // Create namespace
 
 Game.WaveEntry = Class.extend({
 
-    init: function(seconds, saucers, kamikazes, repeat){
+    init: function(seconds, saucers, kamikazes, fuelers, repeat){
         this.seconds = seconds;
         this.saucers = saucers;
         this.kamikazes = kamikazes;
+        this.fuelers = fuelers;
         this.repeat = repeat;
     },
 
@@ -19,6 +20,7 @@ Game.WaveEntry = Class.extend({
             this.seconds,
             this.saucers,
             this.kamikazes,
+            this.fuelers,
             this.repeat);
     },
 });
@@ -27,32 +29,32 @@ Game.timetable = [
 
     // Level 0
     [
-        //                 SEC SCR  KAM    RPT 
-        new Game.WaveEntry(  0,  3,   3,  null),
-        new Game.WaveEntry( 60,  4,   4,  null),
-        new Game.WaveEntry(120,  5,   4,  null),
-        new Game.WaveEntry(180,  6,   4,  null),
-        new Game.WaveEntry(240,  8,   6,    60),
+        //                 SEC SCR  KAM   FUEL,  RPT
+        new Game.WaveEntry(  0,  3,   3,     1,  null),
+        new Game.WaveEntry( 60,  4,   4,     0,  null),
+        new Game.WaveEntry(120,  5,   4,     0,  null),
+        new Game.WaveEntry(180,  6,   4,     1,  null),
+        new Game.WaveEntry(240,  8,   6,     1,    60),
     ],
 
     // Level 1
     [
-        //                  SEC SCR  KAM    RPT 
-        new Game.WaveEntry(  0,  4,   4,  null),
-        new Game.WaveEntry( 50,  5,   5,  null),
-        new Game.WaveEntry(100,  5,   5,  null),
-        new Game.WaveEntry(150,  7,   5,  null),
-        new Game.WaveEntry(230,  9,   7,    60),
+        //                  SEC SCR  KAM  FUEL,  RPT
+        new Game.WaveEntry(  0,  4,   4,     1,  null),
+        new Game.WaveEntry( 50,  5,   5,     1,  null),
+        new Game.WaveEntry(100,  5,   5,     1,  null),
+        new Game.WaveEntry(150,  7,   5,     1,  null),
+        new Game.WaveEntry(230,  9,   7,     2,    60),
     ],
 
     // Level 2
     [
-        //                  SEC SCR  KAM    RPT 
-        new Game.WaveEntry(  0,  8,   4,  null),
-        new Game.WaveEntry( 45,  8,   5,  null),
-        new Game.WaveEntry( 90,  8,   5,  null),
-        new Game.WaveEntry(135,  8,   5,  null),
-        new Game.WaveEntry(170, 10,   8,    60),
+        //                  SEC SCR  KAM  FUEL,  RPT
+        new Game.WaveEntry(  0,  8,   4,     1,  null),
+        new Game.WaveEntry( 45,  8,   5,     1,  null),
+        new Game.WaveEntry( 90,  8,   5,     2,  null),
+        new Game.WaveEntry(135,  8,   5,     2,  null),
+        new Game.WaveEntry(170, 10,   8,     3,    60),
     ]
 ];
 
@@ -62,6 +64,7 @@ Game.SpawnManager = Class.extend({
         this.spawn_pool = {
             saucers: 0,
             kamikazes: 0,
+            fuelers: 0,
         };
         this.levelSecondsElapsed = 0.0;
         this.level = level;
@@ -107,8 +110,9 @@ Game.SpawnManager = Class.extend({
     },
 
     loadSpawnPool: function(waveEntry){
-        this.spawn_pool.saucers += waveEntry.saucers;
-        this.spawn_pool.kamikazes += waveEntry.kamikazes;
+        this.spawn_pool.saucers   = waveEntry.saucers;
+        this.spawn_pool.kamikazes = waveEntry.kamikazes;
+        this.spawn_pool.fuelers   = waveEntry.fuelers;
     }
 });
 
