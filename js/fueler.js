@@ -45,12 +45,12 @@ Game.Fueler = Class.extend({
         this.SHIP_HULL.position.x += this.SHIP_HULL.dx * paceFactor;
         this.SHIP_NOZZLE.position.x += this.SHIP_NOZZLE.dx * paceFactor;
 
-        if (this.SHIP_HULL.position.x < this.SHIP_HULL.getSpan().left){
-            this.SHIP_HULL.x = this.SHIP_NOZZLE = 0;
+        if (this.SHIP_HULL.position.x - Math.abs(this.SHIP_HULL.getSpan().left) < 0){
+            this.SHIP_HULL.x = this.SHIP_NOZZLE.x = 0;
             this.SHIP_HULL.dx  = this.SHIP_NOZZLE.dx = this.FUELER_SPEED_X;
         }
 
-        if (this.SHIP_HULL.position.x > g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right){
+        if (this.SHIP_HULL.position.x + this.SHIP_HULL.getSpan().right >  g_.WORLD_WIDTH ){
             this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right;
             this.SHIP_HULL.dx = this.SHIP_NOZZLE.dx = -this.FUELER_SPEED_X;
         }
@@ -64,21 +64,33 @@ Game.Fueler = Class.extend({
     },
 
     is_colliding: function(target_poly) {
-        return this.SHIP_HULL.is_colliding(target_poly) || this.SHIP_NOZZLE.is_colliding(target_poly);
+        return this.SHIP_HULL.is_colliding(target_poly) ||
+                  ( this.SHIP_NOZZLE.is_colliding(target_poly) &&
+                    !this.SHIP_NOZZLE.is_mating(target_poly)  );
     },
 
     is_mating: function(target_poly) {
         var delta_v_x = Math.abs(target_poly.dx - this.SHIP_NOZZLE.dx);
         var delta_v_y = Math.abs( target_poly.dy - this.SHIP_NOZZLE.dy);
 
+        console.log("MATING V: target(" + target_poly.dx + "," + target_poly.dy + "), nozzle(" + this.SHIP_NOZZLE.dx + "," + this.SHIP_NOZZLE.dy +
+            ") delta(" + delta_v_x + "," + delta_v_y + ")");
+
+
         if ( this.SHIP_NOZZLE.is_colliding(target_poly) &&
              delta_v_x <= this.SUCCESSFUL_MATE_DIFF_X &&
              delta_v_y <= this.SUCCESSFUL_MATE_DIFF_Y) {
 
+            console.log("  MATE_GOOD");
             return true;
         }
 
+        console.log("  MATE_BAD");
         return false;
+    },
+
+    hasPoint: function(x, y) {
+        return this.SHIP_HULL.hasPoint(x,y) || this.SHIP_NOZZLE.hasPoint(x,y);
     }
 });
 

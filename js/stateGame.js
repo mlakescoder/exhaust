@@ -823,11 +823,6 @@ Game.StateGame = Flynn.State.extend({
             kamikaze.setLevel(this.level);
             this.kamikazes.push(kamikaze);
         }
-
-        for(i=0, len=this.fuelers.length; i<len; i++) {
-            this.fuelers[i].update(paceFactor);
-        }
-
         // Kamikaze: Collisions
         for(i=0, len=this.kamikazes.length; i<len; i+=1){
             killed = false;
@@ -881,6 +876,8 @@ Game.StateGame = Flynn.State.extend({
         //-------------------
         // Fuelers
         //-------------------
+
+        // Fueler spawn
         if ( this.spawn_manager.spawn_pool.fuelers > 0) {
             // if (Math.random() < g_.FUELER_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.fuelers > 0) {
             --this.spawn_manager.spawn_pool.fuelers;
@@ -893,6 +890,55 @@ Game.StateGame = Flynn.State.extend({
             fueler.setLevel(this.level);
             this.fuelers.push(fueler);
         }
+
+        // Fueler: collisions
+        for(i=0, len=this.fuelers.length; i<len; i+=1){
+            killed = false;
+            this.fuelers[i].update(paceFactor);
+
+            // Check for ship/fueler collision
+            // if(this.ship.visible){
+            //     if(this.fuelers[i].is_colliding(this.ship.vel) && !this.fuelers[i].is_mating(this.ship.vel)){
+            //         this.doShipDie();
+            //         killed = true;
+            //     }
+            // }
+            // Check for exhaust/fueler collision
+            var fueler_x = this.fuelers[i].position.x;
+            var fueler_y = this.fuelers[i].position.y;
+            for(j=0, len2=this.particles.particles.length; j<len2; j++){
+                ptc = this.particles.particles[j];
+                if(ptc.type === ptc.PARTICLE_TYPES.EXHAUST){
+                    if(Flynn.Util.proximal(100, ptc.x, fueler_x) && Flynn.Util.proximal(100, ptc.y, fueler_y)){
+                        if(this.fuelers[i].hasPoint(ptc.x, ptc.y)){
+                            killed = true;
+                        }
+                    }
+                }
+            }
+
+            if(killed){
+                // Remove Saucer
+                this. particles.explosion(
+                    this.fuelers[i].position.x,
+                    this.fuelers[i].position.y,
+                    this.fuelers[i].dx,
+                    this.fuelers[i].dy,
+                    g_.SHIP_NUM_EXPLOSION_PARTICLES,
+                    g_.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
+                    g_.SAUCER_COLOR,
+                    Game.Particle.prototype.PARTICLE_TYPES.PLAIN);
+                this.fuelers.splice(i,1);
+                i--;
+                len--;
+
+                Game.sounds.saucer_die.play();
+            }
+        }
+
+
+        // Fueler: mating
+
 
         //-------------------
         // Saucers
@@ -945,7 +991,7 @@ Game.StateGame = Flynn.State.extend({
                             var normalizedSolution = solution.velocity_v.clone().normalize();
                             var scaledSolution = new Victor(normalizedSolution.x * gun_velocity, normalizedSolution.y * gun_velocity);
                             
-                            console.log("Solution_mag:" + solution.velocity_v.magnitude() + " scaled_mag: " + scaledSolution.magnitude());
+                            //console.log("Solution_mag:" + solution.velocity_v.magnitude() + " scaled_mag: " + scaledSolution.magnitude());
 
                             this.projectiles.add(
                                 new Victor(
