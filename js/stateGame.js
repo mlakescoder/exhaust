@@ -45,14 +45,14 @@ g_ = {
 
     FUELER_SPAWN_PROBABILITY: 0.0005,
     FUELER_SCALE: 3.5,
-    FUELER_COLOR: Flynn.Colors.YELLOW,
+    FUELER_COLOR: Flynn.Colors.ORANGE,
 
     LASER_POD_COLOR: Flynn.Colors.RED,
     LASER_POD_BEAM_COLOR: Flynn.Colors.MAGENTA,
     LASER_POD_SCALE: 3,
     LASER_POD_NUM_EXPLOSION_PARTICLES: 40,
     LASER_POD_EXPLOSION_MAX_VELOCITY: 4.5,
-    LASER_POD_SPAWN_PROBABILITY: 0.2,
+    LASER_POD_SPAWN_PROBABILITY: 0.02,
 
     POP_UP_TEXT_LIFE: 3 * 60,
     POP_UP_THRUST_PROMPT_TIME: 4 * 60, //2 * 60,
@@ -306,7 +306,7 @@ Game.StateGame = Flynn.State.extend({
             if (!last_was_flat && seeded_rng()<g_.MOUNTAIN_FLAT_PROBABILITY){
                 // Create a flat region; (maintain y from last time)
                 last_was_flat = true;
-                if (seeded_rng() < g_.LASER_POD_SPAWN_PROBABILITY){
+                if (seeded_rng() < (g_.LASER_POD_SPAWN_PROBABILITY + this.level * .05)) {
                     this.laserPods.push(new Game.LaserPod(
                         Game.points.LASER_POD,
                         g_.LASER_POD_COLOR,
@@ -1357,11 +1357,11 @@ Game.StateGame = Flynn.State.extend({
         }
 
         // Fuelers
-        // ctx.fillStyle=g_.FUELER_COLOR;
-        // for(i=0, len=this.fuelers.length; i<len; i+=1){
-        //     radar_location = this.worldToRadar(this.fuelers[i].position.x, this.fuelers[i].position.y);
-        //     ctx.fillRect(radar_location[0], radar_location[1],2,2);
-        // }
+        ctx.fillStyle=g_.FUELER_COLOR;
+        for(i=0, len=this.fuelers.length; i<len; i+=1){
+            radar_location = this.worldToRadar(this.fuelers[i].position.x, this.fuelers[i].position.y);
+            ctx.fillRect(radar_location[0], radar_location[1],4,4);
+        }
 
         // LaserPods
         ctx.vectorStart(g_.LASER_POD_BEAM_COLOR);

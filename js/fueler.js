@@ -29,6 +29,7 @@ Game.Fueler = Class.extend({
             true   // is_world
             );
 
+        this.position = position.clone();
         this.SHIP_HULL.dx = this.SHIP_NOZZLE.dx  = this.FUELER_SPEED_X;
 
         if(Math.random() < 0.5){
@@ -44,15 +45,17 @@ Game.Fueler = Class.extend({
         this.SHIP_HULL.position.x += this.SHIP_HULL.dx * paceFactor;
         this.SHIP_NOZZLE.position.x += this.SHIP_NOZZLE.dx * paceFactor;
 
-        if (this.SHIP_HULL.position.x < 0){
+        if (this.SHIP_HULL.position.x < this.SHIP_HULL.getSpan().left){
             this.SHIP_HULL.x = this.SHIP_NOZZLE = 0;
             this.SHIP_HULL.dx  = this.SHIP_NOZZLE.dx = this.FUELER_SPEED_X;
         }
 
-        if (this.SHIP_HULL.position.x > g_.WORLD_WIDTH - 40){
-            this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - 40;
+        if (this.SHIP_HULL.position.x > g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right){
+            this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right;
             this.SHIP_HULL.dx = this.SHIP_NOZZLE.dx = -this.FUELER_SPEED_X;
         }
+
+        this.position = this.SHIP_HULL.position.clone();
     },
 
     render: function(ctx){
