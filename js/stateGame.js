@@ -154,6 +154,7 @@ Game.StateGame = Flynn.State.extend({
 
         Game.config.score = 0;
         Game.config.high_score = Game.config.leaderboard.getBestEntry().score;
+        Game.config.pause = false;
 
         this.resetFuel();
 
@@ -627,7 +628,15 @@ Game.StateGame = Flynn.State.extend({
         if (input.virtualButtonWasPressed("UI_escape")){
             Flynn.mcp.changeState(Game.States.CONFIG);
         }
-        
+
+        if (input.virtualButtonWasPressed("pause")) {
+            Game.config.pause = !Game.config.pause;
+        }
+
+        if ( Game.config.pause ) {
+            return;
+        }
+
         if(!this.ship.visible){
             if (input.virtualButtonWasPressed("UI_enter")){
                 if (this.gameOver){
@@ -697,6 +706,10 @@ Game.StateGame = Flynn.State.extend({
         var killed;
         var i, j;
         var len, len2;
+
+        if ( Game.config.pause ) {
+            return;
+        }
 
         this.gameClock += paceFactor;
 
@@ -1416,6 +1429,9 @@ Game.StateGame = Flynn.State.extend({
         //------------
 
         // Game Over
+        if(Game.config.pause){
+            ctx.vectorText("PAUSED", 6, null, 200, null, Flynn.Colors.GREEN);
+        }
         if(this.gameOver){
             ctx.vectorText("GAME OVER", 6, null, 200, null, Flynn.Colors.ORANGE);
             ctx.vectorText("PRESS <ENTER>", 2, null, 250, null, Flynn.Colors.ORANGE);
