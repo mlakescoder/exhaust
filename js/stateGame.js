@@ -896,13 +896,14 @@ Game.StateGame = Flynn.State.extend({
             killed = false;
             this.fuelers[i].update(paceFactor);
 
-            // Check for ship/fueler collision
-            // if(this.ship.visible){
-            //     if(this.fuelers[i].is_colliding(this.ship.vel) && !this.fuelers[i].is_mating(this.ship.vel)){
-            //         this.doShipDie();
-            //         killed = true;
-            //     }
-            // }
+            //Check for ship/fueler collision
+            if(this.ship.visible){
+                if(this.fuelers[i].is_colliding(this.ship) && !this.fuelers[i].is_mating(this.ship)){
+                    this.doShipDie();
+                    killed = true;
+                }
+            }
+
             // Check for exhaust/fueler collision
             var fueler_x = this.fuelers[i].position.x;
             var fueler_y = this.fuelers[i].position.y;
@@ -911,6 +912,7 @@ Game.StateGame = Flynn.State.extend({
                 if(ptc.type === ptc.PARTICLE_TYPES.EXHAUST){
                     if(Flynn.Util.proximal(100, ptc.x, fueler_x) && Flynn.Util.proximal(100, ptc.y, fueler_y)){
                         if(this.fuelers[i].hasPoint(ptc.x, ptc.y)){
+                            console.log("Collision between fueler (" + this.fuelers[i].position.x + "," + this.fuelers[i].position.y + " point(" + ptc.x + "," + ptc.y + ")"); 
                             killed = true;
                         }
                     }

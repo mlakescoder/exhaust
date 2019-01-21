@@ -18,10 +18,11 @@ Game.Fueler = Class.extend({
             false, // constrained
             true   // is_world
         );
-
+        this.SHIP_HULL.setBoundingPoly(Game.points.FUELER_COLLISION);
+        this.SHIP_HULL.setBoundingPolyVisibility(true);
 
         this.SHIP_NOZZLE = new Flynn.Polygon(
-            Game.points.FUELER,
+            Game.points.FUELER_NOZZLE,
             null,
             scale,
             position,
@@ -66,7 +67,7 @@ Game.Fueler = Class.extend({
     is_colliding: function(target_poly) {
         return this.SHIP_HULL.is_colliding(target_poly) ||
                   ( this.SHIP_NOZZLE.is_colliding(target_poly) &&
-                    !this.SHIP_NOZZLE.is_mating(target_poly)  );
+                    !this.is_mating(target_poly)  );
     },
 
     is_mating: function(target_poly) {
@@ -90,7 +91,15 @@ Game.Fueler = Class.extend({
     },
 
     hasPoint: function(x, y) {
-        return this.SHIP_HULL.hasPoint(x,y) || this.SHIP_NOZZLE.hasPoint(x,y);
+        var contactingHull = this.SHIP_HULL.hasPoint(x,y);
+        var contactingNozzle = this.SHIP_NOZZLE.hasPoint(x,y);
+
+        if ( contactingHull || contactingNozzle ) {
+            console.log("Contacting hull:" + contactingHull + " nozzle:" + contactingNozzle);
+            return true;
+        }
+
+        return  false ;
     }
 });
 
