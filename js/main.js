@@ -101,14 +101,15 @@ Game.Main = Class.extend({
             input.addVirtualButton('thrust',         Flynn.KeyboardMap.icade_t3,  Flynn.BUTTON_CONFIGURABLE);
         }
 
+        Flynn.mcp.developerModeEnabled = true;
         if(Flynn.mcp.developerModeEnabled){
-            input.addVirtualButton('dev_metrics',    Flynn.KeyboardMap.num_6,     Flynn.BUTTON_NOT_CONFIGURABLE);
+            input.addVirtualButton('dev_metrics',    Flynn.KeyboardMap.num_1,     Flynn.BUTTON_NOT_CONFIGURABLE);
             input.addVirtualButton('dev_slow_mo',    Flynn.KeyboardMap.num_7,     Flynn.BUTTON_NOT_CONFIGURABLE);
             input.addVirtualButton('dev_fps_20',     Flynn.KeyboardMap.backslash, Flynn.BUTTON_NOT_CONFIGURABLE);
-            input.addVirtualButton('dev_add_points', Flynn.KeyboardMap.num_8,     Flynn.BUTTON_NOT_CONFIGURABLE);
+            input.addVirtualButton('dev_add_points', Flynn.KeyboardMap.num_2,     Flynn.BUTTON_NOT_CONFIGURABLE);
             input.addVirtualButton('dev_die',        Flynn.KeyboardMap.num_9,     Flynn.BUTTON_NOT_CONFIGURABLE);
-            input.addVirtualButton('dev_rescue',     Flynn.KeyboardMap.num_0,     Flynn.BUTTON_NOT_CONFIGURABLE);
-            input.addVirtualButton('dev_base',       Flynn.KeyboardMap.dash,      Flynn.BUTTON_NOT_CONFIGURABLE);
+            input.addVirtualButton('dev_rescue',     Flynn.KeyboardMap.num_3,     Flynn.BUTTON_NOT_CONFIGURABLE);
+            input.addVirtualButton('dev_base',       Flynn.KeyboardMap.num_4,      Flynn.BUTTON_NOT_CONFIGURABLE);
             input.addVirtualButton('dev_kill_human', Flynn.KeyboardMap.right_bracket, Flynn.BUTTON_NOT_CONFIGURABLE);
         }
         if(Flynn.mcp.arcadeModeEnabled && !Flynn.mcp.iCadeModeEnabled){

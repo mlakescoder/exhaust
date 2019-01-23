@@ -509,8 +509,7 @@ Game.StateGame = Flynn.State.extend({
         this.ship.position.x = g_.SHIP_START_X;
         this.ship.position.y = g_.SHIP_START_Y;
         this.ship.setAngle(g_.SHIP_START_ANGLE);
-        this.ship.vel.x = 0;
-        this.ship.vel.y = 0;
+        this.ship.setVelocity(0,0);
         this.ship.visible = true;
     },
 
@@ -542,8 +541,8 @@ Game.StateGame = Flynn.State.extend({
         this.particles.explosion(
             this.ship.position.x,
             this.ship.position.y,
-            this.ship.vel.x,
-            this.ship.vel.y,
+            this.ship.velocity.x,
+            this.ship.velocity.y,
             g_.SHIP_NUM_EXPLOSION_PARTICLES,
             g_.SHIP_EXPLOSION_MAX_VELOCITY,
             Flynn.Colors.YELLOW,
@@ -551,8 +550,8 @@ Game.StateGame = Flynn.State.extend({
         this.particles.explosion(
             this.ship.position.x,
             this.ship.position.y,
-            this.ship.vel.x,
-            this.ship.vel.y,
+            this.ship.velocity.x,
+            this.ship.velocity.y,
             g_.SHIP_NUM_EXPLOSION_PARTICLES / 2,
             g_.SHIP_EXPLOSION_MAX_VELOCITY,
             Flynn.Colors.YELLOW,
@@ -606,8 +605,7 @@ Game.StateGame = Flynn.State.extend({
             if (input.virtualButtonWasPressed("dev_rescue")){
                 this.ship.position.x = this.pads[0].position.x;
                 this.ship.position.y = this.pads[0].position.y - 40;
-                this.ship.vel.x = 0;
-                this.ship.vel.y = 0;
+                this.ship.setVelocity(0,0);
                 this.ship.setAngle(g_.SHIP_START_ANGLE);
                 Flynn.mcp.viewport.x = this.ship.position.x;
             }
@@ -616,8 +614,7 @@ Game.StateGame = Flynn.State.extend({
             if (input.virtualButtonWasPressed("dev_base")){
                 this.ship.position.x = this.pads[1].position.x;
                 this.ship.position.y = this.pads[1].position.y - 40;
-                this.ship.vel.x = 0;
-                this.ship.vel.y = 0;
+                this.ship.setVelocity(0,0);
                 this.ship.setAngle(g_.SHIP_START_ANGLE);
                 Flynn.mcp.viewport.x = this.ship.position.x - Game.CANVAS_WIDTH;
             }
@@ -673,13 +670,13 @@ Game.StateGame = Flynn.State.extend({
                 if (!Game.sounds.engine.playing()) {
                     Game.sounds.engine.play();
                 }
-                this.ship.vel.x += Math.cos(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor;
-                this.ship.vel.y += Math.sin(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor;
+                this.ship.setVelocity(this.ship.velocity.x + Math.cos(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor,
+                                      this.ship.velocity.y + Math.sin(this.ship.angle - Math.PI / 2) * g_.SHIP_THRUST * paceFactor);
                 this.particles.exhaust(
                     this.ship.position.x + Math.cos(this.ship.angle + Math.PI / 2) * g_.SHIP_TO_EXHAST_LENGTH - 1,
                     this.ship.position.y + Math.sin(this.ship.angle + Math.PI / 2) * g_.SHIP_TO_EXHAST_LENGTH,
-                    this.ship.vel.x,
-                    this.ship.vel.y,
+                    this.ship.velocity.x,
+                    this.ship.velocity.y,
                     g_.SHIP_EXHAUST_RATE,
                     g_.SHIP_EXHAUST_VELOCITY,
                     this.ship.angle + Math.PI / 2,
@@ -719,52 +716,57 @@ Game.StateGame = Flynn.State.extend({
 
         if (this.ship.visible){
             // Update ship
-            this.ship.vel.y += g_.GRAVITY * paceFactor;
-            this.ship.vel.x *= Math.pow((1-g_.ATMOSPHERIC_FRICTION), paceFactor);
-            this.ship.vel.y *= Math.pow((1-g_.ATMOSPHERIC_FRICTION), paceFactor);
-            this.ship.position.x += this.ship.vel.x * paceFactor;
-            this.ship.position.y += this.ship.vel.y * paceFactor;
-            var ground_y = this.altitude[Math.floor(this.ship.position.x)];
+            if ( this.ship.is_mated) {
+                this.ship.position.x += this.ship.velocity.x * paceFactor;
+                this.ship.position.y += this.ship.velocity.y * paceFactor;
+            } else {
+                this.ship.setVelocity( this.ship.velocity.x * Math.pow((1-g_.ATMOSPHERIC_FRICTION), paceFactor),
+                                       (this.ship.velocity.y + g_.GRAVITY * paceFactor) * Math.pow((1-g_.ATMOSPHERIC_FRICTION), paceFactor) );
+                this.ship.position.x += this.ship.velocity.x * paceFactor;
+                this.ship.position.y += this.ship.velocity.y * paceFactor;
+                var ground_y = this.altitude[Math.floor(this.ship.position.x)];
+            }
+
             if (this.ship.position.y > ground_y - g_.SHIP_TO_BOTTOM_LENGTH){
                 this.ship.position.y = ground_y - g_.SHIP_TO_BOTTOM_LENGTH;
                 var landed=false;
                 // Crash or land
                 for(i=0, len=this.pads.length; i<len; i++){
                     var distance_to_center = Math.abs(this.ship.position.x - this.pads[i].position.x);
-                    var landing_vel = this.ship.vel.y;
-                    var lateral_vel_abs = Math.abs(this.ship.vel.x);
+                    var landing_vel = this.ship.velocity.y;
+                    var lateral_vel_abs = Math.abs(this.ship.velocity.x);
                     var landing_angle = Flynn.Util.angleBound2Pi(this.ship.angle);
                     if (landing_vel > 0.3 && Flynn.mcp.developerModeEnabled){
                         console.log("Landing velocity:", landing_vel);
                         console.log("Landing angle:", landing_angle);
                     }
                     if ((distance_to_center <= g_.SHIP_LANDING_MARGIN) &&
-                        (landing_vel < g_.SHIP_LANDING_VELOCITY_MAX) &&
+                        (landing_vel < g_.SHIP_LANDING_VELOCITY_MAX)   &&
                         (lateral_vel_abs < g_.SHIP_LANDING_LATERAL_VELOCITYMAX) &&
-                        ( (landing_angle < g_.SHIP_LANDING_ANGLE_MAX) || (landing_angle>Math.PI*2-g_.SHIP_LANDING_ANGLE_MAX))
-                        )
-                        {
-                        this.ship.setAngle(g_.SHIP_START_ANGLE);
-                        this.ship.vel.x = 0;
-                        landed = true;
-                        this.ship.is_landed = true;
+                        ( (landing_angle < g_.SHIP_LANDING_ANGLE_MAX) || 
+                          (landing_angle>Math.PI*2-g_.SHIP_LANDING_ANGLE_MAX))
+                        ) {
+                            this.ship.setAngle(g_.SHIP_START_ANGLE);
+                            this.ship.setVelocity(0,0);
+                            landed = true;
+                            this.ship.is_landed = true;
                     }
                 }
                 if(!landed){
                     // Crash
                     this.doShipDie();
                 }
-                this.ship.vel.y = 0;
+
             } else if (this.ship.position.y < 30){
                 this.ship.position.y = 30;
-                this.ship.vel.y = 0;
+                this.ship.setVelocity(this.ship.velocity.x, 0);
             }
             if (this.ship.position.x > g_.WORLD_WIDTH - 40){
                 this.ship.position.x = g_.WORLD_WIDTH - 40;
-                this.ship.vel.x = 0;
+                this.ship.setVelocity(0,this.ship.velocity.y);
             } else if (this.ship.position.x < 40){
                 this.ship.position.x = 40;
-                this.ship.vel.x = 0;
+                this.ship.setVelocity(0,this.ship.velocity.y);
             }
 
             if (this.ship.position.y < ground_y - g_.SHIP_TO_BOTTOM_LENGTH - 5){
@@ -885,7 +887,7 @@ Game.StateGame = Flynn.State.extend({
                 g_.SAUCER_SCALE,
                 new Victor(
                     Math.random() * (g_.WORLD_WIDTH - 200) + 100,
-                    Math.random() * 60)
+                    60)
             )
             fueler.setLevel(this.level);
             this.fuelers.push(fueler);
@@ -897,16 +899,21 @@ Game.StateGame = Flynn.State.extend({
             this.fuelers[i].update(paceFactor);
 
             //Check for ship/fueler collision
+            var fueler_x = this.fuelers[i].position.x;
+            var fueler_y = this.fuelers[i].position.y;
+
             if(this.ship.visible){
-                if(this.fuelers[i].is_colliding(this.ship) && !this.fuelers[i].is_mating(this.ship)){
-                    this.doShipDie();
-                    killed = true;
+                if(Flynn.Util.proximal(100, this.ship.position.x, fueler_x) && Flynn.Util.proximal(100, this.ship.position.y, fueler_y)) {
+                    if(this.fuelers[i].is_colliding(this.ship) && !this.fuelers[i].is_mating(this.ship)){
+                        this.doShipDie();
+                        killed = true;
+                    } else if (this.fuelers[i].is_mating(this.ship)) {
+                        this.ship.setMated(this.fuelers[i]);
+                    }
                 }
             }
 
             // Check for exhaust/fueler collision
-            var fueler_x = this.fuelers[i].position.x;
-            var fueler_y = this.fuelers[i].position.y;
             for(j=0, len2=this.particles.particles.length; j<len2; j++){
                 ptc = this.particles.particles[j];
                 if(ptc.type === ptc.PARTICLE_TYPES.EXHAUST){
@@ -924,8 +931,8 @@ Game.StateGame = Flynn.State.extend({
                 this. particles.explosion(
                     this.fuelers[i].position.x,
                     this.fuelers[i].position.y,
-                    this.fuelers[i].dx,
-                    this.fuelers[i].dy,
+                    this.fuelers[i].velocity.x,
+                    this.fuelers[i].velocity.y,
                     g_.SHIP_NUM_EXPLOSION_PARTICLES,
                     g_.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
                     g_.SAUCER_COLOR,
@@ -981,7 +988,7 @@ Game.StateGame = Flynn.State.extend({
                     if (distance < g_.SAUCER_SHOOT_RANGE){
                         var solution = Flynn.Util.interceptSolution(
                             new Victor(this.ship.position.x, this.ship.position.y),
-                            new Victor(this.ship.vel.x, this.ship.vel.y),
+                            new Victor(this.ship.velocity.x, this.ship.velocity.y),
                             new Victor(this.saucers[i].position.x, this.saucers[i].position.y + g_.SAUCER_CANNON_OFFSET),
                             gun_velocity
                             );
@@ -1042,8 +1049,8 @@ Game.StateGame = Flynn.State.extend({
                 this.particles.explosion(
                     this.saucers[i].position.x,
                     this.saucers[i].position.y,
-                    this.saucers[i].dx,
-                    this.saucers[i].dy,
+                    this.saucers[i].velocity.x,
+                    this.saucers[i].velocity.y,
                     g_.SHIP_NUM_EXPLOSION_PARTICLES,
                     g_.SHIP_EXPLOSION_MAX_VELOCITY * 0.6,
                     g_.SAUCER_COLOR,

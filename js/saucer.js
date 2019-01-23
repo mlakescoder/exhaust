@@ -18,14 +18,16 @@ Game.Saucer = Flynn.Polygon.extend({
             true   // is_world
             );
 
-        this.dx = this.SAUCER_SPEED_X;
+        var v_x = this.SAUCER_SPEED_X;
         if(Math.random() < 0.5){
-            this.dx = -this.dx;
+            v_x = -v_x;
         }
-        this.dy = Math.random() * this.SAUCER_SPEED_Y_MAX;
+        var v_y = Math.random() * this.SAUCER_SPEED_Y_MAX;
         if(Math.random() < 0.5){
-            this.dy = -this.dy;
+            v_y = -v_y;
         }
+
+        this.velocity = {x:v_x, y:v_y};
     },
 
     setLevel(level){
@@ -45,15 +47,15 @@ Game.Saucer = Flynn.Polygon.extend({
 
     update: function(paceFactor) {
         this.cannon_warmup_timer -= paceFactor;
-        this.position.x += this.dx * paceFactor;
+        this.position.x += this.velocity.x * paceFactor;
         this.position.y += this.dy * paceFactor;
         if (this.position.x < 0){
             this.position.x = 0;
-            this.dx = this.SAUCER_SPEED_X;
+            this.velocity.x = this.SAUCER_SPEED_X;
         }
         if (this.position.x > g_.WORLD_WIDTH - 40){
             this.position.x = g_.WORLD_WIDTH - 40;
-            this.dx = -this.SAUCER_SPEED_X;
+            this.velocity.x = -this.SAUCER_SPEED_X;
         }
         if (this.position.y < 0){
             this.position.y = 0;

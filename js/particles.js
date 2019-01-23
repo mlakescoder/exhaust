@@ -16,12 +16,11 @@ Game.Particle = Class.extend({
         EXHAUST:   2,
     },
 
-    init: function(particles, x, y, dx, dy, color, type, gameState){
+    init: function(particles, x, y, v_x, v_y, color, type, gameState){
         this.particles = particles;
         this.x = x;
         this.y = y;
-        this.dx = dx;
-        this.dy = dy;
+        this.velocity = {x:v_x, y:v_y};
         this.color = color;
         this.type = type;
         this.gameState = gameState;
@@ -46,23 +45,23 @@ Game.Particle = Class.extend({
             // Gravity
             this.dy += this.PARTICLE_GRAVITY * paceFactor;
             // Add impulse
-            this.x += this.dx * paceFactor;
-            this.y += this.dy * paceFactor;
+            this.x += this.velocity.x * paceFactor;
+            this.y += this.velocity.y * paceFactor;
             // Decay impulse
-            this.dx *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
-            this.dy *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
+            this.velocity.x *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
+            this.velocity.y *= Math.pow(this.PARTICLE_FRICTION, paceFactor);
 
             // Mountain colision
             altitude = this.gameState.altitude[Math.floor(this.x)];
             if (this.y > altitude){
                 this.y = altitude;
                 if (this.dy > 0){
-                    var angle = Math.atan2(this.dy, this.dx);
-                    var magnitude = Math.sqrt(this.dy * this.dy + this.dx * this.dx);
+                    var angle = Math.atan2(this.dy, this.velocity.x);
+                    var magnitude = Math.sqrt(this.dy * this.dy + this.velocity.x * this.velocity.x);
                     var tangent = this.gameState.tangent[Math.floor(this.x)];
                     var new_angle = tangent + (tangent - (angle + Math.PI));
-                    this.dx = Math.cos(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
-                    this.dy = Math.sin(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
+                    this.velocity.x = Math.cos(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
+                    this.velocity.y = Math.sin(new_angle) * magnitude * this.EXHAST_BOUNCE_DECAY;
                     //this.dy = -this.dy * this.EXHAST_BOUNCE_DECAY;
                 }
             }
@@ -108,7 +107,7 @@ Game.Particles = Class.extend({
         this.init(this.gameState);
     },
 
-    explosion: function(x, y, dx, dy, quantity, max_velocity, color, particle_type) {
+    explosion: function(x, y, v_x, v_y, quantity, max_velocity, color, particle_type) {
         var theta, velocity;
 
         for(var i=0; i<quantity; i++){
@@ -118,8 +117,8 @@ Game.Particles = Class.extend({
                 this,
                 x,
                 y,
-                Math.cos(theta) * velocity + dx,
-                Math.sin(theta) * velocity + dy,
+                Math.cos(theta) * velocity + v_x,
+                Math.sin(theta) * velocity + v_y,
                 color,
                 particle_type,
                 this.gameState
@@ -127,7 +126,7 @@ Game.Particles = Class.extend({
         }
     },
 
-    exhaust: function(x, y, dx, dy, particle_rate, velocity, angle, spread, paceFactor){
+    exhaust: function(x, y, v_x, v_y, particle_rate, velocity, angle, spread, paceFactor){
 
         // Determine fractional (float) number of particles to spawn.  Remeber remainder (decimal portion)..
         // ..for next call.  Spawn the integer portion.
@@ -140,12 +139,12 @@ Game.Particles = Class.extend({
             var exit_velocity =
                 velocity - (velocity * this.EXHAUST_VELOCITY_VARIATION_FACTOR / 2) +
                 Math.random() * velocity * this.EXHAUST_VELOCITY_VARIATION_FACTOR;
-            var exhaust_dx = Math.cos(theta) * exit_velocity + dx;
-            var exhaust_dy = Math.sin(theta) * exit_velocity + dy;
+            var exhaust_dx = Math.cos(theta) * exit_velocity + v_x;
+            var exhaust_dy = Math.sin(theta) * exit_velocity + v_y;
             this.particles.push(new Game.Particle(
                 this,
-                x - (dx * Math.random() * paceFactor) + (Math.random() * exhaust_dx * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
-                y - (dy * Math.random() * paceFactor) + (Math.random() * exhaust_dy * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
+                x - (v_x * Math.random() * paceFactor) + (Math.random() * exhaust_dx * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
+                y - (v_y * Math.random() * paceFactor) + (Math.random() * exhaust_dy * paceFactor), // Advance by 1 source frame and jitter by 1 tick in exhaust direction
                 exhaust_dx,
                 exhaust_dy,
                 null,
