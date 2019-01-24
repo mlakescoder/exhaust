@@ -33,9 +33,16 @@ Game.Ship = Flynn.Polygon.extend({
         this.setAngle(this.angle);
     },
 
+    release: function() {
+        this.is_mated = false;
+        this.position.y += 15;
+    },
+
     setMated: function(object){
         this.velocity.x = object.velocity.x;
         this.velocity.y = object.velocity.y;
+        this.setAngle(0);
+        this.position.x = object.position.x;
         this.is_mated = true;
     },
 

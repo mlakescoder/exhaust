@@ -94,6 +94,7 @@ Game.Main = Class.extend({
             input.addVirtualButton('rotate right',   Flynn.KeyboardMap.x,         Flynn.BUTTON_CONFIGURABLE);
             input.addVirtualButton('thrust',         Flynn.KeyboardMap.spacebar,  Flynn.BUTTON_CONFIGURABLE);
             input.addVirtualButton('pause',          Flynn.KeyboardMap.p,         Flynn.BUTTON_CONFIGURABLE);
+            input.addVirtualButton('release',        Flynn.KeyboardMap.r,         Flynn.BUTTON_CONFIGURABLE);
         }
         else{
             input.addVirtualButton('rotate left',    Flynn.KeyboardMap.icade_t1,  Flynn.BUTTON_CONFIGURABLE);
@@ -200,6 +201,7 @@ Game.Main = Class.extend({
         Flynn.mcp.optionManager.addOptionFromVirtualButton('rotate left');
         Flynn.mcp.optionManager.addOptionFromVirtualButton('rotate right');
         Flynn.mcp.optionManager.addOptionFromVirtualButton('thrust');
+        Flynn.mcp.optionManager.addOptionFromVirtualButton('release');
         Flynn.mcp.optionManager.addOptionFromVirtualButton('pause');
 
         Flynn.mcp.optionManager.addOption('soundEnabled', Flynn.OptionType.BOOLEAN, true, true, 'SOUND', null,

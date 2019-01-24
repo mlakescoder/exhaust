@@ -5,8 +5,8 @@ Game.Fueler = Class.extend({
     FUELER_SPEED_X: .4,
     SHIP_HULL: null,
     SHIP_NOZZLE: null,
-    SUCCESSFUL_MATE_DIFF_X: 0.5,
-    SUCCESSFUL_MATE_DIFF_Y: 0.5,
+    SUCCESSFUL_MATE_DIFF_X: 0.8,
+    SUCCESSFUL_MATE_DIFF_Y: 1.2,
 
     init: function(scale, position){
 
@@ -64,20 +64,23 @@ Game.Fueler = Class.extend({
     },
 
     update: function(paceFactor) {
-        this.SHIP_HULL.position.x += this.velocity.x * paceFactor;
-        this.SHIP_NOZZLE.position.x += this.velocity.x * paceFactor;
 
-        if (this.SHIP_HULL.position.x - Math.abs(this.SHIP_HULL.getSpan().left) < 0){
-            this.SHIP_HULL.x = this.SHIP_NOZZLE.x = 0;
-            this.setVelocity(this.FUELER_SPEED_X, this.velocity.y);
+        if ( this.is_docking === false) {
+            this.SHIP_HULL.position.x += this.velocity.x * paceFactor;
+            this.SHIP_NOZZLE.position.x += this.velocity.x * paceFactor;
+
+            if (this.SHIP_HULL.position.x - Math.abs(this.SHIP_HULL.getSpan().left) < 0){
+                this.SHIP_HULL.x = this.SHIP_NOZZLE.x = 0;
+                this.setVelocity(this.FUELER_SPEED_X, this.velocity.y);
+            }
+
+            if (this.SHIP_HULL.position.x + this.SHIP_HULL.getSpan().right >  g_.WORLD_WIDTH ){
+                this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right;
+                this.setVelocity(-this.FUELER_SPEED_X, this.velocity.y);
+            }
+
+            this.position = this.SHIP_HULL.position.clone();
         }
-
-        if (this.SHIP_HULL.position.x + this.SHIP_HULL.getSpan().right >  g_.WORLD_WIDTH ){
-            this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right;
-            this.setVelocity(-this.FUELER_SPEED_X, this.velocity.y);
-        }
-
-        this.position = this.SHIP_HULL.position.clone();
     },
 
     render: function(ctx){
@@ -109,6 +112,10 @@ Game.Fueler = Class.extend({
 
         console.log("  MATE_BAD");
         return false;
+    },
+
+    setDocking: function(value) {
+        this.is_docking = value;
     },
 
     hasPoint: function(x, y) {

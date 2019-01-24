@@ -662,6 +662,13 @@ Game.StateGame = Flynn.State.extend({
             this.ship.rotate_by(g_.SHIP_ROTATION_SPEED * paceFactor);
         }
 
+        if (input.virtualButtonIsDown("release")) {
+            if ( this.ship.is_mated ) {
+                this.ship.release();
+            }
+
+        }
+
         if (input.virtualButtonIsDown("thrust")) {
             if (this.ship.visible && this.fuelRemaining > 0) {
 
@@ -904,12 +911,19 @@ Game.StateGame = Flynn.State.extend({
 
             if(this.ship.visible){
                 if(Flynn.Util.proximal(100, this.ship.position.x, fueler_x) && Flynn.Util.proximal(100, this.ship.position.y, fueler_y)) {
+                    this.fuelers[i].setDocking(true);
+
                     if(this.fuelers[i].is_colliding(this.ship) && !this.fuelers[i].is_mating(this.ship)){
                         this.doShipDie();
                         killed = true;
+                        this.fuelers[i].setDocking(false);
                     } else if (this.fuelers[i].is_mating(this.ship)) {
                         this.ship.setMated(this.fuelers[i]);
+                        this.resetFuel();
+                        this.fuelers[i].setDocking(false);
                     }
+                } else {
+                    this.fuelers[i].setDocking(false);
                 }
             }
 
