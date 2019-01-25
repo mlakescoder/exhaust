@@ -51,16 +51,16 @@ Game.Fueler = Class.extend({
     setVelocity: function(velocity) {
         this.velocity = velocity;
 
-        this.SHIP_HULL.setVelocity(velocity.x, velocity.y);
-        this.SHIP_NOZZLE.setVelocity(velocity.x, velocity.y);
+        this.SHIP_HULL.setVelocity(this.velocity.x, this.velocity.y);
+        this.SHIP_NOZZLE.setVelocity(this.velocity.x, this.velocity.y);
     },
 
     setVelocity: function(v_x, v_y) {
         this.velocity.x = v_x;
         this.velocity.y = v_y;
 
-        this.SHIP_HULL.setVelocity(velocity.x, velocity.y);
-        this.SHIP_NOZZLE.setVelocity(velocity.x, velocity.y);
+        this.SHIP_HULL.setVelocity(this.velocity.x, this.velocity.y);
+        this.SHIP_NOZZLE.setVelocity(this.velocity.x, this.velocity.y);
     },
 
     update: function(paceFactor) {
