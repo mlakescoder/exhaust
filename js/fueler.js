@@ -5,8 +5,8 @@ Game.Fueler = Class.extend({
     FUELER_SPEED_X: .4,
     SHIP_HULL: null,
     SHIP_NOZZLE: null,
-    SUCCESSFUL_MATE_DIFF_X: 0.8,
-    SUCCESSFUL_MATE_DIFF_Y: 1.2,
+    SUCCESSFUL_MATE_DIFF_X: 1.2,
+    SUCCESSFUL_MATE_DIFF_Y: 1.5,
 
     init: function(scale, position){
 
