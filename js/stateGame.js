@@ -181,6 +181,7 @@ Game.StateGame = Flynn.State.extend({
         this.kamikazes = [];
         this.laserPods = [];
         this.fuelers = [];
+        this.smartBombs = [];
 
         this.level = 0;
         this.spawn_manager = new Game.SpawnManager(this.level);
@@ -887,14 +888,14 @@ Game.StateGame = Flynn.State.extend({
         //-------------------
 
         // Fueler spawn
-        if ( this.spawn_manager.spawn_pool.fuelers > 0) {
+        if ( this.spawn_manager.spawn_pool.fuelers > 0 ) {
             // if (Math.random() < g_.FUELER_SPAWN_PROBABILITY && this.spawn_manager.spawn_pool.fuelers > 0) {
             --this.spawn_manager.spawn_pool.fuelers;
             var fueler = new Game.Fueler(
                 g_.SAUCER_SCALE,
                 new Victor(
                     Math.random() * (g_.WORLD_WIDTH - 200) + 100,
-                    60)
+                    Math.random() * 60)
             )
             fueler.setLevel(this.level);
             this.fuelers.push(fueler);

@@ -33,10 +33,13 @@ Game.Fueler = Class.extend({
         this.position = position.clone();
         
         var v_x = this.FUELER_SPEED_X;
-        var v_y = 0;
-
         if(Math.random() < 0.5){
             v_x = -v_x;
+        }
+
+        var v_y = Math.random() * this.FUELER_SPEED_X;
+        if(Math.random() < 0.5){
+            v_y = -v_y;
         }
 
         this.SHIP_HULL.setVelocity(v_x,v_y);
@@ -68,6 +71,8 @@ Game.Fueler = Class.extend({
         if ( this.is_docking === false) {
             this.SHIP_HULL.position.x += this.velocity.x * paceFactor;
             this.SHIP_NOZZLE.position.x += this.velocity.x * paceFactor;
+            this.SHIP_HULL.position.y += this.velocity.y * paceFactor;
+            this.SHIP_NOZZLE.position.y += this.velocity.y * paceFactor;
 
             if (this.SHIP_HULL.position.x - Math.abs(this.SHIP_HULL.getSpan().left) < 0){
                 this.SHIP_HULL.x = this.SHIP_NOZZLE.x = 0;
@@ -77,6 +82,15 @@ Game.Fueler = Class.extend({
             if (this.SHIP_HULL.position.x + this.SHIP_HULL.getSpan().right >  g_.WORLD_WIDTH ){
                 this.SHIP_HULL.position.x = this.SHIP_NOZZLE.position.x = g_.WORLD_WIDTH - this.SHIP_HULL.getSpan().right;
                 this.setVelocity(-this.FUELER_SPEED_X, this.velocity.y);
+            }
+
+            if (this.SHIP_HULL.position.y < 0){
+                this.SHIP_HULL.position.y = this.SHIP_NOZZLE.position.y = 0;
+                this.setVelocity(this.velocity.x, Math.random() * this.FUELER_SPEED_X);
+            }
+            if (this.SHIP_HULL.position.y > g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40){
+                this.SHIP_HULL.position.y = this.SHIP_NOZZLE.position.y = g_.WORLD_HEIGHT - g_.MOUNTAIN_HEIGHT_MAX - 40;
+                this.setVelocity(this.velocity.x, Math.random() * -this.FUELER_SPEED_X);
             }
 
             this.position = this.SHIP_HULL.position.clone();
@@ -92,6 +106,10 @@ Game.Fueler = Class.extend({
         return this.SHIP_HULL.is_colliding(target_poly) ||
                   ( this.SHIP_NOZZLE.is_colliding(target_poly) &&
                     !this.is_mating(target_poly)  );
+    },
+
+    is_nearby: function(target_poly, distance) {
+        return Flynn.Util.distance(30, this.position.x, this.position.y, target_poly.distance.x, target_poly.distance.y); 
     },
 
     is_mating: function(ship) {

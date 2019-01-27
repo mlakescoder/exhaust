@@ -5,7 +5,7 @@ var Game = Game || {}; // Create namespace
 Game.Particle = Class.extend({
     PARTICLE_LIFE: 150,
     PARTICLE_LIFE_VARIATION: 20,
-    EXHAUST_LIFE: 150,
+    EXHAUST_LIFE: 170,
     EXHAUST_LIFE_VARIATION: 30,
     EXHAST_BOUNCE_DECAY: 0.4,
     PARTICLE_FRICTION: 0.99,

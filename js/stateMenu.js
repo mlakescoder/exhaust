@@ -127,7 +127,11 @@ Game.StateMenu = Flynn.State.extend({
                             "      ROTATE RIGHT:" +
                             Flynn.mcp.input.getVirtualButtonBoundKeyName("rotate right") +
                             "      THRUST:" +
-                            Flynn.mcp.input.getVirtualButtonBoundKeyName("thrust");
+                            Flynn.mcp.input.getVirtualButtonBoundKeyName("thrust") + 
+                            "      RELEASE TANKER:" +
+                            Flynn.mcp.input.getVirtualButtonBoundKeyName("release") +
+                            "      CALL SMART BOMB:" +
+                            Flynn.mcp.input.getVirtualButtonBoundKeyName("bomb");
                         Game.config.thrustPrompt = "PRESS SPACE TO THRUST";
                     }
                     else{
@@ -148,7 +152,8 @@ Game.StateMenu = Flynn.State.extend({
                 ctx.vectorText("EXCEPT MAYBE....", 1.8, null, 520, null, Flynn.Colors.ORANGE);
 
                 ctx.vectorText("CREATED BY ERIC MOYER (FIENDFODDER)", 1.5, null, 700, null, Flynn.Colors.ORANGE);
-                ctx.vectorText('PRESS <ESCAPE> TO CONFIGURE CONTROLS', 1.5, null, 715, null, Flynn.Colors.GRAY);
+                ctx.vectorText("  GAME MODS BY PETE TOICH", 1.2, null, 715, null, Flynn.Colors.WHITE)
+                ctx.vectorText('PRESS <ESCAPE> TO CONFIGURE CONTROLS', 1.5, null, 730, null, Flynn.Colors.GRAY);
                 if(Flynn.mcp.backEnabled){
                     ctx.vectorText('PRESS <TAB> TO EXIT GAME', 1.5, null, 730, null, Flynn.Colors.GRAY);
                 }
@@ -169,7 +174,7 @@ Game.StateMenu = Flynn.State.extend({
                 credit_text = [
                     'CREDITS',
                     '',
-                    "CREATED BY ERIC MOYER",
+                    "CREATED BY ERIC MOYER (MODS BY PETE TOICH)",
                     '',
                     'MUSIC "EXPANDER" BY DST (NOSOAPRADIO.US)',
                     '',
