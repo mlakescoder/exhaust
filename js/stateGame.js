@@ -657,10 +657,14 @@ Game.StateGame = Flynn.State.extend({
         }
 
         if (input.virtualButtonIsDown("rotate left")){
-            this.ship.rotate_by(-g_.SHIP_ROTATION_SPEED * paceFactor);
+            if ( !this.ship.is_mated ) {
+                this.ship.rotate_by(-g_.SHIP_ROTATION_SPEED * paceFactor);
+            }
         }
         if (input.virtualButtonIsDown("rotate right")){
-            this.ship.rotate_by(g_.SHIP_ROTATION_SPEED * paceFactor);
+            if ( !this.ship.is_mated ) {
+                this.ship.rotate_by(g_.SHIP_ROTATION_SPEED * paceFactor);
+            }
         }
 
         if (input.virtualButtonIsDown("release")) {
@@ -671,7 +675,7 @@ Game.StateGame = Flynn.State.extend({
         }
 
         if (input.virtualButtonIsDown("thrust")) {
-            if (this.ship.visible && this.fuelRemaining > 0) {
+            if (this.ship.visible && this.fuelRemaining > 0 && !this.ship.is_mated) {
 
                 this.thrustHasOccurred = true;
                 this.popUpThrustPending = false;
@@ -914,13 +918,13 @@ Game.StateGame = Flynn.State.extend({
                 if(Flynn.Util.proximal(100, this.ship.position.x, fueler_x) && Flynn.Util.proximal(100, this.ship.position.y, fueler_y)) {
                     this.fuelers[i].setDocking(true);
 
-                    if(this.fuelers[i].is_colliding(this.ship) && !this.fuelers[i].is_mating(this.ship)){
-                        this.doShipDie();
-                        killed = true;
-                        this.fuelers[i].setDocking(false);
-                    } else if (this.fuelers[i].is_mating(this.ship)) {
+                    if (this.fuelers[i].is_mating(this.ship)) {
                         this.ship.setMated(this.fuelers[i]);
                         this.resetFuel();
+                        this.fuelers[i].setDocking(false);
+                    } else if(this.fuelers[i].is_colliding(this.ship)){
+                        this.doShipDie();
+                        killed = true;
                         this.fuelers[i].setDocking(false);
                     }
                 } else {

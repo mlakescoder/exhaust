@@ -104,8 +104,7 @@ Game.Fueler = Class.extend({
 
     is_colliding: function(target_poly) {
         return this.SHIP_HULL.is_colliding(target_poly) ||
-                  ( this.SHIP_NOZZLE.is_colliding(target_poly) &&
-                    !this.is_mating(target_poly)  );
+                  ( this.SHIP_NOZZLE.is_colliding(target_poly) );
     },
 
     is_nearby: function(target_poly, distance) {
@@ -116,10 +115,15 @@ Game.Fueler = Class.extend({
         var delta_v_x = Math.abs(ship.velocity.x - this.velocity.x);
         var delta_v_y = Math.abs( ship.velocity.y - this.velocity.y);
 
+
+
+
+        if ( delta_v_x === 0 && delta_v_y === 0 ) {
+            return true;
+        } 
+        
         console.log("MATING V: target(" + ship.velocity.x + "," + ship.velocity.y + "), nozzle(" + this.velocity.x + "," + this.velocity.y +
-            ") delta(" + delta_v_x + "," + delta_v_y + ")");
-
-
+        ") delta(" + delta_v_x + "," + delta_v_y + ")");
         if ( this.SHIP_NOZZLE.is_colliding(ship) &&
              delta_v_x <= this.SUCCESSFUL_MATE_DIFF_X &&
              delta_v_y <= this.SUCCESSFUL_MATE_DIFF_Y) {
