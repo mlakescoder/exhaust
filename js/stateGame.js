@@ -29,6 +29,7 @@ g_ = {
     SHIP_RESPAWN_DELAY_TICKS: 60 * 3,
     SHIP_FULL_FUEL: 500,
     SHIP_LOW_FUEL: 75,
+    SHIP_DIRE_FUEL: 30,
 
     SAUCER_SPAWN_PROBABILIY: 0.03,
     SAUCER_SCALE: 3.5,
@@ -485,6 +486,12 @@ Game.StateGame = Flynn.State.extend({
     },
 
     updateFuel: function(amountConsumed) {
+        if ( this.fuelRemaining > g_.SHIP_LOW_FUEL &&
+             this.fuelRemaining - amountConsumed < g_.SHIP_LOW_FUEL ||
+             (this.fuelRemaining < g_.SHIP_DIRE_FUEL && Math.round(this.fuelRemaining) % 3 === 0)) {
+            Game.sounds.insert_coin.play();
+        }
+
         this.fuelRemaining -= amountConsumed;
 
         Game.config.fuel = Math.round(this.fuelRemaining);
