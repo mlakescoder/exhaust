@@ -80,7 +80,7 @@ Game.SpawnManager = Class.extend({
         }
     },
 
-    update: function(paceFactor){
+    update: function(paceFactor, currentObjects){
         this.levelSecondsElapsed += paceFactor/60;
 
         if(this.repeatTimerSeconds>0){
@@ -90,14 +90,14 @@ Game.SpawnManager = Class.extend({
                 // Reload repeat timer
                 this.repeatTimerSeconds = this.spawn_queue[0].repeat;
                 // Reload spawn pool
-                this.loadSpawnPool(this.spawn_queue[0]);
+                this.loadSpawnPool(this.spawn_queue[0], currentObjects);
             }
         }
         else{
             if(this.levelSecondsElapsed >= this.spawn_queue[0].seconds){
                 // Load spawn pool with the next wave
                 console.log('DEV: Spawning level ' + this.level + ' wave at ' + Math.floor(this.levelSecondsElapsed) );
-                this.loadSpawnPool(this.spawn_queue[0]);
+                this.loadSpawnPool(this.spawn_queue[0], currentObjects);
                 if(this.spawn_queue[0].repeat){
                     // Last wave entry reached.  Repeat it.
                     this.repeatTimerSeconds = this.spawn_queue[0].repeat;
@@ -109,10 +109,12 @@ Game.SpawnManager = Class.extend({
         }
     },
 
-    loadSpawnPool: function(waveEntry){
-        this.spawn_pool.saucers   = waveEntry.saucers;
-        this.spawn_pool.kamikazes = waveEntry.kamikazes;
-        this.spawn_pool.fuelers   = waveEntry.fuelers;
+    loadSpawnPool: function(waveEntry, currentObjects){
+        console.log("start load spawn pool. s:" + this.spawn_pool.saucers + " k:" + this.spawn_pool.kamikazes + " f:" + this.spawn_pool.fuelers);
+        this.spawn_pool.saucers   = waveEntry.saucers - currentObjects.s;
+        this.spawn_pool.kamikazes = waveEntry.kamikazes - currentObjects.k;
+        this.spawn_pool.fuelers   = waveEntry.fuelers - currentObjects.f;
+        console.log("end load spawn pool. s:" + this.spawn_pool.saucers + " k:" + this.spawn_pool.kamikazes + " f:" + this.spawn_pool.fuelers);
     }
 });
 

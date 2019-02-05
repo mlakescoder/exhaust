@@ -723,7 +723,10 @@ Game.StateGame = Flynn.State.extend({
         this.gameClock += paceFactor;
 
         if(!this.gameOver){
-            this.spawn_manager.update(paceFactor);
+            this.spawn_manager.update(paceFactor, {"k":this.kamikazes.length,
+                                                   "s":this.saucers.length,
+                                                   "f":this.fuelers.length,
+                                                   "l":this.laserPods.length });
         }
 
         if (this.ship.visible){
