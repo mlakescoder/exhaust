@@ -877,7 +877,11 @@ Game.StateGame = Flynn.State.extend({
                     }
                 }
             }
-
+            // Check for kamikaze/ground collision
+            if (this.kamikazes[i].position.y > this.altitude[Math.floor(this.kamikazes[i].position.x)] - g_.SHIP_TO_BOTTOM_LENGTH ) {
+                killed = true;
+            }
+            
             if(killed){
                 // Remove Kamikaze
                 this.particles.explosion(
