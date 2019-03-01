@@ -7,6 +7,7 @@ Game.Saucer = Flynn.Polygon.extend({
     SAUCER_SPEED_X: 2,
     SAUCER_SPEED_Y_MAX: 0.6,
     SAUCER_CANNON_WARMUP_TICKS: 20,
+    SAUCER_CANNON_RELOAD_TICKS: 40,
 
     init: function(points, color, scale, position){
         this._super(
@@ -28,12 +29,28 @@ Game.Saucer = Flynn.Polygon.extend({
         }
 
         this.velocity = {x:v_x, y:v_y};
+        this.bulletCount = 0;
     },
 
     setLevel(level){
         this.SAUCER_CANNON_WARMUP_TICKS = 20 - (level * 1);
         this.SAUCER_SPEED_X = 1.8 + (.2 * level);
         this.SAUCER_CANNON_WARMUP_TICKS = level < 10 ? 20 - level : 10;
+        this.SAUCER_CANNON_COOLDOWN_TICKS = level < 5 ? 5 - level : 0;
+        this.RELOAD_COUNT = level < 5 ? 6 + level : 12;
+        this.SAUCER_CANNON_RELOAD_TICKS = level < 5 ? 40 - level * 2 : 20;
+        this.bulletCount = this.RELOAD_COUNT;
+    },
+
+    cannonFired: function() {
+        this.bulletCount -= 1;
+        if ( this.bulletCount <= 0 ) {
+            this.cannon_warmup_timer = this.SAUCER_CANNON_RELOAD_TICKS;
+            this.bulletCount = this.RELOAD_COUNT;
+            console.log("Reload");
+        } else {
+            //this.cannon_warmup_timer = this.SAUCER_CANNON_COOLDOWN_TICKS;
+        }
     },
 
     cannonCooldown: function(){

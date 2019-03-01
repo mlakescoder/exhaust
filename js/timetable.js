@@ -30,8 +30,8 @@ Game.timetable = [
     // Level 0
     [
         //                 SEC SCR  KAM   FUEL,  RPT
-        new Game.WaveEntry(  0,  3,   3,     1,  null),
-        new Game.WaveEntry( 60,  4,   4,     0,  null),
+        new Game.WaveEntry(  0,  4,   4,     1,  null),
+        new Game.WaveEntry( 60,  5,   4,     0,  null),
         new Game.WaveEntry(120,  5,   4,     0,  null),
         new Game.WaveEntry(180,  6,   4,     1,  null),
         new Game.WaveEntry(240,  8,   6,     1,    60),
@@ -40,9 +40,9 @@ Game.timetable = [
     // Level 1
     [
         //                  SEC SCR  KAM  FUEL,  RPT
-        new Game.WaveEntry(  0,  4,   4,     1,  null),
-        new Game.WaveEntry( 50,  5,   5,     1,  null),
-        new Game.WaveEntry(100,  5,   5,     1,  null),
+        new Game.WaveEntry(  0,  5,   4,     1,  null),
+        new Game.WaveEntry( 50,  6,   5,     1,  null),
+        new Game.WaveEntry(100,  6,   5,     1,  null),
         new Game.WaveEntry(150,  7,   5,     1,  null),
         new Game.WaveEntry(230,  9,   7,     2,    60),
     ],

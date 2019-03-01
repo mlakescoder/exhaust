@@ -498,7 +498,7 @@ Game.StateGame = Flynn.State.extend({
     },
 
     resetFuel: function() {
-        this.fuelRemaining = g_.SHIP_FULL_FUEL - (this.level < 4 ? this.level * 50 : 200);
+        this.fuelRemaining = g_.SHIP_FULL_FUEL - (this.level < 5 ? this.level * 40 : 200);
 
         Game.config.fuel = Math.round(this.fuelRemaining);
     },
@@ -1012,6 +1012,7 @@ Game.StateGame = Flynn.State.extend({
 
                 // Shoot
                 if(this.saucers[i].cannonIsWarm() && Math.random() < g_.SAUCER_SHOOT_PROBABILITY){
+                    this.saucers[i].cannonFired();
                     var ship_pos_v = new Victor(this.ship.position.x, this.ship.position.y);
                     var saucer_pos_v = new Victor(this.saucers[i].position.x, this.saucers[i].position.y);
                     var distance = ship_pos_v.clone().subtract(saucer_pos_v).magnitude();
